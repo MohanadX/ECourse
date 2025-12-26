@@ -5,8 +5,6 @@ import { getUserIdTag } from "./cache";
 import { db } from "@/drizzle/db";
 import { eq } from "drizzle-orm";
 
-const client = await clerkClient();
-
 export async function getCurrentUser({ allData = false } = {}) {
 	const { userId, sessionClaims, redirectToSignIn } = await auth();
 
@@ -22,11 +20,12 @@ export async function getCurrentUser({ allData = false } = {}) {
 	};
 }
 
-export function syncClerkUserMetadata(user: {
+export async function syncClerkUserMetadata(user: {
 	id: string;
 	clerkUserId: string;
 	role: userRolesType;
 }) {
+	const client = await clerkClient();
 	return client.users.updateUserMetadata(user.clerkUserId, {
 		publicMetadata: {
 			dbId: user.id,
