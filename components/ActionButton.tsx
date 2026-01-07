@@ -41,7 +41,7 @@ const ActionButton = ({
 		return (
 			<AlertDialog open={isLoading ? true : undefined}>
 				<AlertDialogTrigger asChild>
-					<Button {...props}></Button>
+					<Button {...props} className="cursor-pointer"></Button>
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -51,10 +51,14 @@ const ActionButton = ({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel className="hover:text-white">
+						<AlertDialogCancel className="cursor-pointer">
 							Cancel
 						</AlertDialogCancel>
-						<AlertDialogAction disabled={isLoading} onClick={performAction}>
+						<AlertDialogAction
+							className="cursor-pointer"
+							disabled={isLoading}
+							onClick={performAction}
+						>
 							<LoadingTextSwap isLoading={isLoading}>Yes</LoadingTextSwap>
 						</AlertDialogAction>
 					</AlertDialogFooter>
@@ -63,7 +67,12 @@ const ActionButton = ({
 		);
 	}
 	return (
-		<Button {...props} disabled={isLoading} onClick={performAction}>
+		<Button
+			className="cursor-pointer"
+			{...props}
+			disabled={isLoading}
+			onClick={performAction}
+		>
 			<LoadingTextSwap isLoading={isLoading}>{props.children}</LoadingTextSwap>
 		</Button>
 	);
@@ -71,7 +80,7 @@ const ActionButton = ({
 
 export default ActionButton;
 
-function LoadingTextSwap({
+export function LoadingTextSwap({
 	isLoading,
 	children,
 }: {

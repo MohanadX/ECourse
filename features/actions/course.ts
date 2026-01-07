@@ -9,8 +9,8 @@ import {
 	insertCourse,
 	updateCourse,
 } from "../course/db/course";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { getCourseGlobalTag } from "../course/db/cache";
+import { revalidatePath } from "next/cache";
+import { revalidateCourseCache } from "../course/db/cache";
 
 export async function createCourse(unsafeData: z.infer<typeof courseSchema>) {
 	const { success, data } = courseSchema.safeParse(unsafeData);
@@ -22,15 +22,15 @@ export async function createCourse(unsafeData: z.infer<typeof courseSchema>) {
 			message: "You are not authorized to create Course",
 		};
 	} else if (!success) {
-		// const errors = z.flattenError(error);
+		console.error("Invalid inputs");
 		return {
 			success: false,
-			message: "Error Occurred while creating your course",
+			message: "Invalid Inputs, please check the requirements",
 		};
 	}
 
 	const course = await insertCourse(data);
-
+	revalidateCourseCache(course.id);
 	return {
 		success: true,
 		message: "Course Has been created successfully",
@@ -69,14 +69,17 @@ export async function deleteCourse(courseId: string) {
 		};
 	}
 
-	const deletedCourse = await eliminateCourse(courseId);
-
-	if (!deletedCourse) {
-		return { success: false, message: "Failed to delete your course" };
+	try {
+		await eliminateCourse(courseId);
+		revalidatePath(`/admin/courses/`);
+		revalidateCourseCache(courseId);
+	} catch (error) {
+		console.error(error);
+		return {
+			success: false,
+			message: "Error Occurred while deleting your course",
+		};
 	}
-
-	revalidatePath(`admin/courses/`);
-	revalidateTag(getCourseGlobalTag(), "max");
 	return { success: true, message: "Successfully Deleted your course" };
 }
 
@@ -101,6 +104,9 @@ export async function mutateCourse(
 	}
 
 	const course = await updateCourse(id, data);
+
+	revalidatePath(`/admin/courses/${course.id}/edit`);
+	revalidateCourseCache(course.id);
 
 	return {
 		success: true,

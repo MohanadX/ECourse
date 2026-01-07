@@ -19,6 +19,8 @@ import { Button } from "../ui/button";
 import { createCourse, mutateCourse } from "@/features/actions/course";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { LoadingTextSwap } from "../ActionButton";
 
 const CourseForm = ({
 	course,
@@ -29,6 +31,7 @@ const CourseForm = ({
 		description: string;
 	};
 }) => {
+	const [isLoading, startTransition] = useTransition();
 	const router = useRouter();
 	const form = useForm<z.infer<typeof courseSchema>>({
 		resolver: zodResolver(courseSchema),
@@ -40,16 +43,18 @@ const CourseForm = ({
 
 	async function onSubmit(values: z.infer<typeof courseSchema>) {
 		const action =
-			course === null ? createCourse : mutateCourse.bind(null, course!.id);
+			course == null ? createCourse : mutateCourse.bind(null, course.id);
 
-		const { success, message, courseId } = await action(values);
+		startTransition(async () => {
+			const { success, message, courseId } = await action(values);
 
-		if (success === false) {
-			toast.error(message);
-		} else {
-			toast.success(message);
-			router.push(`${courseId}/edit`);
-		}
+			if (success === false) {
+				toast.error(message);
+			} else {
+				toast.success(message);
+				if (action == createCourse) router.push(`${courseId}/edit`);
+			}
+		});
 	}
 	return (
 		<Form {...form}>
@@ -96,7 +101,7 @@ const CourseForm = ({
 					type="submit"
 					disabled={form.formState.isSubmitting}
 				>
-					Save
+					<LoadingTextSwap isLoading={isLoading}>Save</LoadingTextSwap>
 				</Button>
 			</form>
 		</Form>

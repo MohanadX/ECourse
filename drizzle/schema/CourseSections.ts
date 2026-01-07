@@ -5,7 +5,7 @@ import { CourseTable } from "./Course";
 import { LessonTable } from "./Lesson";
 
 export const courseSectionStatues = ["public", "private"] as const;
-export type courseSectionStatus = (typeof courseSectionStatues)[number];
+export type CourseSectionStatus = (typeof courseSectionStatues)[number];
 export const courseSectionStatusEnum = pgEnum(
 	"course_section_status",
 	courseSectionStatues
@@ -27,7 +27,7 @@ export const CourseSectionRelationShips = relations(
 	CourseSectionTable,
 	({ one, many }) => ({
 		course: one(CourseTable, {
-			fields: [CourseSectionTable.id],
+			fields: [CourseSectionTable.courseId],
 			references: [CourseTable.id],
 		}),
 		lessons: many(LessonTable),
