@@ -62,8 +62,8 @@ const ProductsTable = ({ products }: Props) => {
 									<p className="font-semibold">{product.name}</p>
 									<p className="text-muted-foreground">
 										{formatPlural(product.coursesCount, {
-											singular: "Product",
-											plural: "Products",
+											singular: "Course",
+											plural: "Courses",
 										})}{" "}
 										• {formatPrice(product.priceInDollars)}
 									</p>
@@ -72,7 +72,7 @@ const ProductsTable = ({ products }: Props) => {
 						</TableCell>
 						<TableCell>{product.customersCount}</TableCell>
 						<TableCell>
-							<Badge className="flex-inline items-center gap-2">
+							<Badge className="inline-flex items-center gap-2">
 								{getStatusIcon(product.status)} {product.status}
 							</Badge>
 						</TableCell>

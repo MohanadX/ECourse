@@ -8,7 +8,7 @@ import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 
-const NewProductPage = async ({
+const EditProductPage = async ({
 	params,
 }: {
 	params: Promise<{ productId: string }>;
@@ -32,7 +32,7 @@ const NewProductPage = async ({
 	);
 };
 
-export default NewProductPage;
+export default EditProductPage;
 
 async function getCourses() {
 	"use cache";

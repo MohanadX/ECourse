@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { CourseSectionTable, LessonTable } from "@/drizzle/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidateLessonCache } from "./cache";
 import { revalidatePath } from "next/cache";
 
@@ -54,7 +54,6 @@ export async function updateLesson(
 	lessonId: string,
 	data: Partial<typeof LessonTable.$inferInsert>
 ) {
-	console.log(data);
 	const [updatedLesson, courseId] = await db.transaction(async (trx) => {
 		const currentLesson = await trx.query.LessonTable.findFirst({
 			where: eq(LessonTable.id, lessonId),
@@ -129,34 +128,41 @@ export async function eliminateLesson(id: string) {
 }
 
 export async function updateLessonOrders(lessonIds: string[]) {
-	const [lessons, courseId] = await db.transaction(async (trx) => {
-		const lessons = await Promise.all(
-			lessonIds.map((id, index) =>
-				db
-					.update(LessonTable)
-					.set({ order: index })
-					.where(eq(LessonTable.id, id))
-					.returning({
-						sectionId: LessonTable.sectionId,
-						id: LessonTable.id,
-					})
-			)
-		);
-		const sectionId = lessons[0]?.[0]?.sectionId;
-		if (sectionId == null) return trx.rollback();
+	if (lessonIds.length === 0) return;
 
-		const section = await trx.query.CourseSectionTable.findFirst({
-			columns: { courseId: true },
-			where: ({ id }, { eq }) => eq(id, sectionId),
+	const caseSql = sql`CASE ${LessonTable.id} ${sql.join(
+		lessonIds.map(
+			(sectionId, index) => sql`WHEN ${sectionId} THEN ${index}::integer`
+		),
+		sql.raw(" ")
+	)} END`;
+
+	const orderedLessons = await db
+		.update(LessonTable)
+		.set({ order: caseSql })
+		.where(inArray(LessonTable.id, lessonIds))
+		.returning({
+			id: LessonTable.id,
+			sectionId: LessonTable.sectionId,
 		});
 
-		if (section == null) return trx.rollback();
+	if (orderedLessons.length !== lessonIds.length) {
+		throw new Error("Failed to update section orders");
+	}
 
-		return [lessons, section.courseId];
-	});
+	const sectionId = orderedLessons[0].sectionId;
 
-	lessons.flat().forEach(({ id }) => {
-		revalidateLessonCache(id, courseId);
+	const section = await db.query.CourseSectionTable.findFirst({
+		columns: { courseId: true },
+		where: eq(CourseSectionTable.id, sectionId),
 	});
-	revalidatePath(`admin/courses/${courseId}/edit`);
+	if (!section) {
+		throw new Error("Section of this lesson is not found");
+	}
+
+	for (const { id } of orderedLessons) {
+		revalidateLessonCache(id, section.courseId);
+	}
+
+	revalidatePath(`/admin/courses/${section.courseId}/edit`);
 }

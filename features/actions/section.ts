@@ -111,7 +111,8 @@ export async function mutateSectionOrders(sectionIds: string[]) {
 
 	try {
 		await updateSectionOrders(sectionIds);
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: "Failed to update section orders",

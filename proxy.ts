@@ -61,6 +61,9 @@ export default clerkMiddleware(async (auth, req) => {
 
 		return NextResponse.next({ request: { headers } });
 	}
+
+	// VPN/proxy users continue without country headers
+	return NextResponse.next();
 });
 
 export const config = {

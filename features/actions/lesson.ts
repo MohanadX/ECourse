@@ -84,10 +84,10 @@ export async function mutateLesson(
 
 export async function deleteLesson(lessonId: string) {
 	if (!(await lessonsPermission((await getCurrentUser()).role))) {
-		console.error("You are not authorized to update Lessons");
+		console.error("You are not authorized to delete Lessons");
 		return {
 			success: false,
-			message: "You are not authorized to update Lessons",
+			message: "You are not authorized to delete Lessons",
 		};
 	}
 
@@ -106,17 +106,18 @@ export async function deleteLesson(lessonId: string) {
 	};
 }
 
-export async function mutateLessonOrders(sectionIds: string[]) {
+export async function mutateLessonOrders(lessonIds: string[]) {
 	if (
-		sectionIds.length === 0 ||
+		lessonIds.length === 0 ||
 		!lessonsPermission((await getCurrentUser()).role)
 	) {
 		return { success: false, message: "Error reordering your lessons" };
 	}
 
 	try {
-		await updateLessonOrders(sectionIds);
-	} catch {
+		await updateLessonOrders(lessonIds);
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: "Failed to update lesson orders",
