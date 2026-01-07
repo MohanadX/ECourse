@@ -23,7 +23,7 @@ export function SortableList<T extends { id: string }>({
 	) => Promise<{ success: boolean; message: string }>;
 	children: (items: T[]) => ReactNode;
 }) {
-	const DndContextId = useId(); // to extinguish it from other DndContexts (other draggable tables)
+	const DndContextId = useId(); // to distinguish it from other DndContexts (other draggable tables)
 	const [optimisticItems, setOptimisticItems] = useOptimistic(items);
 	const [, startTransition] = useTransition();
 	function handleDragEnd(event: DragEndEvent) {

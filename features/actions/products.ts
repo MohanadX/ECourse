@@ -107,7 +107,7 @@ export async function mutateProduct(
 			imageFileId,
 		});
 
-		revalidatePath(`/admin/courses/${product.id}/edit`);
+		revalidatePath(`/admin/products/${product.id}/edit`);
 		revalidateProductCache(product.id);
 		return {
 			success: true,
@@ -139,7 +139,7 @@ export async function deleteProduct(productId: string) {
 		console.error(error);
 		return {
 			success: false,
-			message: "Error Occurred while updating your product",
+			message: "Error Occurred while deleting your product",
 		};
 	}
 

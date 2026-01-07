@@ -32,8 +32,6 @@ export async function uploadImage(image: File) {
 			folder: "/ecourse/products",
 		});
 
-		console.log(imageFromKit);
-
 		return {
 			success: true,
 			imageUrl: imageFromKit.url,

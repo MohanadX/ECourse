@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { CourseSectionTable } from "@/drizzle/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidateCourseSectionsCache } from "./cache";
 import { revalidatePath } from "next/cache";
 
@@ -57,32 +57,73 @@ export async function updateSection(
 }
 
 export async function eliminateSection(id: string) {
-	const [deletedCourse] = await db
+	const [deletedSection] = await db
 		.delete(CourseSectionTable)
 		.where(eq(CourseSectionTable.id, id))
 		.returning();
 
-	return deletedCourse;
+	return deletedSection;
 }
 
 export async function updateSectionOrders(sectionIds: string[]) {
-	const sections = await Promise.all(
-		sectionIds.map((id, index) =>
-			db
-				.update(CourseSectionTable)
-				.set({ order: index })
-				.where(eq(CourseSectionTable.id, id))
-				.returning({
-					courseId: CourseSectionTable.courseId,
-					id: CourseSectionTable.id,
-				})
-		)
-	);
+	if (sectionIds.length === 0) return;
 
-	if (!sections) throw new Error("Failed to update section orders");
+	const caseSql = sql`CASE ${CourseSectionTable.id} ${sql.join(
+		sectionIds.map(
+			(sectionId, index) => sql`WHEN ${sectionId} THEN ${index}::integer`
+		),
+		sql.raw(" ")
+	)} END`;
 
-	sections.flat().forEach(({ id, courseId }) => {
+	const orderedSections = await db
+		.update(CourseSectionTable)
+		.set({ order: caseSql })
+		.where(inArray(CourseSectionTable.id, sectionIds))
+		.returning({
+			id: CourseSectionTable.id,
+			courseId: CourseSectionTable.courseId,
+		});
+
+	if (orderedSections.length !== sectionIds.length) {
+		throw new Error("Failed to update section orders");
+	}
+
+	const courseId = orderedSections[0].courseId;
+	for (const { id } of orderedSections) {
 		revalidateCourseSectionsCache(courseId, id);
-		revalidatePath(`admin/courses/${courseId}/edit`);
-	});
+	}
+	revalidatePath(`/admin/courses/${courseId}/edit`);
 }
+
+/**
+ 4. WHERE id IN ('l1', 'l2', 'l3')
+This restricts the update to only the lessons you want to reorder.
+
+Without this:
+Every row in lessons would be updated
+Rows not matched by CASE would get NULL for order
+So this clause is critical for correctness and safety.
+
+.where(inArray(CourseSectionTable.id, sectionIds))
+
+Only updates sections whose IDs are in the sectionIds array.
+
+Safe and efficient: avoids updating rows that don’t need changes.
+
+✔ Performance
+
+One SQL statement
+
+One network round-trip
+
+One execution plan
+
+UPDATE lessons
+SET "order" = CASE id
+  WHEN 'l1' THEN 0
+  WHEN 'l2' THEN 1
+  WHEN 'l3' THEN 2
+END
+WHERE id IN ('l1', 'l2', 'l3')
+RETURNING id, section_id;
+ */

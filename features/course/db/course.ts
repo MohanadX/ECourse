@@ -54,7 +54,7 @@ export function formatPlural(
 		includeCount = false,
 	}: { singular: string; plural: string; includeCount?: boolean }
 ) {
-	const word = length <= 1 ? singular : plural;
+	const word = length === 1 ? singular : plural;
 
 	return includeCount ? `${length} ${word}` : word;
 }

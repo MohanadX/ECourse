@@ -1,7 +1,7 @@
 import { productStatusEnum } from "@/drizzle/schema";
 import z from "zod";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 3MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = [
 	"image/jpeg",
 	"image/png",
@@ -10,7 +10,10 @@ const ACCEPTED_IMAGE_TYPES = [
 ];
 
 export const productSchema = z.object({
-	name: z.string().min(1, { error: "Name is required" }),
+	name: z
+		.string()
+		.min(1, { error: "Name is required" })
+		.max(100, { error: "Name is maximum 100 characters" }),
 	description: z.string().min(1, { error: "Description is required" }),
 	priceInDollars: z
 		.number({ error: "If you want the course to be free leave 0 " })

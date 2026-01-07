@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 const COUNTRY_HEADER_KEY = "x-user-country";
-export async function setUserCountryHeaders(
+export function setUserCountryHeaders(
 	headers: Headers,
 	country: string | undefined
 ) {

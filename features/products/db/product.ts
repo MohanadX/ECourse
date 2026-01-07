@@ -80,7 +80,7 @@ export async function eliminateProduct(id: string) {
 		.where(eq(ProductTable.id, id))
 		.returning();
 
-	if (!deletedProduct) throw new Error("Failed to delete your course");
+	if (!deletedProduct) throw new Error("Failed to delete your product");
 
 	// delete product image from imageKit cloud
 	await imageKit.deleteFile(deletedProduct.imageFileId);
