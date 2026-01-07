@@ -50,10 +50,10 @@ export async function updateProduct(
 				...data,
 				slug,
 			})
-			.where(eq(ProductTable.id, data.id!))
+			.where(eq(ProductTable.id, id))
 			.returning();
 		if (!updatedProduct) {
-			console.error("Failed to create your product");
+			console.error("Failed to update your product");
 			trx.rollback();
 		}
 		// delete the old stale product info from CourseProduct
@@ -80,7 +80,7 @@ export async function eliminateProduct(id: string) {
 		.where(eq(ProductTable.id, id))
 		.returning();
 
-	if (!deletedProduct) throw new Error("Failed to delete your course");
+	if (!deletedProduct) throw new Error("Failed to delete your product");
 
 	// delete product image from imageKit cloud
 	await imageKit.deleteFile(deletedProduct.imageFileId);

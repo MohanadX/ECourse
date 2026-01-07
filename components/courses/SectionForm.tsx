@@ -51,7 +51,7 @@ const SectionForm = ({
 		const action =
 			section == null
 				? createSection.bind(null, courseId)
-				: mutateSection.bind(null, section!.id);
+				: mutateSection.bind(null, section.id);
 
 		const { success, message } = await action(values);
 

@@ -56,7 +56,7 @@ const LessonForm = ({
 			status: lesson?.status ?? "public",
 			youtubeVideoId: lesson?.youtubeVideoId ?? "",
 			description: lesson?.description ?? "",
-			sectionId: lesson?.sectionId ?? defaultSectionId ?? sections[0].id ?? "",
+			sectionId: lesson?.sectionId ?? defaultSectionId ?? sections[0]?.id ?? "",
 		},
 	});
 
@@ -139,7 +139,10 @@ const LessonForm = ({
 					name="sectionId"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Section</FormLabel>
+							<FormLabel>
+								<RequiredLabelIcon />
+								Section
+							</FormLabel>
 							<Select onValueChange={field.onChange} defaultValue={field.value}>
 								<FormControl>
 									<SelectTrigger className="w-full">
@@ -163,7 +166,10 @@ const LessonForm = ({
 					name="status"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Status</FormLabel>
+							<FormLabel>
+								<RequiredLabelIcon />
+								Status
+							</FormLabel>
 							<Select onValueChange={field.onChange} defaultValue={field.value}>
 								<FormControl>
 									<SelectTrigger className="w-full">

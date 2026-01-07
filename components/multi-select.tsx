@@ -85,10 +85,7 @@ export function MultiSelect<Option>({
 												selectedValues.filter((value) => value !== currentValue)
 											);
 										} else {
-											return onSelectedValuesChange([
-												...selectedValues,
-												currentValue,
-											]);
+											onSelectedValuesChange([...selectedValues, currentValue]);
 										}
 									}}
 								>

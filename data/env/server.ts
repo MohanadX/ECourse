@@ -19,6 +19,9 @@ export const env = createEnv({
 		IMAGEKIT_URL_ENDPOINT: z
 			.string()
 			.min(1, { error: "Image Kit url endpoint is not set correctly" }),
+		IMAGEKIT_ID: z
+			.string()
+			.min(1, { error: "Image Kit id is not set correctly" }),
 		ARCJET_KEY: z.string().min(1, { error: "Arcjet key is not set correctly" }),
 		TEST_IP: z.string().min(1).optional(),
 	},
