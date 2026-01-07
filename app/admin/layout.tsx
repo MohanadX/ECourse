@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import UserButtonClient from "@/components/UserButtonClient";
+import { SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -37,17 +38,8 @@ export default function AdminLayout({
 							>
 								Sales
 							</Link>
-							<UserButton
-								appearance={{
-									elements: {
-										userButtonAvatarBox: {
-											width: "38px",
-											height: "38px",
-											boxShadow: "none",
-										},
-									},
-								}}
-							/>
+
+							<UserButtonClient />
 						</SignedIn>
 					</div>
 				</nav>
