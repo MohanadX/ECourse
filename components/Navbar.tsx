@@ -1,8 +1,9 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Button } from "./ui/button";
 import { getCurrentUser } from "@/features/users/db/clerk";
+import UserButtonClient from "./UserButtonClient";
 
 export default function Navbar() {
 	return (
@@ -28,17 +29,7 @@ export default function Navbar() {
 							>
 								Purchase History
 							</Link>
-							<UserButton
-								appearance={{
-									elements: {
-										userButtonAvatarBox: {
-											width: "38px",
-											height: "38px",
-											boxShadow: "none",
-										},
-									},
-								}}
-							/>
+							<UserButtonClient />
 						</SignedIn>
 					</div>
 				</Suspense>

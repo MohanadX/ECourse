@@ -23,7 +23,7 @@ const EditProductPage = async ({
 			<PageHeader title="Edit Product" />
 			<ProductForm
 				product={{
-					...product,
+					...product, // shallow copy so we need a copy of courseIds
 					courseIds: product.CourseProducts.map((course) => course.courseId),
 				}}
 				courses={await getCourses()}

@@ -2,7 +2,10 @@ import CoursesTable from "@/components/courses/CoursesTable";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { db } from "@/drizzle/db";
-import { getCourseGlobalTag, getUserAccessCourseGlobalTag } from "@/features/course/db/cache";
+import {
+	getCourseGlobalTag,
+	getUserAccessCourseGlobalTag,
+} from "@/features/course/db/cache";
 import { cacheTag } from "next/cache";
 import {
 	CourseSectionTable,
