@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher([
 	"/",
 	"/sign-in(.*)", // all of it children with it
-	"sign-up(.*)",
+	"/sign-up(.*)",
 	"/api(.*)",
 	"/courses/:courseId/lessons/:lessonId",
 	"/product(.*)",
