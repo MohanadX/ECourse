@@ -50,10 +50,10 @@ export async function updateProduct(
 				...data,
 				slug,
 			})
-			.where(eq(ProductTable.id, data.id!))
+			.where(eq(ProductTable.id, id))
 			.returning();
 		if (!updatedProduct) {
-			console.error("Failed to create your product");
+			console.error("Failed to update your product");
 			trx.rollback();
 		}
 		// delete the old stale product info from CourseProduct
