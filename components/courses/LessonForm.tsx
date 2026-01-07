@@ -56,7 +56,7 @@ const LessonForm = ({
 			status: lesson?.status ?? "public",
 			youtubeVideoId: lesson?.youtubeVideoId ?? "",
 			description: lesson?.description ?? "",
-			sectionId: lesson?.sectionId ?? defaultSectionId ?? sections[0].id ?? "",
+			sectionId: lesson?.sectionId ?? defaultSectionId ?? sections[0]?.id ?? "",
 		},
 	});
 
