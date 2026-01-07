@@ -134,30 +134,33 @@ const LessonForm = ({
 						</FormItem>
 					)}
 				/>
-				<FormField
-					control={form.control}
-					name="sectionId"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Section</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
-								<FormControl>
-									<SelectTrigger className="w-full">
-										<SelectValue />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									{sections.map((section) => (
-										<SelectItem key={section.id} value={section.id}>
-											{section.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+			<FormField
+				control={form.control}
+				name="sectionId"
+				render={({ field }) => (
+					<FormItem>
+						<FormLabel>
+							<RequiredLabelIcon />
+							Section
+						</FormLabel>
+						<Select onValueChange={field.onChange} defaultValue={field.value}>
+							<FormControl>
+								<SelectTrigger className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+							</FormControl>
+							<SelectContent>
+								{sections.map((section) => (
+									<SelectItem key={section.id} value={section.id}>
+										{section.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<FormMessage />
+					</FormItem>
+				)}
+			/>
 				<FormField
 					control={form.control}
 					name="status"
