@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "imageFileId" text NOT NULL;

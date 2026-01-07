@@ -45,11 +45,12 @@ const CoursesTable = ({ courses }: Props) => {
 							<div className="flex flex-col gap-1">
 								<span className="font-semibold">{course.name}</span>
 								<p className="text-muted-foreground">
+									{course.sectionsCount}{" "}
 									{formatPlural(course.sectionsCount, {
 										singular: "section",
 										plural: "sections",
 									})}{" "}
-									•{" "}
+									• {course.lessonsCount}{" "}
 									{formatPlural(course.lessonsCount, {
 										singular: "lesson",
 										plural: "lessons",

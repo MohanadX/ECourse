@@ -1,15 +1,15 @@
 import { db } from "@/drizzle/db";
 import { CourseSectionTable, CourseTable, LessonTable } from "@/drizzle/schema";
-import { getCourseIdTag, revalidateCourseCache } from "./cache";
+import { getCourseIdTag } from "./cache";
 import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
-import { getLessonsIdTag } from "@/features/lessons/db/cache";
-import { getCourseSectionSIdTag } from "@/features/sections/db/cache";
+import { getCourseLessonsTag } from "@/features/lessons/db/cache";
+import { getCourseSectionsTag } from "@/features/sections/db/cache";
 
 export async function insertCourse(
 	data: Omit<typeof CourseTable.$inferInsert, "slug">
 ) {
-	const slug = slugifyCourseName(data.name);
+	const slug = slugifyName(data.name);
 	const [newCourse] = await db
 		.insert(CourseTable)
 		.values({
@@ -20,7 +20,6 @@ export async function insertCourse(
 
 	if (!newCourse) throw new Error(`Failed to create course ${data.name}`);
 
-	revalidateCourseCache(newCourse.id);
 	return newCourse;
 }
 
@@ -32,7 +31,7 @@ export async function insertCourse(
  * - Collapses multiple hyphens and trims leading/trailing hyphens
  * - Limits slug length to 100 characters
  */
-export function slugifyCourseName(name: string): string {
+export function slugifyName(name: string): string {
 	if (!name) return "";
 	// Normalize and remove diacritics Handles names like "Café" → "Cafe" correctly.
 	const normalized = name.normalize("NFKD").replace(/\p{Diacritic}/gu, "");
@@ -64,9 +63,13 @@ export async function updateCourse(
 	id: string,
 	data: Omit<typeof CourseTable.$inferInsert, "slug">
 ) {
+	const slug = slugifyName(data.name);
 	const [updatedCourse] = await db
 		.update(CourseTable)
-		.set(data)
+		.set({
+			...data,
+			slug,
+		})
 		.where(eq(CourseTable.id, id))
 		.returning();
 
@@ -88,8 +91,8 @@ export async function getCourse(courseId: string) {
 	"use cache";
 	cacheTag(
 		getCourseIdTag(courseId),
-		getLessonsIdTag(courseId),
-		getCourseSectionSIdTag(courseId)
+		getCourseLessonsTag(courseId),
+		getCourseSectionsTag(courseId)
 	);
 	return await db.query.CourseTable.findFirst({
 		columns: { id: true, name: true, description: true },

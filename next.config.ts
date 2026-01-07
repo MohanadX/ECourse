@@ -5,6 +5,18 @@ const nextConfig: NextConfig = {
 	cacheComponents: true,
 	experimental: {
 		authInterrupts: true,
+		serverActions: {
+			bodySizeLimit: "3mb",
+		},
+	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "ik.imagekit.io",
+				pathname: `/**`,
+			},
+		],
 	},
 };
 
