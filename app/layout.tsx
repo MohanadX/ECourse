@@ -17,9 +17,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`antialiased`}>
-				<Suspense>
-					<ClerkProvider>{children}</ClerkProvider>
-				</Suspense>
+				<ClerkProvider>{children}</ClerkProvider>
 				<Toaster
 					visibleToasts={1}
 					richColors
