@@ -47,7 +47,6 @@ export default function Navbar() {
 
 async function AdminLink() {
 	const user = await getCurrentUser({ allData: true });
-	console.log(user.user?.name);
 
 	if (user.role !== "admin") {
 		return null;

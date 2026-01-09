@@ -3,7 +3,13 @@ import { getCurrentUser } from "@/features/users/db/clerk";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
-const PurchaseButton = async ({ productId }: { productId: string }) => {
+const PurchaseButton = async ({
+	productId,
+	productSlug,
+}: {
+	productId: string;
+	productSlug: string;
+}) => {
 	const { userId } = await getCurrentUser();
 
 	const alreadyOwnProduct =
@@ -14,7 +20,9 @@ const PurchaseButton = async ({ productId }: { productId: string }) => {
 	} else {
 		return (
 			<Button className="text-xl h-auto py-4 px-8 rounded-lg" asChild>
-				<Link href={`/product/${productId}/purchase`}>Get Now</Link>
+				<Link href={`/product/${productId}/${productSlug}/purchase`}>
+					Get Now
+				</Link>
 			</Button>
 		);
 	}
