@@ -3,13 +3,7 @@ import { getCurrentUser } from "@/features/users/db/clerk";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
-const PurchaseButton = async ({
-	productId,
-	className,
-}: {
-	productId: string;
-	className?: string;
-}) => {
+const PurchaseButton = async ({ productId }: { productId: string }) => {
 	const { userId } = await getCurrentUser();
 
 	const alreadyOwnProduct =

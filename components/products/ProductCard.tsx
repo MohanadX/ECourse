@@ -8,7 +8,6 @@ import {
 	CardTitle,
 } from "../ui/card";
 import { Suspense } from "react";
-import { formatPrice } from "@/features/products/db/product";
 import Price from "./Price";
 import { Button } from "../ui/button";
 import Link from "next/link";
