@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { forbidden, notFound } from "next/navigation";
 import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/next";
 import { env } from "./data/env/server";
-import { setUserCountryHeaders } from "./lib/utils";
+import { setUserCountryHeaders } from "./lib/pppFunctions";
 import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([

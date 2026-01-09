@@ -15,13 +15,17 @@ export const env = createEnv({
 			.string({
 				error: "Clerk Public Sign Up URL ENV is not available",
 			})
-			.min(1),
+			.optional(),
+		NEXT_PUBLIC_IMAGEKIT_ID: z
+			.string()
+			.min(1, { error: "Image Kit id is not set correctly" }),
 	},
 	experimental__runtimeEnv: {
 		NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
 			process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
 		NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:
 			process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL,
-		NEXT_PUBLIC_CLERK_SIGN_IN_URL: undefined,
+		NEXT_PUBLIC_CLERK_SIGN_IN_URL: "1",
+		NEXT_PUBLIC_IMAGEKIT_ID: process.env.NEXT_PUBLIC_IMAGEKIT_ID,
 	},
 });
