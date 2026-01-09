@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { CourseSectionTable, LessonTable } from "@/drizzle/schema";
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { desc, eq, inArray, or, sql } from "drizzle-orm";
 import { revalidateLessonCache } from "./cache";
 import { revalidatePath } from "next/cache";
 
@@ -166,3 +166,8 @@ export async function updateLessonOrders(lessonIds: string[]) {
 
 	revalidatePath(`/admin/courses/${section.courseId}/edit`);
 }
+
+export const wherePublicLessons = or(
+	eq(LessonTable.status, "public"),
+	eq(LessonTable.status, "preview")
+);

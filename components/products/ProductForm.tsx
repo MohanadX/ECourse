@@ -30,6 +30,7 @@ import {
 import { MultiSelect } from "../multi-select";
 import { useTransition } from "react";
 import { LoadingTextSwap } from "../ActionButton";
+import Image from "next/image";
 
 const ProductForm = ({
 	product,
@@ -58,7 +59,7 @@ const ProductForm = ({
 					name: product.name,
 					description: product.description,
 					courseIds: product.courseIds,
-					image: undefined,
+					image: product.imageUrl,
 					priceInDollars: product.priceInDollars,
 					status: product.status,
 			  }
@@ -143,7 +144,16 @@ const ProductForm = ({
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									<RequiredLabelIcon />
+									{product?.imageUrl ? (
+										<Image
+											src={product.imageUrl}
+											alt={product.name}
+											width={38}
+											height={38}
+										/>
+									) : (
+										<RequiredLabelIcon />
+									)}
 									Image
 								</FormLabel>
 								<FormControl>

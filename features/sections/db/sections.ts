@@ -95,6 +95,11 @@ export async function updateSectionOrders(sectionIds: string[]) {
 	revalidatePath(`/admin/courses/${courseId}/edit`);
 }
 
+export const wherePublicCourseSections = eq(
+	CourseSectionTable.status,
+	"public"
+);
+
 /**
  4. WHERE id IN ('l1', 'l2', 'l3')
 This restricts the update to only the lessons you want to reorder.

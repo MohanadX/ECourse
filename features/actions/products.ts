@@ -67,7 +67,7 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 
 export async function mutateProduct(
 	id: string,
-	unsafeData: Omit<z.infer<typeof productSchema>, "slug">
+	unsafeData: Partial<z.infer<typeof productSchema>>
 ) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 

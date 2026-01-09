@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { env } from "./data/env/server";
+import { env } from "./data/env/client";
 
 const nextConfig: NextConfig = {
 	/* config options here */
@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
 			{
 				protocol: "https",
 				hostname: "ik.imagekit.io",
-				pathname: `/${env.IMAGEKIT_ID}/**`,
+				pathname: `/${env.NEXT_PUBLIC_IMAGEKIT_ID}/**`,
 			},
 		],
 	},
