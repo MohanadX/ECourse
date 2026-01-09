@@ -23,16 +23,16 @@ export const env = createEnv({
 		TEST_IP: z.string().min(1).optional(),
 		STRIPE_PPP_50_COUPON_ID: z
 			.string()
-			.min(1, { error: "STRIPE PPP ... Coupon I is not set correctly" }),
+			.min(1, { error: "STRIPE_PPP_50_COUPON_ID is not set correctly" }),
 		STRIPE_PPP_40_COUPON_ID: z
 			.string()
-			.min(1, { error: "STRIPE PPP ... Coupon I is not set correctly" }),
+			.min(1, { error: "STRIPE_PPP_40_COUPON_ID is not set correctly" }),
 		STRIPE_PPP_30_COUPON_ID: z
 			.string()
-			.min(1, { error: "STRIPE PPP ... Coupon I is not set correctly" }),
+			.min(1, { error: "STRIPE_PPP_30_COUPON_ID is not set correctly" }),
 		STRIPE_PPP_20_COUPON_ID: z
 			.string()
-			.min(1, { error: "STRIPE PPP ... Coupon I is not set correctly" }),
+			.min(1, { error: "STRIPE_PPP_20_COUPON_ID is not set correctly" }),
 	},
 	experimental__runtimeEnv: process.env,
 });
