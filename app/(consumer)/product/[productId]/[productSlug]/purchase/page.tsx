@@ -1,5 +1,6 @@
 import PageLoader from "@/app/loading";
 import PageHeader from "@/components/PageHeader";
+import StripeCheckoutForm from "@/components/stripe/StripeCheckoutForm";
 import { db } from "@/drizzle/db";
 import { ProductTable } from "@/drizzle/schema";
 import { getProductIdTag } from "@/features/products/db/cache";
@@ -49,13 +50,14 @@ async function SuspendedComponent({
 
 		return (
 			<main className="containers my-6">
-				{/* <StripeCheckoutForm product={product} user={user} /> */}
+				<StripeCheckoutForm product={product} user={user} />
 			</main>
 		);
 	}
 
 	const { authMode } = await searchParams;
-	const isSignUp = authMode === "signUp";
+	const isSignUp = authMode === "signUp"; // to change both singIn and signUp in same page
+	// console.log(authMode);
 
 	return (
 		<main className="containers my-6 flex flex-col items-center">

@@ -16,7 +16,11 @@ const PurchaseButton = async ({
 		userId != null && (await userOwnsProduct({ userId, productId }));
 
 	if (alreadyOwnProduct) {
-		return <p>You already own this product</p>;
+		return (
+			<p className="text-muted-foreground text-xl underline">
+				You already own this product
+			</p>
+		);
 	} else {
 		return (
 			<Button className="text-xl h-auto py-4 px-8 rounded-lg" asChild>

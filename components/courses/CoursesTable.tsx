@@ -71,9 +71,9 @@ const CoursesTable = ({ courses }: Props) => {
 									requireAreYouSure
 									variant={"destructiveOutline"}
 									action={deleteCourse.bind(null, course.id)}
+									aria-label="Delete" // instead of using sr-only
 								>
-									<Trash2Icon />
-									<span className="sr-only">Delete</span>
+									<Trash2Icon aria-hidden />
 								</ActionButton>
 							</div>
 						</TableCell>

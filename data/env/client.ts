@@ -19,6 +19,12 @@ export const env = createEnv({
 		NEXT_PUBLIC_IMAGEKIT_ID: z
 			.string()
 			.min(1, { error: "Image Kit id is not set correctly" }),
+		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
+			.string()
+			.min(1, { error: "Stripe public key is not set correctly" }),
+		NEXT_PUBLIC_SERVER_URL: z
+			.string()
+			.min(1, { error: "Next server url is not set correctly" }),
 	},
 	experimental__runtimeEnv: {
 		NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
@@ -27,5 +33,8 @@ export const env = createEnv({
 			process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL,
 		NEXT_PUBLIC_CLERK_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
 		NEXT_PUBLIC_IMAGEKIT_ID: process.env.NEXT_PUBLIC_IMAGEKIT_ID,
+		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+			process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+		NEXT_PUBLIC_SERVER_URL: process.env.NEXT_PUBLIC_SERVER_URL,
 	},
 });

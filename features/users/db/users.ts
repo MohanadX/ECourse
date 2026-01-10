@@ -54,7 +54,7 @@ export async function deleteUsers({ clerkUserId }: { clerkUserId: string }) {
 		.returning();
 
 	if (!deletedUser) {
-		throw new Error("Failed Updating The User");
+		throw new Error("Failed Deleting The User");
 	}
 
 	revalidateUserCache(deletedUser.id);
