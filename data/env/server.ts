@@ -33,6 +33,12 @@ export const env = createEnv({
 		STRIPE_PPP_20_COUPON_ID: z
 			.string()
 			.min(1, { error: "STRIPE_PPP_20_COUPON_ID is not set correctly" }),
+		STRIPE_SECRET_KEY: z
+			.string()
+			.min(1, { error: "Stripe Secret key is not set correctly" }),
+		STRIPE_WEBHOOK_SECRET: z
+			.string()
+			.min(1, { error: "Stripe Webhook secret is not set correctly" }),
 	},
 	experimental__runtimeEnv: process.env,
 });

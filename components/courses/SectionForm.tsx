@@ -25,6 +25,8 @@ import {
 	SelectValue,
 } from "../ui/select";
 import { createSection, mutateSection } from "@/features/actions/section";
+import { LoadingTextSwap } from "../ActionButton";
+import { useTransition } from "react";
 
 const SectionForm = ({
 	section,
@@ -39,6 +41,7 @@ const SectionForm = ({
 	courseId: string;
 	onSuccess: () => void;
 }) => {
+	const [isLoading, startTransition] = useTransition();
 	const form = useForm<z.infer<typeof sectionSchema>>({
 		resolver: zodResolver(sectionSchema),
 		defaultValues: section ?? {
@@ -53,14 +56,16 @@ const SectionForm = ({
 				? createSection.bind(null, courseId)
 				: mutateSection.bind(null, section.id);
 
-		const { success, message } = await action(values);
+		startTransition(async () => {
+			const { success, message } = await action(values);
 
-		if (success === false) {
-			toast.error(message);
-		} else {
-			toast.success(message);
-			onSuccess();
-		}
+			if (success === false) {
+				toast.error(message);
+			} else {
+				toast.success(message);
+				onSuccess();
+			}
+		});
 	}
 	return (
 		<Form {...form}>
@@ -75,7 +80,7 @@ const SectionForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Name
 							</FormLabel>
 							<FormControl>
@@ -114,7 +119,7 @@ const SectionForm = ({
 					type="submit"
 					disabled={form.formState.isSubmitting}
 				>
-					Save
+					<LoadingTextSwap isLoading={isLoading}>Save</LoadingTextSwap>
 				</Button>
 			</form>
 		</Form>

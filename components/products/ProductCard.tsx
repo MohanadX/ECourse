@@ -15,12 +15,14 @@ import Link from "next/link";
 export function ProductCard({
 	id,
 	name,
+	slug,
 	description,
 	imageUrl,
 	priceInDollars,
 }: {
 	id: string;
 	name: string;
+	slug: string;
 	description: string;
 	imageUrl: string;
 	priceInDollars: number;
@@ -33,9 +35,13 @@ export function ProductCard({
 
 			<CardHeader className="space-y-0">
 				<CardDescription>
-					<Suspense>
-						<Price price={priceInDollars} />
-					</Suspense>
+				<Suspense
+					fallback={
+						<p className="h-3 w-16 rounded-xl animate-pulse bg-gray-300"></p>
+					}
+				>
+					<Price price={priceInDollars} />
+				</Suspense>
 				</CardDescription>
 				<CardTitle className="text-xl">{name}</CardTitle>
 			</CardHeader>
@@ -44,7 +50,7 @@ export function ProductCard({
 			</CardContent>
 			<CardFooter className="mt-auto">
 				<Button className="w-full py-3" asChild>
-					<Link href={`/product/${id}`}>View Course</Link>
+					<Link href={`/product/${id}/${slug}`}>View Product</Link>
 				</Button>
 			</CardFooter>
 		</Card>

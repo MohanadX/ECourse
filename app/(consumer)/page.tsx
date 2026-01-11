@@ -25,6 +25,7 @@ async function getPublicProducts() {
 		columns: {
 			id: true,
 			name: true,
+			slug: true,
 			description: true,
 			priceInDollars: true,
 			imageUrl: true,

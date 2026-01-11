@@ -82,7 +82,7 @@ export default async function ProductPage({
 					</p>
 					<p className="text-xl my-6">{product.description}</p>
 					<Suspense fallback={<SkeletonButton className="w-35 h-10" />}>
-						<PurchaseButton productId={product.id} />
+						<PurchaseButton productId={product.id} productSlug={product.slug} />
 					</Suspense>
 				</div>
 				<div className="relative aspect-video rounded-xl max-w-lg grow max-md:w-full">
@@ -145,7 +145,7 @@ export default async function ProductPage({
 													<VideoIcon className="size-4" />
 													{lesson.status === "preview" ? (
 														<Link
-															href={`/courses/${course.id}/lessons/${lesson.id}`}
+															href={`/courses/${course.id}/${course.slug}/lessons/${lesson.id}`}
 															className="underline text-accent"
 														>
 															{lesson.name}
@@ -175,6 +175,7 @@ async function getPublicProduct(id: string) {
 		columns: {
 			id: true,
 			name: true,
+			slug: true,
 			description: true,
 			priceInDollars: true,
 			imageUrl: true,
@@ -188,6 +189,7 @@ async function getPublicProduct(id: string) {
 						columns: {
 							id: true,
 							name: true,
+							slug: true,
 						},
 						with: {
 							CourseSections: {

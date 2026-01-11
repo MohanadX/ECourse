@@ -101,7 +101,7 @@ const ProductForm = ({
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									<RequiredLabelIcon />
+									<RequiredLabelIcon aria-hidden />
 									Name
 								</FormLabel>
 								<FormControl>
@@ -117,7 +117,7 @@ const ProductForm = ({
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									<RequiredLabelIcon />
+									<RequiredLabelIcon aria-hidden />
 									Price
 								</FormLabel>
 								<FormControl>
@@ -152,7 +152,7 @@ const ProductForm = ({
 											height={38}
 										/>
 									) : (
-										<RequiredLabelIcon />
+										<RequiredLabelIcon aria-hidden />
 									)}
 									Image
 								</FormLabel>
@@ -200,7 +200,7 @@ const ProductForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Included Courses
 							</FormLabel>
 							<FormControl>
@@ -224,7 +224,7 @@ const ProductForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Description
 							</FormLabel>
 							<FormControl>

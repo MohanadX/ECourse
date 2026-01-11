@@ -103,7 +103,7 @@ export function LoadingTextSwap({
 					isLoading ? "visible" : "invisible"
 				)}
 			>
-				<Loader2Icon className="animate-spin" />
+				<Loader2Icon className="animate-spin" aria-label="Loading" />
 			</div>
 		</div>
 	);
