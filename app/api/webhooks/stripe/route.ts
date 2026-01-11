@@ -79,25 +79,19 @@ async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
 
 	const courseIds = product.CourseProducts.map((cp) => cp.courseId);
 
-	db.transaction(async (trx) => {
-		try {
-			await addUserCourseAccess({ userId: user.id, courseIds }, trx);
-			await insertPurchase(
-				{
-					stripeSessionId: checkoutSession.id,
-					pricePaidInCents:
-						checkoutSession.amount_total || product.priceInDollars * 100,
-					productDetails: product,
-					userId: user.id,
-					productId: product.id,
-				},
-				trx
-			);
-		} catch (error) {
-			console.error(error);
-			trx.rollback();
-			throw error;
-		}
+	await db.transaction(async (trx) => {
+		await addUserCourseAccess({ userId: user.id, courseIds }, trx);
+		await insertPurchase(
+			{
+				stripeSessionId: checkoutSession.id,
+				pricePaidInCents:
+					checkoutSession.amount_total || product.priceInDollars * 100,
+				productDetails: product,
+				userId: user.id,
+				productId: product.id,
+			},
+			trx
+		);
 	});
 
 	return [product.id, product.slug];
