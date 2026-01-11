@@ -69,6 +69,11 @@ async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
 		throw new Error("Missing metadata");
 	}
 
+	// Verify payment was successful
+	if (checkoutSession.payment_status !== 'paid') {
+		throw new Error(`Payment not completed. Status: ${checkoutSession.payment_status}`);
+	}
+
 	const [product, user] = await Promise.all([
 		getProduct(productId),
 		getUser(userId),
@@ -84,8 +89,7 @@ async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
 		await insertPurchase(
 			{
 				stripeSessionId: checkoutSession.id,
-				pricePaidInCents:
-					checkoutSession.amount_total || product.priceInDollars * 100,
+				pricePaidInCents: checkoutSession.amount_total ?? product.priceInDollars * 100,
 				productDetails: product,
 				userId: user.id,
 				productId: product.id,
