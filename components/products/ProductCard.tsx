@@ -35,13 +35,13 @@ export function ProductCard({
 
 			<CardHeader className="space-y-0">
 				<CardDescription>
-					<Suspense
-						fallback={
-							<p className="h-3 w-13 rounded-xl animate-pulse bg-gray-300"></p>
-						}
-					>
-						<Price price={priceInDollars} />
-					</Suspense>
+				<Suspense
+					fallback={
+						<p className="h-3 w-16 rounded-xl animate-pulse bg-gray-300"></p>
+					}
+				>
+					<Price price={priceInDollars} />
+				</Suspense>
 				</CardDescription>
 				<CardTitle className="text-xl">{name}</CardTitle>
 			</CardHeader>

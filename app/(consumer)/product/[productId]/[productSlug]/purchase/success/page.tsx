@@ -17,7 +17,7 @@ export default async function ProductPurchaseSuccessPage({
 
 	const product = await getPublicProduct(productId);
 
-	if (!product) return;
+	if (!product) return notFound();
 
 	return (
 		<main className="containers my-6">
