@@ -24,7 +24,7 @@ export const env = createEnv({
 			.min(1, { error: "Stripe public key is not set correctly" }),
 		NEXT_PUBLIC_SERVER_URL: z
 			.string()
-			.min(1, { error: "Next server url is not set correctly" }),
+			.url({ message: "Server URL must be a valid URL" }),
 	},
 	experimental__runtimeEnv: {
 		NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
