@@ -38,7 +38,7 @@ export const env = createEnv({
 			.min(1, { error: "Stripe Secret key is not set correctly" }),
 		STRIPE_WEBHOOK_SECRET: z
 			.string()
-			.min(1, { error: "Stripe Webhook secrete is not set correctly" }),
+			.min(1, { error: "Stripe Webhook secret is not set correctly" }),
 	},
 	experimental__runtimeEnv: process.env,
 });
