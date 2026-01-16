@@ -41,7 +41,10 @@ const ActionButton = ({
 		return (
 			<AlertDialog open={isLoading ? true : undefined}>
 				<AlertDialogTrigger asChild>
-					<Button {...props} className="cursor-pointer"></Button>
+					<Button
+						{...props}
+						className={cn("cursor-pointer", props.className)}
+					></Button>
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>

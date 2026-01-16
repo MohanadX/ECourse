@@ -1,10 +1,19 @@
 import { db } from "@/drizzle/db";
 import { PurchaseTable } from "@/drizzle/schema";
+import { eq } from "drizzle-orm";
+import { revalidatePurchasesCache } from "./cache";
+
+/**
++ * Inserts a purchase record into the database.
++ * @param data - Purchase data to insert
++ * @param trx - Optional transaction context
++ * @returns The inserted purchase, or undefined if a duplicate stripeSessionId exists
++ */
 
 export async function insertPurchase(
 	data: typeof PurchaseTable.$inferInsert,
 	trx: Omit<typeof db, "$client"> = db
-) {
+): Promise<typeof PurchaseTable.$inferSelect | undefined> {
 	const details = data.productDetails;
 
 	const [newPurchase] = await trx
@@ -19,7 +28,46 @@ export async function insertPurchase(
 		})
 		.onConflictDoNothing()
 		.returning();
-	// sometimes stripe send GET request 2 times after purchase so a conflict will happen and we don't want to save purchase twice
+	// Stripe may send duplicate webhook events for the same transaction, so we use onConflictDoNothing() to ensure idempotent purchase recording
+	if (newPurchase) {
+		revalidatePurchasesCache({
+			purchaseId: newPurchase.id,
+			userId: newPurchase.userId,
+			adminId: newPurchase.adminId,
+		});
+	}
 
 	return newPurchase;
+}
+
+export async function updatePurchase(
+	purchaseId: string,
+	data: Partial<typeof PurchaseTable.$inferInsert>,
+	trx: Omit<typeof db, "$client"> = db
+): Promise<typeof PurchaseTable.$inferSelect | undefined> {
+	const details = data.productDetails;
+
+	const [updatedPurchase] = await trx
+		.update(PurchaseTable)
+		.set({
+			...data,
+			productDetails: details
+				? {
+						name: details.name, // just make sure not to add additional info
+						description: details.description,
+						imageUrl: details.imageUrl,
+				  }
+				: undefined,
+		})
+		.where(eq(PurchaseTable.id, purchaseId))
+		.returning();
+	if (!updatedPurchase) throw new Error("Failed to update purchase");
+
+	revalidatePurchasesCache({
+		purchaseId: updatedPurchase.id,
+		userId: updatedPurchase.userId,
+		adminId: updatedPurchase.adminId,
+	});
+
+	return updatedPurchase;
 }

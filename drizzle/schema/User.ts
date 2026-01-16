@@ -12,7 +12,7 @@ export const UserTable = pgTable("users", {
 	clerkUserId: text().notNull().unique(),
 	email: text().notNull(),
 	name: text().notNull(),
-	role: userRolesEnum().notNull().default("user"),
+	role: userRolesEnum().notNull().default("admin"),
 	imageUrl: text(),
 	deletedAt: timestamp({ withTimezone: true }),
 	createdAt,

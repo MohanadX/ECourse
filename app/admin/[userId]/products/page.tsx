@@ -12,15 +12,21 @@ import {
 import Link from "next/link";
 import { asc, countDistinct, eq } from "drizzle-orm";
 
-import { getProductsGlobalTag } from "@/features/products/db/cache";
+import { getUserProductsTag } from "@/features/products/db/cache";
+import { getUserCoursesTag } from "@/features/course/db/cache";
 
-const Products = async () => {
-	const products = await getProducts();
+const Products = async ({
+	params,
+}: {
+	params: Promise<{ userId: string }>;
+}) => {
+	const { userId } = await params;
+	const products = await getProducts(userId);
 	return (
 		<main className="containers mt-6">
 			<PageHeader title="Products">
 				<Button asChild variant={"default"}>
-					<Link href={"/admin/products/new"}>New Product</Link>
+					<Link href={`/admin/${userId}/products/new`}>New Product</Link>
 				</Button>
 			</PageHeader>
 
@@ -33,9 +39,9 @@ const Products = async () => {
 
 export default Products;
 
-async function getProducts() {
+async function getProducts(userId: string) {
 	"use cache";
-	cacheTag(getProductsGlobalTag());
+	cacheTag(getUserProductsTag(userId), getUserCoursesTag(userId));
 
 	return db
 		.select({
@@ -49,6 +55,7 @@ async function getProducts() {
 			customersCount: countDistinct(PurchaseTable.userId),
 		})
 		.from(DbProductTable)
+		.where(eq(DbProductTable.userId, userId))
 		.leftJoin(PurchaseTable, eq(PurchaseTable.productId, DbProductTable.id))
 		.leftJoin(
 			CourseProductTable,

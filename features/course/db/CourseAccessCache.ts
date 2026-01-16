@@ -18,6 +18,10 @@ export function getUserCourseAccessUserTag(userId: string) {
 	return `userAccess:${userId}`;
 }
 
+export function getAdminCourseAccessTag(userId: string) {
+	return `admin:${userId}:courseAccess`;
+}
+
 export function revalidateUserCourseAccessCache({
 	courseId,
 	userId,
@@ -25,6 +29,7 @@ export function revalidateUserCourseAccessCache({
 	courseId: string;
 	userId: string;
 }) {
+	revalidateTag(getAdminCourseAccessTag(userId), "max");
 	revalidateTag(getUserCourseAccessGlobalTag(), "max");
 	revalidateTag(getUserCourseIdTag({ courseId, userId }), "max");
 	revalidateTag(getUserCourseAccessUserTag(userId), "max");

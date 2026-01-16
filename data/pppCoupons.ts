@@ -1,5 +1,10 @@
 import { env } from "./env/server";
 
+type CouponInfo = {
+	stripeCouponId: string;
+	discountPercentage: number;
+};
+
 export const pppCoupons = [
 	{
 		stripeCouponId: env.STRIPE_PPP_50_COUPON_ID,
@@ -192,3 +197,19 @@ export const pppCoupons = [
 		],
 	},
 ];
+
+/**
+ * Map for O(1) country code lookup instead of O(n*m) with find + includes.
+ * Maps country code -> coupon information.
+ */
+export const countryToCouponMap = new Map<string, CouponInfo>(
+	pppCoupons.flatMap((coupon) =>
+		coupon.countryCodes.map((code) => [
+			code,
+			{
+				stripeCouponId: coupon.stripeCouponId,
+				discountPercentage: coupon.discountPercentage,
+			},
+		])
+	)
+);

@@ -145,3 +145,7 @@
 	background-color: var(--foreground);
 	border-radius: 7px;
 }
+
+.layout {
+	grid-template-columns: 300px 1fr;
+}

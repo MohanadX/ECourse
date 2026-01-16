@@ -21,7 +21,9 @@ export async function createSection(
 ) {
 	const { success, data } = sectionSchema.safeParse(unsafeData);
 
-	if (!(await SectionPermission((await getCurrentUser()).role))) {
+	const user = await getCurrentUser();
+
+	if (!(await SectionPermission(user.role))) {
 		console.error("You are not authorized to create Section");
 		return {
 			success: false,
@@ -39,8 +41,8 @@ export async function createSection(
 
 	const section = await insertSection({ ...data, order, courseId });
 
-	revalidatePath(`/admin/courses/${section.courseId}/edit`);
-	revalidateCourseSectionsCache(section.courseId, section.id);
+	revalidatePath(`/admin/${user.userId}/courses/${section.courseId}/edit`);
+	revalidateCourseSectionsCache(user.userId!, section.courseId, section.id);
 
 	return {
 		success: true,
@@ -53,8 +55,9 @@ export async function mutateSection(
 	unsafeData: z.infer<typeof sectionSchema>
 ) {
 	const { success, data } = sectionSchema.safeParse(unsafeData);
+	const user = await getCurrentUser();
 
-	if (!(await SectionPermission((await getCurrentUser()).role))) {
+	if (!(await SectionPermission(user.role))) {
 		console.error("You are not authorized to update this Section");
 		return {
 			success: false,
@@ -70,8 +73,14 @@ export async function mutateSection(
 
 	const updatedSection = await updateSection(sectionId, data);
 
-	revalidatePath(`/admin/courses/${updatedSection.courseId}/edit`);
-	revalidateCourseSectionsCache(updatedSection.courseId, updatedSection.id);
+	revalidatePath(
+		`/admin/${user.userId}/courses/${updatedSection.courseId}/edit`
+	);
+	revalidateCourseSectionsCache(
+		user.userId!,
+		updatedSection.courseId,
+		updatedSection.id
+	);
 
 	return {
 		success: true,
@@ -80,7 +89,8 @@ export async function mutateSection(
 }
 
 export async function deleteSection(sectionId: string) {
-	if (!SectionPermission((await getCurrentUser()).role)) {
+	const user = await getCurrentUser();
+	if (!SectionPermission(user.role)) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this section",
@@ -93,8 +103,14 @@ export async function deleteSection(sectionId: string) {
 		return { success: false, message: `Failed to delete your section` };
 	}
 
-	revalidatePath(`/admin/courses/${deletedSection.courseId}/edit`);
-	revalidateCourseSectionsCache(deletedSection.courseId, deletedSection.id);
+	revalidatePath(
+		`/admin/${user.userId}/courses/${deletedSection.courseId}/edit`
+	);
+	revalidateCourseSectionsCache(
+		user.userId!,
+		deletedSection.courseId,
+		deletedSection.id
+	);
 	return {
 		success: true,
 		message: `Successfully Deleted your section ${deletedSection.name}`,
@@ -102,15 +118,13 @@ export async function deleteSection(sectionId: string) {
 }
 
 export async function mutateSectionOrders(sectionIds: string[]) {
-	if (
-		sectionIds.length === 0 ||
-		!SectionPermission((await getCurrentUser()).role)
-	) {
+	const user = await getCurrentUser();
+	if (sectionIds.length === 0 || !SectionPermission(user.role)) {
 		return { success: false, message: "Error reordering your sections" };
 	}
 
 	try {
-		await updateSectionOrders(sectionIds);
+		await updateSectionOrders(sectionIds, user.userId!);
 	} catch (error) {
 		console.error(error);
 		return {

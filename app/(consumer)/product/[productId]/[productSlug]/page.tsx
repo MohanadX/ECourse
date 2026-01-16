@@ -1,6 +1,6 @@
 import Price from "@/components/products/Price";
 import PurchaseButton from "@/components/products/PurchaseButton";
-import SkeletonButton from "@/components/SkeletonButton";
+import SkeletonButton from "@/components/Skeletons";
 import {
 	Accordion,
 	AccordionItem,

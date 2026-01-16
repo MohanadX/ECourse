@@ -6,6 +6,7 @@ import { userRolesType } from "@/drizzle/schema";
 import { getCurrentUser } from "../users/db/clerk";
 import {
 	eliminateProduct,
+	getProduct,
 	insertProduct,
 	updateProduct,
 } from "../products/db/product";
@@ -46,12 +47,14 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	}
 
 	try {
+		const user = await getCurrentUser();
 		const product = await insertProduct({
 			...data,
+			userId: user.userId!,
 			imageUrl: imageUrl!,
 			imageFileId: imageFileId!,
 		});
-		revalidateProductCache(product.id);
+		revalidateProductCache(product.id, user.userId!);
 		return {
 			success: true,
 			message: "Successfully created your product",
@@ -101,14 +104,23 @@ export async function mutateProduct(
 	}
 
 	try {
-		const product = await updateProduct(id, {
+		const user = await getCurrentUser();
+		const product = await getProduct(id);
+		if (!product || product.userId !== user.userId) {
+			return {
+				success: false,
+				message: "You are not authorized to update this product",
+			};
+		}
+
+		const updatedProduct = await updateProduct(id, {
 			...data,
 			imageUrl,
 			imageFileId,
 		});
 
-		revalidatePath(`/admin/products/${product.id}/edit`);
-		revalidateProductCache(product.id);
+		revalidatePath(`/admin/${user.userId}/products/${updatedProduct.id}/edit`);
+		revalidateProductCache(updatedProduct.id, user.userId!);
 		return {
 			success: true,
 			message: "Product Has been updated successfully",
@@ -131,10 +143,20 @@ export async function deleteProduct(productId: string) {
 	}
 
 	try {
+		const user = await getCurrentUser();
+		const product = await getProduct(productId);
+
+		if (!product || product.userId !== user.userId) {
+			return {
+				success: false,
+				message: "You are not authorized to delete this product",
+			};
+		}
+
 		await eliminateProduct(productId);
 
-		revalidatePath(`/admin/products/`);
-		revalidateProductCache(productId);
+		revalidatePath(`/admin/${user.userId}/products/`);
+		revalidateProductCache(productId, user.userId!);
 	} catch (error) {
 		console.error(error);
 		return {

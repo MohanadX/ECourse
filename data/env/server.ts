@@ -39,6 +39,7 @@ export const env = createEnv({
 		STRIPE_WEBHOOK_SECRET: z
 			.string()
 			.min(1, { error: "Stripe Webhook secret is not set correctly" }),
+		SERVER_URL: z.string().url({ message: "Server URL must be a valid URL" }),
 	},
 	experimental__runtimeEnv: process.env,
 });

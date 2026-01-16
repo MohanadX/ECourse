@@ -21,7 +21,10 @@ export const env = createEnv({
 			.min(1, { error: "Image Kit id is not set correctly" }),
 		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
 			.string()
-			.min(1, { error: "Stripe public key is not set correctly" }),
+			.min(1, { error: "Stripe public key is not set correctly" })
+			.regex(/^pk_(test|live)_/, {
+				message: "Invalid Stripe publishable key format",
+			}),
 		NEXT_PUBLIC_SERVER_URL: z
 			.string()
 			.url({ message: "Server URL must be a valid URL" }),

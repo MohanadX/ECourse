@@ -1,6 +1,13 @@
-export default function PageLoader() {
+import { cn } from "@/lib/utils";
+
+export default function PageLoader({ className }: { className?: string }) {
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-background">
+		<div
+			className={cn(
+				"flex min-h-screen items-center justify-center bg-background",
+				className
+			)}
+		>
 			<div
 				role="status"
 				aria-label="Loading"
