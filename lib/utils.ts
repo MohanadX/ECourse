@@ -17,16 +17,14 @@ export function formatDate(date: Date) {
 const PURCHASE_REFUND_WINDOW_MS = 24 * 60 * 60 * 1000; // one day
 
 export function expireRefundPurchaseDate(purchaseDate: Date) {
-	console.log(purchaseDate);
-	const isExpired = !(
-		purchaseDate.getTime() + PURCHASE_REFUND_WINDOW_MS >
-		new Date().getTime()
-	);
+	// console.log(purchaseDate);
+
+	const now = Date.now();
+	const isExpired = !(purchaseDate.getTime() + PURCHASE_REFUND_WINDOW_MS > now);
 
 	let howMuchTimeLeft: number = 0;
 	if (!isExpired) {
-		howMuchTimeLeft =
-			purchaseDate.getTime() + PURCHASE_REFUND_WINDOW_MS - new Date().getTime();
+		howMuchTimeLeft = purchaseDate.getTime() + PURCHASE_REFUND_WINDOW_MS - now;
 	}
 
 	return {

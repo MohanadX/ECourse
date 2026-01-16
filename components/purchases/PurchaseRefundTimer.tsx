@@ -19,7 +19,6 @@ export default function PurchaseRefundTimer({
 		return () => clearInterval(timer);
 	});
 
-	console.log(remainingTime, "this is it");
 	return (
 		<p>Time till refund period expire: {formatTimeDuration(remainingTime)}</p>
 	);

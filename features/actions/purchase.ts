@@ -29,13 +29,6 @@ export async function refundPurchase(purchaseId: string) {
 			}
 
 			try {
-				await stripeServerClient.refunds.create({
-					payment_intent:
-						typeof session.payment_intent === "string" // it means that it is id
-							? session.payment_intent
-							: session.payment_intent.id,
-				});
-
 				await revokeUserCourseAccess(
 					{
 						productId: refundedPurchase!.productId,
@@ -43,6 +36,13 @@ export async function refundPurchase(purchaseId: string) {
 					},
 					trx
 				);
+				// revoke in db first so if it fails we can rollback (we can't roll back stripe state if db fails)
+				await stripeServerClient.refunds.create({
+					payment_intent:
+						typeof session.payment_intent === "string" // it means that it is id
+							? session.payment_intent
+							: session.payment_intent.id,
+				});
 			} catch (error) {
 				console.error(error);
 				trx.rollback();
@@ -53,6 +53,7 @@ export async function refundPurchase(purchaseId: string) {
 			}
 		} catch (error) {
 			console.error(error);
+			trx.rollback();
 			return {
 				success: false,
 				message: "Failed to update purchase",

@@ -143,12 +143,12 @@ export async function getUserProducts(userId: string) {
 	});
 }
 
-export async function getProduct(id: string) {
+export async function getProduct(id: string, userId: string) {
 	"use cache";
 	cacheTag(getProductIdTag(id));
 
 	return await db.query.ProductTable.findFirst({
 		columns: { id: true, name: true, userId: true },
-		where: eq(ProductTable.id, id),
+		where: and(eq(ProductTable.id, id), eq(ProductTable.userId, userId)),
 	});
 }

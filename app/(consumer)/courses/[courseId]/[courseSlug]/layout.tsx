@@ -80,7 +80,7 @@ async function SuspenseBoundary({ course }: { course: Course }) {
 	const { userId } = await getCurrentUser();
 	const completedLessonIds = !userId ? [] : await getCompletedLessonIds(userId);
 
-	return <CoursePageClient course={mapCourse(course, [])} />;
+	return <CoursePageClient course={mapCourse(course, completedLessonIds)} />;
 }
 
 async function getCompletedLessonIds(userId: string) {

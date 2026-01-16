@@ -17,7 +17,8 @@ import { uploadImage } from "../imageKit";
 export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
-	if (!productPermission((await getCurrentUser()).role)) {
+	const user = await getCurrentUser();
+	if (!productPermission(user.role)) {
 		console.error("You are not authorized to create a product");
 		return {
 			success: false,
@@ -47,7 +48,6 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	}
 
 	try {
-		const user = await getCurrentUser();
 		const product = await insertProduct({
 			...data,
 			userId: user.userId!,
@@ -74,7 +74,9 @@ export async function mutateProduct(
 ) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
-	if (!(await productPermission((await getCurrentUser()).role))) {
+	const user = await getCurrentUser();
+
+	if (!(await productPermission(user.role))) {
 		console.error("You are not authorized to update this product");
 		return {
 			success: false,
@@ -104,8 +106,7 @@ export async function mutateProduct(
 	}
 
 	try {
-		const user = await getCurrentUser();
-		const product = await getProduct(id);
+		const product = await getProduct(id, user.userId!);
 		if (!product || product.userId !== user.userId) {
 			return {
 				success: false,
@@ -135,7 +136,8 @@ export async function mutateProduct(
 }
 
 export async function deleteProduct(productId: string) {
-	if (!productPermission((await getCurrentUser()).role)) {
+	const user = await getCurrentUser();
+	if (!productPermission(user.role)) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this product",
@@ -143,8 +145,7 @@ export async function deleteProduct(productId: string) {
 	}
 
 	try {
-		const user = await getCurrentUser();
-		const product = await getProduct(productId);
+		const product = await getProduct(productId, user.userId!);
 
 		if (!product || product.userId !== user.userId) {
 			return {
