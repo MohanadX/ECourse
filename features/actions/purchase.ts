@@ -16,14 +16,6 @@ export async function refundPurchase(purchaseId: string) {
 				trx
 			);
 
-			const refundedPurchase = await updatePurchase(
-				purchaseId,
-				{
-					refundedAt: new Date(),
-				},
-				trx
-			);
-
 			if (!refundedPurchase) {
 				trx.rollback();
 				return {

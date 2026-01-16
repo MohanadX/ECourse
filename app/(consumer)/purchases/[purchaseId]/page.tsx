@@ -36,7 +36,7 @@ export default async function PurchaseIdPage({
 
 	return (
 		<main className="containers my-6">
-			<Suspense fallback={<PageLoader />}>
+			<Suspense fallback={<PageLoader className="min-h-[90vh]" />}>
 				<SuspendedComponent purchaseId={purchaseId} />
 			</Suspense>
 		</main>
