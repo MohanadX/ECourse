@@ -2,6 +2,7 @@
 
 import { expireRefundPurchaseDate, formatTimeDuration } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { SkeletonText } from "../Skeletons";
 
 export default function PurchaseRefundTimer({
 	purchaseTime,
@@ -19,8 +20,9 @@ export default function PurchaseRefundTimer({
 		return () => clearInterval(timer);
 	}, []);
 
-	console.log(remainingTime, "this is it");
 	return (
-		<p>Time till refund period expire: {formatTimeDuration(remainingTime)}</p>
+		<p suppressHydrationWarning>
+			Time till refund period expire: {formatTimeDuration(remainingTime)}
+		</p>
 	);
 }

@@ -8,6 +8,13 @@ import { eq } from "drizzle-orm";
 export async function getCurrentUser({ allData = false } = {}) {
 	const { userId, sessionClaims, redirectToSignIn } = await auth();
 
+	if (!sessionClaims) {
+		console.error(`This is user doesn't have clerk session claims: ${userId}`);
+		throw new Error(
+			`This is user doesn't have clerk session claims: ${userId}`
+		);
+	}
+
 	return {
 		clerkUserId: userId,
 		userId: sessionClaims?.dbId,

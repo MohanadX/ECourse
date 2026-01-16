@@ -8,7 +8,11 @@ import { ReactNode } from "react";
 export default async function AdminLayout({
 	children,
 }: Readonly<{ children: ReactNode }>) {
-	const { userId } = await getCurrentUser();
+	const { userId, redirectToSignIn } = await getCurrentUser();
+
+	if (!userId) {
+		return redirectToSignIn();
+	}
 	return (
 		<>
 			<header className="h-12 shadow bg-background z-10">
