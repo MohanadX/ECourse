@@ -1,7 +1,8 @@
 import { relations } from "drizzle-orm";
-import { integer, pgEnum, pgTable, text } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { createdAt, id, updatedAt } from "../schemaHelper";
 import { CourseProductTable } from "./CourseProduct";
+import { UserTable } from "./User";
 
 export const productsStatues = ["public", "private"] as const; // Do not widen the types to string[] Instead, keep them as literal types "public" and "private"
 export type ProductStatus = (typeof productsStatues)[number]; // = "public" | "private" Extracts union of tuple values
@@ -12,6 +13,7 @@ export const ProductTable = pgTable("products", {
 	id,
 	slug: text().notNull(),
 	name: text().notNull(),
+	userId: uuid().references(() => UserTable.id),
 	description: text().notNull(),
 	imageUrl: text().notNull(),
 	imageFileId: text().notNull(),

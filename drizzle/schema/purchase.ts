@@ -20,7 +20,8 @@ export const PurchaseTable = pgTable("purchase", {
 	userId: uuid()
 		.notNull()
 		.references(() => UserTable.id, { onDelete: "restrict" }),
-	productId: uuid() // real time product data (if the data has changed this will be useful for oberserability)
+	adminId: uuid().references(() => UserTable.id),
+	productId: uuid() // real time product data (if the data has changed this will be useful for oberservbility)
 		.notNull()
 		.references(() => ProductTable.id, { onDelete: "restrict" }),
 	stripeSessionId: text().notNull().unique(),

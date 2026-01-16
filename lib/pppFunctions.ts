@@ -1,4 +1,4 @@
-import { pppCoupons } from "@/data/pppCoupons";
+import { countryToCouponMap } from "@/data/pppCoupons";
 import { headers } from "next/headers";
 
 const COUNTRY_HEADER_KEY = "x-user-country";
@@ -22,9 +22,8 @@ export async function getUserCoupon() {
 	const country = await getUserCountry();
 	if (!country) return; // PPP system won't work with users using vpn or proxy
 
-	const coupon = pppCoupons.find((coupon) =>
-		coupon.countryCodes.includes(country)
-	);
+	// O(1) lookup using Map instead of O(n*m) with find + includes
+	const coupon = countryToCouponMap.get(country);
 
 	if (!coupon) return;
 

@@ -2,30 +2,26 @@ import CoursesTable from "@/components/courses/CoursesTable";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { db } from "@/drizzle/db";
-import {
-	getCourseGlobalTag,
-	getUserAccessCourseGlobalTag,
-} from "@/features/course/db/cache";
+import { getUserCoursesTag } from "@/features/course/db/cache";
+import { getAdminCourseAccessTag } from "@/features/course/db/CourseAccessCache";
+import { getAdminLessonsTag } from "@/features/lessons/db/cache";
+import { getAdminCourseSectionsTag } from "@/features/sections/db/cache";
 import { cacheTag } from "next/cache";
-import {
-	CourseSectionTable,
-	CourseTable as DBCourse,
-	LessonTable,
-	UserCourseAccessTable,
-} from "@/drizzle/schema";
-
 import Link from "next/link";
-import { asc, countDistinct, eq } from "drizzle-orm";
-import { getCourseSectionGlobalTag } from "@/features/sections/db/cache";
-import { getLessonsGlobalTag } from "@/features/lessons/db/cache";
+import { CourseTable as DBCourse } from "@/drizzle/schema";
+import { LessonTable } from "@/drizzle/schema";
+import { UserCourseAccessTable } from "@/drizzle/schema";
+import { CourseSectionTable } from "@/drizzle/schema";
+import { countDistinct, eq, asc } from "drizzle-orm";
 
-const Courses = async () => {
-	const courses = await getCourses();
+const Courses = async ({ params }: { params: Promise<{ userId: string }> }) => {
+	const { userId } = await params;
+	const courses = await getCourses(userId);
 	return (
 		<main className="containers mt-6">
 			<PageHeader title="Courses">
 				<Button asChild variant={"default"}>
-					<Link href={"/admin/courses/new"}>New Course</Link>
+					<Link href={`/admin/${userId}/courses/new`}>New Course</Link>
 				</Button>
 			</PageHeader>
 
@@ -38,13 +34,13 @@ const Courses = async () => {
 
 export default Courses;
 
-async function getCourses() {
+async function getCourses(userId: string) {
 	"use cache";
 	cacheTag(
-		getCourseGlobalTag(),
-		getUserAccessCourseGlobalTag(),
-		getCourseSectionGlobalTag(),
-		getLessonsGlobalTag()
+		getUserCoursesTag(userId),
+		getAdminCourseAccessTag(userId),
+		getAdminCourseSectionsTag(userId),
+		getAdminLessonsTag(userId)
 	);
 
 	return db
@@ -56,6 +52,7 @@ async function getCourses() {
 			studentsCount: countDistinct(UserCourseAccessTable),
 		})
 		.from(DBCourse)
+		.where(eq(DBCourse.userId, userId))
 		.leftJoin(CourseSectionTable, eq(CourseSectionTable.courseId, DBCourse.id))
 		.leftJoin(LessonTable, eq(LessonTable.sectionId, CourseSectionTable.id))
 		.leftJoin(

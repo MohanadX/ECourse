@@ -41,19 +41,31 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-	const event = stripeServerClient.webhooks.constructEvent(
-		await req.text(),
-		req.headers.get("stripe-signature") as string,
-		env.STRIPE_WEBHOOK_SECRET
-	);
+	let event: Stripe.Event;
+	try {
+		event = stripeServerClient.webhooks.constructEvent(
+			await req.text(),
+			req.headers.get("stripe-signature") as string,
+			env.STRIPE_WEBHOOK_SECRET
+		);
+	} catch (error) {
+		console.error("Webhook signature verification failed:", error);
+		return new Response("Invalid signature", { status: 400 });
+	}
 
 	switch (event.type) {
 		case "checkout.session.completed":
 		case "checkout.session.async_payment_succeeded": {
 			try {
 				await processStripeCheckout(event.data.object);
-			} catch {
-				return new Response(null, { status: 500 });
+			} catch (error) {
+				console.error("Failed to process checkout webhook:", {
+					eventId: event.id,
+					sessionId: event.data.object.id,
+					error,
+				});
+				// Return 500 to trigger Stripe retry
+				return new Response("Processing failed", { status: 500 });
 			}
 		}
 	}
@@ -70,8 +82,10 @@ async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
 	}
 
 	// Verify payment was successful
-	if (checkoutSession.payment_status !== 'paid') {
-		throw new Error(`Payment not completed. Status: ${checkoutSession.payment_status}`);
+	if (checkoutSession.payment_status !== "paid") {
+		throw new Error(
+			`Payment not completed. Status: ${checkoutSession.payment_status}`
+		);
 	}
 
 	const [product, user] = await Promise.all([
@@ -89,10 +103,12 @@ async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
 		await insertPurchase(
 			{
 				stripeSessionId: checkoutSession.id,
-				pricePaidInCents: checkoutSession.amount_total ?? product.priceInDollars * 100,
+				pricePaidInCents:
+					checkoutSession.amount_total ?? product.priceInDollars * 100,
 				productDetails: product,
 				userId: user.id,
 				productId: product.id,
+				adminId: product.userId,
 			},
 			trx
 		);
@@ -110,6 +126,7 @@ async function getProduct(productId: string) {
 			name: true,
 			description: true,
 			imageUrl: true,
+			userId: true,
 		},
 		where: eq(ProductTable.id, productId),
 		with: {

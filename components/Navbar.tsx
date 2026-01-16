@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Button } from "./ui/button";
 import { getCurrentUser } from "@/features/users/db/clerk";
 import UserButtonClient from "./UserButtonClient";
+import SkeletonButton, { SkeletonArray } from "./Skeletons";
 
 export default function Navbar() {
 	return (
@@ -12,7 +13,13 @@ export default function Navbar() {
 				<Link href={"/"} className="text-lg hover:underline pr-2">
 					ECourse Educational Platform
 				</Link>
-				<Suspense>
+				<Suspense
+					fallback={
+						<SkeletonArray amount={3}>
+							<SkeletonButton className="size-16"></SkeletonButton>
+						</SkeletonArray>
+					}
+				>
 					<div className="flex items-center h-full">
 						<SignedIn>
 							{/* only be shown if the user signed in */}
@@ -54,7 +61,7 @@ async function AdminLink() {
 
 	return (
 		<Link
-			href={"/admin"}
+			href={`/admin/${user.userId}`}
 			className="hover:bg-accent/10  flex justify-center items-center h-full p-2"
 		>
 			Admin

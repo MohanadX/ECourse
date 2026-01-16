@@ -1,8 +1,17 @@
 import { db } from "@/drizzle/db";
-import { CourseSectionTable, LessonTable } from "@/drizzle/schema";
-import { desc, eq, inArray, or, sql } from "drizzle-orm";
-import { revalidateLessonCache } from "./cache";
-import { revalidatePath } from "next/cache";
+import {
+	CourseSectionTable,
+	CourseTable,
+	lessonStatus,
+	LessonTable,
+	UserCourseAccessTable,
+	userRolesType,
+} from "@/drizzle/schema";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { getLessonIdTag, revalidateLessonCache } from "./cache";
+import { cacheTag, revalidatePath } from "next/cache";
+import { wherePublicCourseSections } from "@/features/sections/db/sections";
+import { getUserCourseAccessUserTag } from "@/features/course/db/CourseAccessCache";
 
 /*
 {courseId}, {eq}
@@ -24,7 +33,10 @@ export async function getNextOrderOfLesson(sectionId: string) {
 	return section ? section.order + 1 : 0;
 }
 
-export async function insertLesson(data: typeof LessonTable.$inferInsert) {
+export async function insertLesson(
+	data: typeof LessonTable.$inferInsert,
+	userId: string
+) {
 	// trx transaction scoped client
 	const [newLesson, courseId] = await db.transaction(async (trx) => {
 		const [[newLesson], section] = await Promise.all([
@@ -46,13 +58,18 @@ export async function insertLesson(data: typeof LessonTable.$inferInsert) {
 		return [newLesson, section?.courseId];
 	});
 
-	revalidateLessonCache(newLesson.id, courseId!);
-	revalidatePath(`admin/courses/${courseId}/edit`);
+	revalidateLessonCache({
+		lessonId: newLesson.id,
+		courseId: courseId!,
+		userId,
+	});
+	revalidatePath(`/admin/${userId}/courses/${courseId}/edit`);
 }
 
 export async function updateLesson(
 	lessonId: string,
-	data: Partial<typeof LessonTable.$inferInsert>
+	data: Partial<typeof LessonTable.$inferInsert>,
+	userId: string
 ) {
 	const [updatedLesson, courseId] = await db.transaction(async (trx) => {
 		const currentLesson = await trx.query.LessonTable.findFirst({
@@ -92,11 +109,15 @@ export async function updateLesson(
 		return [updatedLesson, section!.courseId];
 	});
 
-	revalidateLessonCache(updatedLesson.id, courseId);
-	revalidatePath(`admin/courses/${courseId}/edit`);
+	revalidateLessonCache({
+		lessonId: updatedLesson.id,
+		courseId: courseId!,
+		userId,
+	});
+	revalidatePath(`/admin/${userId}/courses/${courseId}/edit`);
 }
 
-export async function eliminateLesson(id: string) {
+export async function eliminateLesson(id: string, userId: string) {
 	const [deletedLesson, courseId] = await db.transaction(async (trx) => {
 		const [deletedLesson] = await trx
 			.delete(LessonTable)
@@ -123,11 +144,15 @@ export async function eliminateLesson(id: string) {
 		return [deletedLesson, section!.courseId];
 	});
 
-	revalidateLessonCache(deletedLesson.id, courseId);
-	revalidatePath(`admin/courses/${courseId}/edit`);
+	revalidateLessonCache({
+		lessonId: deletedLesson.id,
+		courseId: courseId!,
+		userId,
+	});
+	revalidatePath(`/admin/${userId}/courses/${courseId}/edit`);
 }
 
-export async function updateLessonOrders(lessonIds: string[]) {
+export async function updateLessonOrders(lessonIds: string[], userId: string) {
 	if (lessonIds.length === 0) return;
 
 	const caseSql = sql`CASE ${LessonTable.id} ${sql.join(
@@ -161,13 +186,55 @@ export async function updateLessonOrders(lessonIds: string[]) {
 	}
 
 	for (const { id } of orderedLessons) {
-		revalidateLessonCache(id, section.courseId);
+		revalidateLessonCache({
+			lessonId: id,
+			courseId: section.courseId,
+			userId,
+		});
 	}
 
-	revalidatePath(`/admin/courses/${section.courseId}/edit`);
+	revalidatePath(`/admin/${userId}/courses/${section.courseId}/edit`);
 }
 
 export const wherePublicLessons = or(
 	eq(LessonTable.status, "public"),
 	eq(LessonTable.status, "preview")
 );
+
+export async function canViewLesson(
+	role: userRolesType | undefined,
+	userId: string,
+	lesson: { id: string; status: lessonStatus }
+) {
+	"use cache";
+	cacheTag(getUserCourseAccessUserTag(userId), getLessonIdTag(lesson.id));
+	if (lesson.status === "preview") return true;
+	if (!userId || lesson.status === "private") return false;
+
+	const [data] = await db
+		.select({ courseId: CourseTable.id })
+		.from(UserCourseAccessTable)
+		.leftJoin(CourseTable, eq(CourseTable.id, UserCourseAccessTable.courseId))
+		.leftJoin(
+			CourseSectionTable,
+			and(
+				eq(CourseSectionTable.courseId, CourseTable.id),
+				wherePublicCourseSections
+			)
+		)
+		.leftJoin(
+			LessonTable,
+			and(eq(LessonTable.sectionId, CourseSectionTable.id), wherePublicLessons)
+		)
+		.where(
+			and(
+				eq(LessonTable.id, lesson.id),
+				eq(UserCourseAccessTable.userId, userId)
+			)
+		)
+		.limit(1);
+
+	return data != null && data.courseId != null;
+}
+
+// Critical detail: LEFT JOIN + WHERE = INNER JOIN

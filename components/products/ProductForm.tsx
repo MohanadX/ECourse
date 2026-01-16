@@ -35,6 +35,7 @@ import Image from "next/image";
 const ProductForm = ({
 	product,
 	courses,
+	userId,
 }: {
 	product?: {
 		id: string;
@@ -49,6 +50,7 @@ const ProductForm = ({
 		id: string;
 		name: string;
 	}[];
+	userId: string;
 }) => {
 	const [isLoading, startTransition] = useTransition();
 	const router = useRouter();
@@ -83,7 +85,8 @@ const ProductForm = ({
 				toast.error(message);
 			} else {
 				toast.success(message);
-				if (action == createProduct) router.replace(`/admin/products`);
+				if (action == createProduct)
+					router.replace(`/admin/${userId}/products`);
 			}
 		});
 	}
@@ -143,7 +146,7 @@ const ProductForm = ({
 						name="image"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>
+								<FormLabel className={product ? "relative bottom-2" : ""}>
 									{product?.imageUrl ? (
 										<Image
 											src={product.imageUrl}
@@ -156,7 +159,7 @@ const ProductForm = ({
 									)}
 									Image
 								</FormLabel>
-								<FormControl>
+								<FormControl className={product ? "-mt-3" : ""}>
 									<Input
 										type="file"
 										onChange={(e) => field.onChange(e.target.files![0])}

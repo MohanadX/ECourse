@@ -9,6 +9,7 @@ import {
 	wherePublicProducts,
 } from "@/features/products/db/product";
 import { getCurrentUser } from "@/features/users/db/clerk";
+import { ensureUserExists } from "@/features/users/db/users";
 import { SignIn, SignUp } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
@@ -42,15 +43,27 @@ async function SuspendedComponent({
 
 	if (!product) return notFound();
 
-	const { user } = await getCurrentUser({ allData: true });
-	if (user) {
-		if (await userOwnsProduct({ userId: user.id, productId: product.id })) {
+	const { clerkUserId, userId, user } = await getCurrentUser({ allData: true });
+
+	// Handle race condition: If user is signed in to Clerk but not in DB yet,
+	// ensure they exist before allowing checkout
+	let dbUser = user;
+	if (clerkUserId && !userId) {
+		// console.log(
+		// 	`[Purchase Page] User ${clerkUserId} signed in but not in DB, ensuring user exists`
+		// );
+		dbUser = await ensureUserExists(clerkUserId);
+	}
+
+	// console.log(dbUser);
+	if (dbUser) {
+		if (await userOwnsProduct({ userId: dbUser.id, productId: product.id })) {
 			redirect("/courses");
 		}
 
 		return (
 			<main className="containers my-6">
-				<StripeCheckoutForm product={product} user={user} />
+				<StripeCheckoutForm product={product} user={dbUser} />
 			</main>
 		);
 	}

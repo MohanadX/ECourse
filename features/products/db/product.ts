@@ -6,8 +6,12 @@ import {
 } from "@/drizzle/schema";
 import { slugifyName } from "@/features/course/db/course";
 import { imageKit } from "@/features/imageKit";
+import {
+	getProductIdTag,
+	getUserProductsTag,
+} from "@/features/products/db/cache";
 import { getPurchaseUserTag } from "@/features/purchases/db/cache";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 export async function insertProduct(
@@ -94,7 +98,7 @@ export async function eliminateProduct(id: string) {
 }
 
 export function formatPrice(amount: number, { showZeroAsNumber = false } = {}) {
-	const formatter = new Intl.NumberFormat("en-US", {
+	const formatter = new Intl.NumberFormat(undefined, {
 		style: "currency",
 		currency: "USD",
 		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
@@ -127,4 +131,24 @@ export async function userOwnsProduct({
 	});
 
 	return existingPurchase != null;
+}
+
+export async function getUserProducts(userId: string) {
+	"use cache";
+	cacheTag(getUserProductsTag(userId));
+
+	return await db.query.ProductTable.findMany({
+		where: eq(ProductTable.userId, userId),
+		orderBy: asc(ProductTable.name),
+	});
+}
+
+export async function getProduct(id: string) {
+	"use cache";
+	cacheTag(getProductIdTag(id));
+
+	return await db.query.ProductTable.findFirst({
+		columns: { id: true, name: true, userId: true },
+		where: eq(ProductTable.id, id),
+	});
 }

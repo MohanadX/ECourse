@@ -15,7 +15,9 @@ import {
 export async function createLesson(unsafeData: z.infer<typeof lessonSchema>) {
 	const { success, data } = lessonSchema.safeParse(unsafeData);
 
-	if (!(await lessonsPermission((await getCurrentUser()).role))) {
+	const user = await getCurrentUser();
+
+	if (!(await lessonsPermission(user.role))) {
 		console.error("You are not authorized to create Lessons");
 		return {
 			success: false,
@@ -32,7 +34,7 @@ export async function createLesson(unsafeData: z.infer<typeof lessonSchema>) {
 	const order = await getNextOrderOfLesson(data.sectionId);
 
 	try {
-		await insertLesson({ ...data, order });
+		await insertLesson({ ...data, order }, user.userId!);
 	} catch {
 		return {
 			success: false,
@@ -51,8 +53,9 @@ export async function mutateLesson(
 	unsafeData: z.infer<typeof lessonSchema>
 ) {
 	const { success, data } = lessonSchema.safeParse(unsafeData);
+	const user = await getCurrentUser();
 
-	if (!(await lessonsPermission((await getCurrentUser()).role))) {
+	if (!(await lessonsPermission(user.role))) {
 		console.error("You are not authorized to update Lessons");
 		return {
 			success: false,
@@ -67,7 +70,7 @@ export async function mutateLesson(
 	}
 
 	try {
-		await updateLesson(lessonId, data);
+		await updateLesson(lessonId, data, user.userId!);
 	} catch (error) {
 		console.error(error);
 		return {
@@ -83,7 +86,8 @@ export async function mutateLesson(
 }
 
 export async function deleteLesson(lessonId: string) {
-	if (!(await lessonsPermission((await getCurrentUser()).role))) {
+	const user = await getCurrentUser();
+	if (!(await lessonsPermission(user.role))) {
 		console.error("You are not authorized to delete Lessons");
 		return {
 			success: false,
@@ -92,7 +96,7 @@ export async function deleteLesson(lessonId: string) {
 	}
 
 	try {
-		await eliminateLesson(lessonId);
+		await eliminateLesson(lessonId, user.userId!);
 	} catch {
 		return {
 			success: false,
@@ -107,15 +111,13 @@ export async function deleteLesson(lessonId: string) {
 }
 
 export async function mutateLessonOrders(lessonIds: string[]) {
-	if (
-		lessonIds.length === 0 ||
-		!lessonsPermission((await getCurrentUser()).role)
-	) {
+	const user = await getCurrentUser();
+	if (lessonIds.length === 0 || !lessonsPermission(user.role)) {
 		return { success: false, message: "Error reordering your lessons" };
 	}
 
 	try {
-		await updateLessonOrders(lessonIds);
+		await updateLessonOrders(lessonIds, user.userId!);
 	} catch (error) {
 		console.error(error);
 		return {
