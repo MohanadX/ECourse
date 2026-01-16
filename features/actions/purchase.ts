@@ -16,8 +16,24 @@ export async function refundPurchase(purchaseId: string) {
 				trx
 			);
 
+			const refundedPurchase = await updatePurchase(
+				purchaseId,
+				{
+					refundedAt: new Date(),
+				},
+				trx
+			);
+
+			if (!refundedPurchase) {
+				trx.rollback();
+				return {
+					success: false,
+					message: "Failed to update purchase",
+				};
+			}
+
 			const session = await stripeServerClient.checkout.sessions.retrieve(
-				refundedPurchase!.stripeSessionId
+				refundedPurchase.stripeSessionId
 			);
 
 			if (session.payment_intent == null) {
