@@ -13,11 +13,11 @@ export default function PurchaseRefundTimer({
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setRemainingTime(remainingTime - 1000);
+			setRemainingTime((prev) => prev - 1000);
 		}, 1000);
 
 		return () => clearInterval(timer);
-	});
+	}, []);
 
 	return (
 		<p>Time till refund period expire: {formatTimeDuration(remainingTime)}</p>

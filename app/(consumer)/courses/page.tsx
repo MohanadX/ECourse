@@ -101,7 +101,7 @@ async function CourseGrid() {
 			<div
 				className="bg-accent h-2 absolute bottom-0"
 				style={{
-					width: `${(course.lessonCompleted / course.lessonsCount) * 100}%`,
+					width: `${course.lessonsCount > 0 ? (course.lessonCompleted / course.lessonsCount) * 100 : 0}%`,
 				}}
 			/>
 		</Card>

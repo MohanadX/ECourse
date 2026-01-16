@@ -51,13 +51,13 @@ export async function updatePurchase(
 		.update(PurchaseTable)
 		.set({
 			...data,
-			productDetails: details
-				? {
-						name: details.name, // just make sure not to add additional info
-						description: details.description,
-						imageUrl: details.imageUrl,
-				  }
-				: undefined,
+			...(details && {
+				productDetails: {
+					name: details.name,
+					description: details.description,
+					imageUrl: details.imageUrl,
+				},
+			}),
 		})
 		.where(eq(PurchaseTable.id, purchaseId))
 		.returning();
