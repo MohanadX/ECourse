@@ -12,7 +12,7 @@ export async function addUserCourseAccess(
 		userId: string;
 		courseIds: string[];
 	},
-	trx: Omit<typeof db, "$client"> = db
+	trx: Omit<typeof db, "$client"> = db,
 ) {
 	if (courseIds.length === 0) {
 		return [];
@@ -23,7 +23,7 @@ export async function addUserCourseAccess(
 			courseIds.map((courseId) => ({
 				userId,
 				courseId,
-			}))
+			})),
 		)
 		.onConflictDoNothing()
 		.returning();
@@ -45,12 +45,12 @@ export async function revokeUserCourseAccess(
 		userId: string;
 		productId: string;
 	},
-	trx: Omit<typeof db, "$client"> = db
+	trx: Omit<typeof db, "$client"> = db,
 ) {
 	const validPurchases = await trx.query.PurchaseTable.findMany({
 		where: and(
 			eq(PurchaseTable.userId, userId),
-			isNull(PurchaseTable.refundedAt)
+			isNull(PurchaseTable.refundedAt),
 		), // all purchase that are not refunded
 		with: {
 			product: {
@@ -73,20 +73,25 @@ export async function revokeUserCourseAccess(
 	if (!refundPurchase) return;
 
 	const validCourseIds = validPurchases.flatMap((p) =>
-		p.product.CourseProducts.map((cp) => cp.courseId)
+		p.product.CourseProducts.map((cp) => cp.courseId),
 	);
 
 	const removeCourseIds = refundPurchase.CourseProducts.flatMap(
-		(cp) => cp.courseId
+		(cp) => cp.courseId,
 	).filter((courseId) => !validCourseIds.includes(courseId));
+
+	// If all courses from the refunded product are covered by other valid purchases, removeCourseIds will be empty.
+	if (removeCourseIds.length === 0) {
+		return [];
+	}
 
 	const revokedAccesses = await trx
 		.delete(UserCourseAccessTable)
 		.where(
 			and(
 				eq(UserCourseAccessTable.userId, userId),
-				inArray(UserCourseAccessTable.courseId, removeCourseIds)
-			)
+				inArray(UserCourseAccessTable.courseId, removeCourseIds),
+			),
 		)
 		.returning();
 

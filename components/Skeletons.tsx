@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +7,7 @@ const SkeletonButton = ({ className }: { className?: string }) => {
 		<div
 			className={buttonVariants({
 				variant: "secondary",
-				className: `pointer-events-none animate-pulse ${className}`,
+				className: `pointer-events-none animate-pulse ${className ?? ""}`,
 			})}
 		></div>
 	);
@@ -22,9 +22,10 @@ export function SkeletonArray({
 	amount: number;
 	children: ReactNode;
 }) {
-	return Array.from({ length: amount }).map(() => children);
+	return Array.from({ length: amount }).map((_, index) => (
+		<Fragment key={index}>{children}</Fragment>
+	));
 }
-
 export function SkeletonText({
 	rows = 1,
 	size = "md",
@@ -43,7 +44,7 @@ export function SkeletonText({
 						rows > 1 && "last:w-3/4",
 						size === "md" && "h-3",
 						size === "lg" && "h-5",
-						className
+						className,
 					)}
 				></div>
 			</SkeletonArray>

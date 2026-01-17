@@ -18,6 +18,13 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
 	const user = await getCurrentUser();
+	if (!user || !user.userId) {
+		console.error("You must be signed in to create a product");
+		return {
+			success: false,
+			message: "You must be signed in to create a product",
+		};
+	}
 	if (!productPermission(user.role)) {
 		console.error("You are not authorized to create a product");
 		return {
@@ -50,11 +57,11 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	try {
 		const product = await insertProduct({
 			...data,
-			userId: user.userId!,
+			userId: user.userId,
 			imageUrl: imageUrl!,
 			imageFileId: imageFileId!,
 		});
-		revalidateProductCache(product.id, user.userId!);
+		revalidateProductCache(product.id, user.userId);
 		return {
 			success: true,
 			message: "Successfully created your product",
