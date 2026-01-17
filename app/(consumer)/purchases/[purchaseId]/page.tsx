@@ -130,7 +130,7 @@ async function SuspendedComponent({ purchaseId }: { purchaseId: string }) {
 							{purchase.refundedAt
 								? "You have refunded this purchase previously"
 								: isExpired
-									? "The purchase refund date has expired. you can no longer refund this purchase"
+									? "The purchase refund date has expired. You can no longer refund this purchase"
 									: "You can refund this purchase within the refund period."}
 						</p>
 					</div>
