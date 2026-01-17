@@ -30,7 +30,7 @@ export default function SortableLessonList({
 	return (
 		<SortableList items={lessons} onOrderChangeAction={mutateLessonOrders}>
 			{(
-				items // function as child pattern
+				items, // function as child pattern
 			) =>
 				items.map((lesson) => (
 					<SortableItem
@@ -41,7 +41,7 @@ export default function SortableLessonList({
 						<p
 							className={cn(
 								"contents",
-								lesson.status === "private" && "text-muted-foreground"
+								lesson.status === "private" && "text-muted-foreground",
 							)}
 						>
 							{lesson.status === "private" && <EyeClosed className="size-4" />}

@@ -17,7 +17,7 @@ import { revalidateCourseSectionsCache } from "../sections/db/cache";
 
 export async function createSection(
 	courseId: string,
-	unsafeData: z.infer<typeof sectionSchema>
+	unsafeData: z.infer<typeof sectionSchema>,
 ) {
 	const { success, data } = sectionSchema.safeParse(unsafeData);
 
@@ -52,7 +52,7 @@ export async function createSection(
 
 export async function mutateSection(
 	sectionId: string,
-	unsafeData: z.infer<typeof sectionSchema>
+	unsafeData: z.infer<typeof sectionSchema>,
 ) {
 	const { success, data } = sectionSchema.safeParse(unsafeData);
 	const user = await getCurrentUser();
@@ -71,15 +71,15 @@ export async function mutateSection(
 		};
 	}
 
-	const updatedSection = await updateSection(sectionId, data);
+	const updatedSection = await updateSection(sectionId, data, user.userId!);
 
 	revalidatePath(
-		`/admin/${user.userId}/courses/${updatedSection.courseId}/edit`
+		`/admin/${user.userId}/courses/${updatedSection.courseId}/edit`,
 	);
 	revalidateCourseSectionsCache(
 		user.userId!,
 		updatedSection.courseId,
-		updatedSection.id
+		updatedSection.id,
 	);
 
 	return {
@@ -97,19 +97,19 @@ export async function deleteSection(sectionId: string) {
 		};
 	}
 
-	const deletedSection = await eliminateSection(sectionId);
+	const deletedSection = await eliminateSection(sectionId, user.userId!);
 
 	if (!deletedSection) {
 		return { success: false, message: `Failed to delete your section` };
 	}
 
 	revalidatePath(
-		`/admin/${user.userId}/courses/${deletedSection.courseId}/edit`
+		`/admin/${user.userId}/courses/${deletedSection.courseId}/edit`,
 	);
 	revalidateCourseSectionsCache(
 		user.userId!,
 		deletedSection.courseId,
-		deletedSection.id
+		deletedSection.id,
 	);
 	return {
 		success: true,

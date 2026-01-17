@@ -1,13 +1,13 @@
 import { db } from "@/drizzle/db";
 import { CourseSectionTable, CourseTable, LessonTable } from "@/drizzle/schema";
 import { getCourseIdTag, getUserCoursesTag } from "./cache";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import { getCourseLessonsTag } from "@/features/lessons/db/cache";
 import { getCourseSectionsTag } from "@/features/sections/db/cache";
 
 export async function insertCourse(
-	data: Omit<typeof CourseTable.$inferInsert, "slug">
+	data: Omit<typeof CourseTable.$inferInsert, "slug">,
 ) {
 	const slug = slugifyName(data.name);
 	const [newCourse] = await db
@@ -62,7 +62,7 @@ export function formatPlural(
 		singular,
 		plural,
 		includeCount = false,
-	}: { singular: string; plural: string; includeCount?: boolean }
+	}: { singular: string; plural: string; includeCount?: boolean },
 ) {
 	const word = length === 1 ? singular : plural;
 
@@ -71,7 +71,8 @@ export function formatPlural(
 
 export async function updateCourse(
 	id: string,
-	data: Omit<typeof CourseTable.$inferInsert, "slug">
+	data: Omit<typeof CourseTable.$inferInsert, "slug">,
+	userId: string,
 ) {
 	const slug = slugifyName(data.name);
 	const [updatedCourse] = await db
@@ -80,7 +81,7 @@ export async function updateCourse(
 			...data,
 			slug,
 		})
-		.where(eq(CourseTable.id, id))
+		.where(and(eq(CourseTable.id, id), eq(CourseTable.userId, userId)))
 		.returning();
 
 	if (!updatedCourse) throw new Error(`Failed to update ${data.name} course`);
@@ -88,25 +89,25 @@ export async function updateCourse(
 	return updatedCourse;
 }
 
-export async function eliminateCourse(id: string) {
+export async function eliminateCourse(id: string, userId: string) {
 	const [deletedCourse] = await db
 		.delete(CourseTable)
-		.where(eq(CourseTable.id, id))
+		.where(and(eq(CourseTable.id, id), eq(CourseTable.userId, userId)))
 		.returning();
 
 	return deletedCourse;
 }
 
-export async function getCourse(courseId: string) {
+export async function getCourse(courseId: string, userId: string) {
 	"use cache";
 	cacheTag(
 		getCourseIdTag(courseId),
 		getCourseSectionsTag(courseId),
-		getCourseLessonsTag(courseId)
+		getCourseLessonsTag(courseId),
 	);
 	return await db.query.CourseTable.findFirst({
 		columns: { id: true, name: true, description: true, userId: true },
-		where: eq(CourseTable.id, courseId),
+		where: and(eq(CourseTable.id, courseId), eq(CourseTable.userId, userId)),
 		with: {
 			CourseSections: {
 				orderBy: asc(CourseSectionTable.order),

@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
-import { CourseSectionTable } from "@/drizzle/schema";
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { CourseSectionTable, CourseTable } from "@/drizzle/schema";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidateCourseSectionsCache } from "./cache";
 import { revalidatePath } from "next/cache";
 
@@ -27,7 +27,7 @@ export async function getNextOrderOfSection(courseId: string) {
 export async function insertSection(
 	data: typeof CourseSectionTable.$inferInsert & {
 		courseId: string;
-	}
+	},
 ) {
 	const [newSection] = await db
 		.insert(CourseSectionTable)
@@ -41,14 +41,27 @@ export async function insertSection(
 	return newSection;
 }
 
+/**
+ *  from(courses) brings courses into scope like a JOIN.
+	But it is not a real JOIN result set like in SELECT.
+	It is a filtering join, not a data-producing join.
+ */
 export async function updateSection(
 	sectionId: string,
-	data: Partial<typeof CourseSectionTable.$inferInsert>
+	data: Partial<typeof CourseSectionTable.$inferInsert>,
+	userId: string,
 ) {
 	const [updatedSection] = await db
 		.update(CourseSectionTable)
 		.set(data)
-		.where(eq(CourseSectionTable.id, sectionId))
+		.from(CourseTable)
+		.where(
+			and(
+				eq(CourseSectionTable.id, sectionId),
+				eq(CourseSectionTable.courseId, CourseTable.id),
+				eq(CourseTable.userId, userId),
+			),
+		)
 		.returning();
 
 	if (!updatedSection) throw new Error(`Failed to update ${data.name} section`);
@@ -56,10 +69,24 @@ export async function updateSection(
 	return updatedSection;
 }
 
-export async function eliminateSection(id: string) {
+/**
+ * The USING clause specifies additional tables that can be referenced in the WHERE condition of a DELETE command.
+ */
+export async function eliminateSection(id: string, userId: string) {
 	const [deletedSection] = await db
 		.delete(CourseSectionTable)
-		.where(eq(CourseSectionTable.id, id))
+		.where(
+			and(
+				eq(CourseSectionTable.id, id),
+				inArray(
+					CourseSectionTable.courseId,
+					db
+						.select({ id: CourseTable.id })
+						.from(CourseTable)
+						.where(eq(CourseTable.userId, userId)),
+				),
+			),
+		)
 		.returning();
 
 	return deletedSection;
@@ -67,21 +94,28 @@ export async function eliminateSection(id: string) {
 
 export async function updateSectionOrders(
 	sectionIds: string[],
-	userId: string
+	userId: string,
 ) {
 	if (sectionIds.length === 0) return;
 
 	const caseSql = sql`CASE ${CourseSectionTable.id} ${sql.join(
 		sectionIds.map(
-			(sectionId, index) => sql`WHEN ${sectionId} THEN ${index}::integer`
+			(sectionId, index) => sql`WHEN ${sectionId} THEN ${index}::integer`,
 		),
-		sql.raw(" ")
+		sql.raw(" "),
 	)} END`;
 
 	const orderedSections = await db
 		.update(CourseSectionTable)
 		.set({ order: caseSql })
-		.where(inArray(CourseSectionTable.id, sectionIds))
+		.from(CourseTable)
+		.where(
+			and(
+				inArray(CourseSectionTable.id, sectionIds),
+				eq(CourseSectionTable.courseId, CourseTable.id),
+				eq(CourseTable.userId, userId),
+			),
+		)
 		.returning({
 			id: CourseSectionTable.id,
 			courseId: CourseSectionTable.courseId,
@@ -100,7 +134,7 @@ export async function updateSectionOrders(
 
 export const wherePublicCourseSections = eq(
 	CourseSectionTable.status,
-	"public"
+	"public",
 );
 
 /**

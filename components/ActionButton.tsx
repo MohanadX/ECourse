@@ -95,7 +95,7 @@ export function LoadingTextSwap({
 			<div
 				className={cn(
 					"col-start-1 col-end-2 row-start-1 row-end-2", // to make them occupy the same space
-					isLoading ? "invisible" : "visible"
+					isLoading ? "invisible" : "visible",
 				)}
 			>
 				{children}
@@ -103,7 +103,7 @@ export function LoadingTextSwap({
 			<div
 				className={cn(
 					"col-start-1 col-end-2 row-start-1 row-end-2 text-center",
-					isLoading ? "visible" : "invisible"
+					isLoading ? "visible" : "invisible",
 				)}
 			>
 				<Loader2Icon className="animate-spin" aria-label="Loading" />
