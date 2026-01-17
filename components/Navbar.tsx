@@ -18,6 +18,8 @@ export default function Navbar() {
 				<label
 					htmlFor="main-nav-toggle"
 					className="md:hidden p-2 cursor-pointer text-foreground"
+					aria-label="Toggle Navbar menu"
+					role="button"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +37,7 @@ export default function Navbar() {
 					</svg>
 				</label>
 
-				<div className="hidden peer-checked:flex w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center absolute md:static top-12 left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 z-20 gap-4 md:gap-0">
+				<div className="hidden peer-checked:block w-full md:flex h-full md:w-auto flex-col md:flex-row items-center absolute md:static top-12 left-0 bg-background md:bg-transparent shadow-md md:shadow-none  z-20 gap-4 md:gap-0">
 					<Suspense
 						fallback={
 							<SkeletonArray amount={3}>
@@ -43,7 +45,7 @@ export default function Navbar() {
 							</SkeletonArray>
 						}
 					>
-						<div className="flex flex-col md:flex-row items-center w-full md:w-auto gap-2 md:gap-0">
+						<div className="flex h-full flex-col md:flex-row items-center w-full md:w-auto gap-2 md:gap-0">
 							<SignedIn>
 								{/* only be shown if the user signed in */}
 								<AdminLink />
