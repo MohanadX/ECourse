@@ -1,8 +1,18 @@
 import { db } from "@/drizzle/db";
-import { CourseProductTable, ProductTable } from "@/drizzle/schema";
+import {
+	CourseProductTable,
+	ProductTable,
+	PurchaseTable,
+} from "@/drizzle/schema";
 import { slugifyName } from "@/features/course/db/course";
 import { imageKit } from "@/features/imageKit";
-import { eq } from "drizzle-orm";
+import {
+	getProductIdTag,
+	getUserProductsTag,
+} from "@/features/products/db/cache";
+import { getPurchaseUserTag } from "@/features/purchases/db/cache";
+import { and, asc, eq, isNull } from "drizzle-orm";
+import { cacheTag } from "next/cache";
 
 export async function insertProduct(
 	data: Omit<typeof ProductTable.$inferInsert, "slug"> & {
@@ -87,16 +97,58 @@ export async function eliminateProduct(id: string) {
 	return deletedProduct;
 }
 
-export async function formatPrice(
-	amount: number,
-	{ showZeroAsNumber = false } = {}
-) {
+export function formatPrice(amount: number, { showZeroAsNumber = false } = {}) {
 	const formatter = new Intl.NumberFormat(undefined, {
 		style: "currency",
 		currency: "USD",
 		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
 	});
+	// undefined locale → uses the user’s system/browser locale
+	// 2 if it’s a decimal (e.g. 10.5 → $10.50)
 
 	if (amount === 0 && !showZeroAsNumber) return "Free";
 	return formatter.format(amount);
+}
+
+export const wherePublicProducts = eq(ProductTable.status, "public");
+
+export async function userOwnsProduct({
+	userId,
+	productId,
+}: {
+	userId: string;
+	productId: string;
+}) {
+	"use cache";
+	cacheTag(getPurchaseUserTag(userId));
+
+	const existingPurchase = await db.query.PurchaseTable.findFirst({
+		where: and(
+			eq(PurchaseTable.productId, productId),
+			eq(PurchaseTable.userId, userId),
+			isNull(PurchaseTable.refundedAt) // if user refunded product they can purchase it another time
+		),
+	});
+
+	return existingPurchase != null;
+}
+
+export async function getUserProducts(userId: string) {
+	"use cache";
+	cacheTag(getUserProductsTag(userId));
+
+	return await db.query.ProductTable.findMany({
+		where: eq(ProductTable.userId, userId),
+		orderBy: asc(ProductTable.name),
+	});
+}
+
+export async function getProduct(id: string, userId: string) {
+	"use cache";
+	cacheTag(getProductIdTag(id));
+
+	return await db.query.ProductTable.findFirst({
+		columns: { id: true, name: true, userId: true },
+		where: and(eq(ProductTable.id, id), eq(ProductTable.userId, userId)),
+	});
 }

@@ -15,7 +15,9 @@ import { revalidateCourseCache } from "../course/db/cache";
 export async function createCourse(unsafeData: z.infer<typeof courseSchema>) {
 	const { success, data } = courseSchema.safeParse(unsafeData);
 
-	if (!(await canCreateCourse((await getCurrentUser()).role))) {
+	const user = await getCurrentUser();
+
+	if (!(await canCreateCourse(user.role))) {
 		console.error("You are not authorized to create Course");
 		return {
 			success: false,
@@ -29,8 +31,8 @@ export async function createCourse(unsafeData: z.infer<typeof courseSchema>) {
 		};
 	}
 
-	const course = await insertCourse(data);
-	revalidateCourseCache(course.id);
+	const course = await insertCourse({ ...data, userId: user.userId! });
+	revalidateCourseCache(course.id, user.userId!);
 	return {
 		success: true,
 		message: "Course Has been created successfully",
@@ -62,7 +64,9 @@ export const wait = async (ms: number) =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function deleteCourse(courseId: string) {
-	if (!canDeleteCourse(await getCurrentUser())) {
+	const user = await getCurrentUser();
+
+	if (!canDeleteCourse(user)) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this course",
@@ -71,8 +75,8 @@ export async function deleteCourse(courseId: string) {
 
 	try {
 		await eliminateCourse(courseId);
-		revalidatePath(`/admin/courses/`);
-		revalidateCourseCache(courseId);
+		revalidatePath(`/admin/${user.userId}/courses/`);
+		revalidateCourseCache(courseId, user.userId!);
 	} catch (error) {
 		console.error(error);
 		return {
@@ -89,7 +93,9 @@ export async function mutateCourse(
 ) {
 	const { success, data } = courseSchema.safeParse(unsafeData);
 
-	if (!(await canUpdateCourse(await getCurrentUser()))) {
+	const user = await getCurrentUser();
+
+	if (!(await canUpdateCourse(user))) {
 		console.error("You are not authorized to update this Course");
 		return {
 			success: false,
@@ -105,8 +111,8 @@ export async function mutateCourse(
 
 	const course = await updateCourse(id, data);
 
-	revalidatePath(`/admin/courses/${course.id}/edit`);
-	revalidateCourseCache(course.id);
+	revalidatePath(`/admin/${user.userId}/courses/${course.id}/edit`);
+	revalidateCourseCache(course.id, user.userId!);
 
 	return {
 		success: true,

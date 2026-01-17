@@ -6,6 +6,7 @@ import { userRolesType } from "@/drizzle/schema";
 import { getCurrentUser } from "../users/db/clerk";
 import {
 	eliminateProduct,
+	getProduct,
 	insertProduct,
 	updateProduct,
 } from "../products/db/product";
@@ -16,7 +17,8 @@ import { uploadImage } from "../imageKit";
 export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
-	if (!productPermission((await getCurrentUser()).role)) {
+	const user = await getCurrentUser();
+	if (!productPermission(user.role)) {
 		console.error("You are not authorized to create a product");
 		return {
 			success: false,
@@ -48,10 +50,11 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	try {
 		const product = await insertProduct({
 			...data,
+			userId: user.userId!,
 			imageUrl: imageUrl!,
 			imageFileId: imageFileId!,
 		});
-		revalidateProductCache(product.id);
+		revalidateProductCache(product.id, user.userId!);
 		return {
 			success: true,
 			message: "Successfully created your product",
@@ -67,11 +70,13 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 
 export async function mutateProduct(
 	id: string,
-	unsafeData: Omit<z.infer<typeof productSchema>, "slug">
+	unsafeData: Partial<z.infer<typeof productSchema>>
 ) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
-	if (!(await productPermission((await getCurrentUser()).role))) {
+	const user = await getCurrentUser();
+
+	if (!(await productPermission(user.role))) {
 		console.error("You are not authorized to update this product");
 		return {
 			success: false,
@@ -101,14 +106,22 @@ export async function mutateProduct(
 	}
 
 	try {
-		const product = await updateProduct(id, {
+		const product = await getProduct(id, user.userId!);
+		if (!product || product.userId !== user.userId) {
+			return {
+				success: false,
+				message: "You are not authorized to update this product",
+			};
+		}
+
+		const updatedProduct = await updateProduct(id, {
 			...data,
 			imageUrl,
 			imageFileId,
 		});
 
-		revalidatePath(`/admin/products/${product.id}/edit`);
-		revalidateProductCache(product.id);
+		revalidatePath(`/admin/${user.userId}/products/${updatedProduct.id}/edit`);
+		revalidateProductCache(updatedProduct.id, user.userId!);
 		return {
 			success: true,
 			message: "Product Has been updated successfully",
@@ -123,7 +136,8 @@ export async function mutateProduct(
 }
 
 export async function deleteProduct(productId: string) {
-	if (!productPermission((await getCurrentUser()).role)) {
+	const user = await getCurrentUser();
+	if (!productPermission(user.role)) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this product",
@@ -131,10 +145,19 @@ export async function deleteProduct(productId: string) {
 	}
 
 	try {
+		const product = await getProduct(productId, user.userId!);
+
+		if (!product || product.userId !== user.userId) {
+			return {
+				success: false,
+				message: "You are not authorized to delete this product",
+			};
+		}
+
 		await eliminateProduct(productId);
 
-		revalidatePath(`/admin/products/`);
-		revalidateProductCache(productId);
+		revalidatePath(`/admin/${user.userId}/products/`);
+		revalidateProductCache(productId, user.userId!);
 	} catch (error) {
 		console.error(error);
 		return {

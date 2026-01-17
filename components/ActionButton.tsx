@@ -41,7 +41,10 @@ const ActionButton = ({
 		return (
 			<AlertDialog open={isLoading ? true : undefined}>
 				<AlertDialogTrigger asChild>
-					<Button {...props} className="cursor-pointer"></Button>
+					<Button
+						{...props}
+						className={cn("cursor-pointer", props.className)}
+					></Button>
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -103,7 +106,7 @@ export function LoadingTextSwap({
 					isLoading ? "visible" : "invisible"
 				)}
 			>
-				<Loader2Icon className="animate-spin" />
+				<Loader2Icon className="animate-spin" aria-label="Loading" />
 			</div>
 		</div>
 	);

@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { forbidden, notFound } from "next/navigation";
 import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/next";
 import { env } from "./data/env/server";
-import { setUserCountryHeaders } from "./lib/utils";
+import { setUserCountryHeaders } from "./lib/pppFunctions";
 import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
@@ -16,6 +16,11 @@ const isPublicRoute = createRouteMatcher([
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
+/*
+mode: "LIVE" means:
+Requests are actively blocked
+In "DRY_RUN" mode, Arcjet would only log violations
+*/
 const aj = arcjet({
 	key: env.ARCJET_KEY,
 	rules: [
@@ -25,6 +30,7 @@ const aj = arcjet({
 			allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR", "CATEGORY:PREVIEW"], // no one can use postman or curl to access APIs
 		}),
 		slidingWindow({
+			// Each client (IP / fingerprint) can make 100 requests per minute
 			mode: "LIVE",
 			interval: "1m",
 			max: 100, // max of 100 request for one window each 1 minute (rate limit)

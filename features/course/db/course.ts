@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { CourseSectionTable, CourseTable, LessonTable } from "@/drizzle/schema";
-import { getCourseIdTag } from "./cache";
+import { getCourseIdTag, getUserCoursesTag } from "./cache";
 import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import { getCourseLessonsTag } from "@/features/lessons/db/cache";
@@ -21,6 +21,16 @@ export async function insertCourse(
 	if (!newCourse) throw new Error(`Failed to create course ${data.name}`);
 
 	return newCourse;
+}
+
+export async function getUserCourses(userId: string) {
+	"use cache";
+	cacheTag(getUserCoursesTag(userId));
+
+	return await db.query.CourseTable.findMany({
+		where: eq(CourseTable.userId, userId),
+		orderBy: asc(CourseTable.name),
+	});
 }
 
 /*
@@ -91,11 +101,11 @@ export async function getCourse(courseId: string) {
 	"use cache";
 	cacheTag(
 		getCourseIdTag(courseId),
-		getCourseLessonsTag(courseId),
-		getCourseSectionsTag(courseId)
+		getCourseSectionsTag(courseId),
+		getCourseLessonsTag(courseId)
 	);
 	return await db.query.CourseTable.findFirst({
-		columns: { id: true, name: true, description: true },
+		columns: { id: true, name: true, description: true, userId: true },
 		where: eq(CourseTable.id, courseId),
 		with: {
 			CourseSections: {

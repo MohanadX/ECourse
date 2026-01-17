@@ -2,7 +2,7 @@ import PageHeader from "@/components/PageHeader";
 import ProductForm from "@/components/products/ProductForm";
 import { db } from "@/drizzle/db";
 import { CourseTable, ProductTable } from "@/drizzle/schema";
-import { getCourseGlobalTag } from "@/features/course/db/cache";
+import { getUserCoursesTag } from "@/features/course/db/cache";
 import { getProductIdTag } from "@/features/products/db/cache";
 import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
@@ -11,9 +11,9 @@ import { notFound } from "next/navigation";
 const EditProductPage = async ({
 	params,
 }: {
-	params: Promise<{ productId: string }>;
+	params: Promise<{ productId: string; userId: string }>;
 }) => {
-	const { productId } = await params;
+	const { productId, userId } = await params;
 
 	const product = await getProduct(productId);
 
@@ -22,11 +22,12 @@ const EditProductPage = async ({
 		<main className="containers mt-6">
 			<PageHeader title="Edit Product" />
 			<ProductForm
+				userId={userId}
 				product={{
-					...product, // shallow copy so we need a copy of courseIds
+					...product,
 					courseIds: product.CourseProducts.map((course) => course.courseId),
 				}}
-				courses={await getCourses()}
+				courses={await getCourses(userId)}
 			/>
 		</main>
 	);
@@ -34,11 +35,12 @@ const EditProductPage = async ({
 
 export default EditProductPage;
 
-async function getCourses() {
+async function getCourses(userId: string) {
 	"use cache";
-	cacheTag(getCourseGlobalTag());
+	cacheTag(getUserCoursesTag(userId));
 
 	return db.query.CourseTable.findMany({
+		where: eq(CourseTable.userId, userId),
 		orderBy: asc(CourseTable.name),
 		columns: { id: true, name: true },
 	});

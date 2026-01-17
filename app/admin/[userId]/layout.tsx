@@ -1,12 +1,18 @@
 import { Badge } from "@/components/ui/badge";
 import UserButtonClient from "@/components/UserButtonClient";
+import { getCurrentUser } from "@/features/users/db/clerk";
 import { SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { ReactNode } from "react";
 
-export default function AdminLayout({
+export default async function AdminLayout({
 	children,
 }: Readonly<{ children: ReactNode }>) {
+	const { userId, redirectToSignIn } = await getCurrentUser();
+
+	if (!userId) {
+		return redirectToSignIn();
+	}
 	return (
 		<>
 			<header className="h-12 shadow bg-background z-10">
@@ -21,19 +27,19 @@ export default function AdminLayout({
 						<SignedIn>
 							{/* only be shown if the user signed in */}
 							<Link
-								href={"/admin/courses"}
+								href={`/admin/${userId}/courses`}
 								className="hover:bg-accent/10  flex justify-center items-center h-full p-2"
 							>
 								Courses
 							</Link>
 							<Link
-								href={"/admin/products"}
+								href={`/admin/${userId}/products`}
 								className="hover:bg-accent/10  flex justify-center items-center h-full p-2 mr-2"
 							>
 								Products
 							</Link>
 							<Link
-								href={"/admin/sales"}
+								href={`/admin/${userId}/sales`}
 								className="hover:bg-accent/10  flex justify-center items-center h-full p-2 mr-2"
 							>
 								Sales

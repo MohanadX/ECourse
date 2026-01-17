@@ -65,7 +65,10 @@ export async function eliminateSection(id: string) {
 	return deletedSection;
 }
 
-export async function updateSectionOrders(sectionIds: string[]) {
+export async function updateSectionOrders(
+	sectionIds: string[],
+	userId: string
+) {
 	if (sectionIds.length === 0) return;
 
 	const caseSql = sql`CASE ${CourseSectionTable.id} ${sql.join(
@@ -90,10 +93,15 @@ export async function updateSectionOrders(sectionIds: string[]) {
 
 	const courseId = orderedSections[0].courseId;
 	for (const { id } of orderedSections) {
-		revalidateCourseSectionsCache(courseId, id);
+		revalidateCourseSectionsCache(userId, courseId, id);
 	}
-	revalidatePath(`/admin/courses/${courseId}/edit`);
+	revalidatePath(`/admin/${userId}/courses/${courseId}/edit`);
 }
+
+export const wherePublicCourseSections = eq(
+	CourseSectionTable.status,
+	"public"
+);
 
 /**
  4. WHERE id IN ('l1', 'l2', 'l3')

@@ -86,9 +86,9 @@ const ProductsTable = ({ products }: Props) => {
 									requireAreYouSure
 									variant={"destructiveOutline"}
 									action={deleteProduct.bind(null, product.id)}
+									aria-label="Delete"
 								>
 									<Trash2Icon />
-									<span className="sr-only">Delete</span>
 								</ActionButton>
 							</div>
 						</TableCell>

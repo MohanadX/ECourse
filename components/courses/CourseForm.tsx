@@ -69,7 +69,7 @@ const CourseForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Name
 							</FormLabel>
 							<FormControl>
@@ -85,7 +85,7 @@ const CourseForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Description
 							</FormLabel>
 							<FormControl>

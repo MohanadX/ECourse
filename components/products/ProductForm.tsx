@@ -30,10 +30,12 @@ import {
 import { MultiSelect } from "../multi-select";
 import { useTransition } from "react";
 import { LoadingTextSwap } from "../ActionButton";
+import Image from "next/image";
 
 const ProductForm = ({
 	product,
 	courses,
+	userId,
 }: {
 	product?: {
 		id: string;
@@ -48,6 +50,7 @@ const ProductForm = ({
 		id: string;
 		name: string;
 	}[];
+	userId: string;
 }) => {
 	const [isLoading, startTransition] = useTransition();
 	const router = useRouter();
@@ -58,7 +61,7 @@ const ProductForm = ({
 					name: product.name,
 					description: product.description,
 					courseIds: product.courseIds,
-					image: undefined,
+					image: product.imageUrl,
 					priceInDollars: product.priceInDollars,
 					status: product.status,
 			  }
@@ -82,7 +85,8 @@ const ProductForm = ({
 				toast.error(message);
 			} else {
 				toast.success(message);
-				if (action == createProduct) router.replace(`/admin/products`);
+				if (action == createProduct)
+					router.replace(`/admin/${userId}/products`);
 			}
 		});
 	}
@@ -100,7 +104,7 @@ const ProductForm = ({
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									<RequiredLabelIcon />
+									<RequiredLabelIcon aria-hidden />
 									Name
 								</FormLabel>
 								<FormControl>
@@ -116,7 +120,7 @@ const ProductForm = ({
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									<RequiredLabelIcon />
+									<RequiredLabelIcon aria-hidden />
 									Price
 								</FormLabel>
 								<FormControl>
@@ -142,11 +146,20 @@ const ProductForm = ({
 						name="image"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>
-									<RequiredLabelIcon />
+								<FormLabel className={product ? "relative bottom-2" : ""}>
+									{product?.imageUrl ? (
+										<Image
+											src={product.imageUrl}
+											alt={product.name}
+											width={38}
+											height={38}
+										/>
+									) : (
+										<RequiredLabelIcon aria-hidden />
+									)}
 									Image
 								</FormLabel>
-								<FormControl>
+								<FormControl className={product ? "-mt-3" : ""}>
 									<Input
 										type="file"
 										onChange={(e) => field.onChange(e.target.files![0])}
@@ -190,7 +203,7 @@ const ProductForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Included Courses
 							</FormLabel>
 							<FormControl>
@@ -214,7 +227,7 @@ const ProductForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Description
 							</FormLabel>
 							<FormControl>

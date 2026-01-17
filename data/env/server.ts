@@ -19,11 +19,27 @@ export const env = createEnv({
 		IMAGEKIT_URL_ENDPOINT: z
 			.string()
 			.min(1, { error: "Image Kit url endpoint is not set correctly" }),
-		IMAGEKIT_ID: z
-			.string()
-			.min(1, { error: "Image Kit id is not set correctly" }),
 		ARCJET_KEY: z.string().min(1, { error: "Arcjet key is not set correctly" }),
 		TEST_IP: z.string().min(1).optional(),
+		STRIPE_PPP_50_COUPON_ID: z
+			.string()
+			.min(1, { error: "STRIPE_PPP_50_COUPON_ID is not set correctly" }),
+		STRIPE_PPP_40_COUPON_ID: z
+			.string()
+			.min(1, { error: "STRIPE_PPP_40_COUPON_ID is not set correctly" }),
+		STRIPE_PPP_30_COUPON_ID: z
+			.string()
+			.min(1, { error: "STRIPE_PPP_30_COUPON_ID is not set correctly" }),
+		STRIPE_PPP_20_COUPON_ID: z
+			.string()
+			.min(1, { error: "STRIPE_PPP_20_COUPON_ID is not set correctly" }),
+		STRIPE_SECRET_KEY: z
+			.string()
+			.min(1, { error: "Stripe Secret key is not set correctly" }),
+		STRIPE_WEBHOOK_SECRET: z
+			.string()
+			.min(1, { error: "Stripe Webhook secret is not set correctly" }),
+		SERVER_URL: z.string().url({ message: "Server URL must be a valid URL" }),
 	},
 	experimental__runtimeEnv: process.env,
 });

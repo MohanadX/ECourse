@@ -8,6 +8,13 @@ import { eq } from "drizzle-orm";
 export async function getCurrentUser({ allData = false } = {}) {
 	const { userId, sessionClaims, redirectToSignIn } = await auth();
 
+	if (!sessionClaims) {
+		console.error(`This is user doesn't have clerk session claims: ${userId}`);
+		throw new Error(
+			`This is user doesn't have clerk session claims: ${userId}`
+		);
+	}
+
 	return {
 		clerkUserId: userId,
 		userId: sessionClaims?.dbId,
@@ -37,7 +44,6 @@ export async function syncClerkUserMetadata(user: {
 export async function getUser(id: string) {
 	"use cache";
 	cacheTag(getUserIdTag(id));
-	console.log("Called");
 
 	return db.query.UserTable.findFirst({
 		where: eq(UserTable.id, id),

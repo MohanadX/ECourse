@@ -8,7 +8,14 @@ export const imageKit = new ImageKit({
 	urlEndpoint: env.IMAGEKIT_URL_ENDPOINT,
 });
 
-export async function uploadImage(image: File) {
+export async function uploadImage(image: File | string) {
+	// string means that that product have an image Url from ImageKit
+	if (typeof image === "string") {
+		return {
+			imageUrl: image,
+			success: true,
+		};
+	}
 	try {
 		const buffer = Buffer.from(await image.arrayBuffer());
 		const imageMetadata = await sharp(buffer).metadata();

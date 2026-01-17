@@ -75,6 +75,7 @@ const LessonForm = ({
 	}
 
 	const videoId = useWatch({
+		// useWatch lets you subscribe to the value of one or more form fields without re-rendering the entire form. (reconciliation)
 		control: form.control,
 		name: "youtubeVideoId",
 	});
@@ -91,11 +92,11 @@ const LessonForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Name
 							</FormLabel>
 							<FormControl>
-								<Input {...field} />
+								<Input {...field} aria-required />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -124,11 +125,11 @@ const LessonForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Youtube Video Id
 							</FormLabel>
 							<FormControl>
-								<Input {...field} />
+								<Input {...field} aria-required />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -140,7 +141,7 @@ const LessonForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Section
 							</FormLabel>
 							<Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -167,7 +168,7 @@ const LessonForm = ({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								<RequiredLabelIcon />
+								<RequiredLabelIcon aria-hidden />
 								Status
 							</FormLabel>
 							<Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -192,6 +193,7 @@ const LessonForm = ({
 					className="self-end cursor-pointer"
 					type="submit"
 					disabled={form.formState.isSubmitting}
+					aria-disabled={form.formState.isSubmitting}
 				>
 					Save
 				</Button>

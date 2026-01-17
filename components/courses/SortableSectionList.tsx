@@ -58,9 +58,9 @@ export default function SortableSectionList({
 								requireAreYouSure
 								variant={"destructiveOutline"}
 								size={"sm"}
+								aria-label="Delete"
 							>
 								<Trash2Icon />
-								<span className="sr-only">Delete</span>
 							</ActionButton>
 						</div>
 					</SortableItem>
