@@ -136,7 +136,9 @@ async function getPurchaseDetails(userId: string) {
 	const totalRefunds = (refundData?.totalSales ?? 0) / 100;
 	const refundedPurchases = refundData?.totalPurchases ?? 0;
 
-	console.log(`totalUser: ${salesData.totalUsers}, purchases: ${netPurchases}`);
+	// console.log(
+	// 	`totalUser: ${salesData?.totalUsers}, purchases: ${netPurchases}`,
+	// );
 	const averageNetPurchasePerCustomer =
 		salesData.totalUsers != null && salesData.totalUsers > 0
 			? netPurchases / salesData.totalUsers

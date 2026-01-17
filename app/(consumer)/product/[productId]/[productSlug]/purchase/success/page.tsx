@@ -7,6 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export default async function ProductPurchaseSuccessPage({
 	params,
@@ -24,7 +25,9 @@ export default async function ProductPurchaseSuccessPage({
 			<article className="flex justify-between items-center gap-4 max-md:flex-col-reverse">
 				<div>
 					<h1 className="text-4xl font-semibold">Purchase Successful</h1>
-					<p className="text-xl my-8">Thank for purchasing {product.name}</p>
+					<p className="text-xl my-8">
+						Thanks for purchasing {product.name}!
+					</p>{" "}
 					<Button className="text-xl py-4 h-auto px-8 rounded-lg" asChild>
 						<Link href={"/courses"}>View My Courses</Link>
 					</Button>

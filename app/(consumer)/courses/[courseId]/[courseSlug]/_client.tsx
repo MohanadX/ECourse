@@ -34,10 +34,9 @@ export function CoursePageClient({
 	const defaultValue =
 		typeof lessonId === "string"
 			? course.CourseSections.find((section) =>
-					section.lessons.find((lesson) => lesson.id, lessonId)
-			  )
+					section.lessons.some((lesson) => lesson.id === lessonId),
+				)
 			: course.CourseSections[0];
-
 	return (
 		<Accordion
 			type="multiple"
@@ -48,7 +47,7 @@ export function CoursePageClient({
 					<AccordionTrigger className="text-lg">
 						{section.name}
 					</AccordionTrigger>
-					<AccordionContent className="flex flex-cols flex-wrap gap-1">
+					<AccordionContent className="flex flex-col flex-wrap gap-1">
 						{section.lessons.map((lesson) => (
 							<Button
 								variant={"ghost"}
@@ -56,7 +55,7 @@ export function CoursePageClient({
 								key={lesson.id}
 								className={cn(
 									"w-full justify-start",
-									lessonId === lesson.id && "bg-accent/75 text-background"
+									lessonId === lesson.id && "bg-accent/75 text-background",
 								)}
 							>
 								<Link

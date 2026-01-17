@@ -55,7 +55,7 @@ export default clerkMiddleware(async (auth, req) => {
 		const user = await auth.protect();
 		if (user.sessionClaims.role !== "admin") return notFound();
 
-		const pathname = req.nextUrl.pathname; // /admin/userId/...
+		const pathname = req.nextUrl.pathname; // /admin/userId/..
 		const userId = pathname.split("/")[2];
 
 		if (userId !== user.sessionClaims.dbId) return notFound();

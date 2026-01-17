@@ -135,7 +135,7 @@ export async function eliminateLesson(id: string, userId: string) {
 					eq(LessonTable.id, id),
 					inArray(
 						LessonTable.sectionId,
-						db
+						trx
 							.select({ sectionId: CourseSectionTable.id })
 							.from(CourseSectionTable)
 							.innerJoin(

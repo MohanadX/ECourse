@@ -50,7 +50,7 @@ export async function createLesson(unsafeData: z.infer<typeof lessonSchema>) {
 
 export async function mutateLesson(
 	lessonId: string,
-	unsafeData: z.infer<typeof lessonSchema>
+	unsafeData: z.infer<typeof lessonSchema>,
 ) {
 	const { success, data } = lessonSchema.safeParse(unsafeData);
 	const user = await getCurrentUser();
