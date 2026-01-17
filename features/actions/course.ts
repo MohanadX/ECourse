@@ -74,7 +74,7 @@ export async function deleteCourse(courseId: string) {
 	}
 
 	try {
-		await eliminateCourse(courseId);
+		await eliminateCourse(courseId, user.userId!);
 		revalidatePath(`/admin/${user.userId}/courses/`);
 		revalidateCourseCache(courseId, user.userId!);
 	} catch (error) {
@@ -89,7 +89,7 @@ export async function deleteCourse(courseId: string) {
 
 export async function mutateCourse(
 	id: string,
-	unsafeData: Omit<z.infer<typeof courseSchema>, "slug">
+	unsafeData: Omit<z.infer<typeof courseSchema>, "slug">,
 ) {
 	const { success, data } = courseSchema.safeParse(unsafeData);
 
@@ -109,7 +109,7 @@ export async function mutateCourse(
 		};
 	}
 
-	const course = await updateCourse(id, data);
+	const course = await updateCourse(id, data, user.userId!);
 
 	revalidatePath(`/admin/${user.userId}/courses/${course.id}/edit`);
 	revalidateCourseCache(course.id, user.userId!);

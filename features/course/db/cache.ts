@@ -12,7 +12,3 @@ export function revalidateCourseCache(id: string, userId: string) {
 	revalidateTag(getUserCoursesTag(userId), "max");
 	revalidateTag(getCourseIdTag(id), "max");
 }
-
-export function getUserAccessCourseGlobalTag() {
-	return "usersAccess";
-}

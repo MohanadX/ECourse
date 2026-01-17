@@ -2,7 +2,6 @@
 
 import { expireRefundPurchaseDate, formatTimeDuration } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { SkeletonText } from "../Skeletons";
 
 export default function PurchaseRefundTimer({
 	purchaseTime,

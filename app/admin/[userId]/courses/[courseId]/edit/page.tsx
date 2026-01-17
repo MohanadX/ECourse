@@ -16,11 +16,11 @@ import { notFound } from "next/navigation";
 const EditPage = async ({
 	params,
 }: {
-	params: Promise<{ courseId: string }>;
+	params: Promise<{ courseId: string; userId: string }>;
 }) => {
-	const id = (await params).courseId;
+	const { courseId, userId } = await params;
 
-	const course = await getCourse(id);
+	const course = await getCourse(courseId, userId);
 
 	if (!course) return notFound();
 	return (
@@ -61,7 +61,7 @@ const EditPage = async ({
 								<CardTitle
 									className={cn(
 										"flex items-center gap-2",
-										section.status === "private" && "text-muted-foreground"
+										section.status === "private" && "text-muted-foreground",
 									)}
 								>
 									{section.status === "private" && <EyeClosedIcon />}{" "}

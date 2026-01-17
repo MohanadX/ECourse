@@ -8,45 +8,71 @@ import SkeletonButton, { SkeletonArray } from "./Skeletons";
 
 export default function Navbar() {
 	return (
-		<header className="h-12 shadow bg-background z-10">
-			<nav className="h-full flex items-center justify-between gap-4 containers">
+		<header className="h-12 shadow bg-background z-10 relative">
+			<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers px-4">
 				<Link href={"/"} className="text-lg hover:underline pr-2">
 					ECourse Educational Platform
 				</Link>
-				<Suspense
-					fallback={
-						<SkeletonArray amount={3}>
-							<SkeletonButton className="size-16"></SkeletonButton>
-						</SkeletonArray>
-					}
+
+				<input type="checkbox" id="main-nav-toggle" className="peer hidden" />
+				<label
+					htmlFor="main-nav-toggle"
+					className="md:hidden p-2 cursor-pointer text-foreground"
 				>
-					<div className="flex items-center h-full">
-						<SignedIn>
-							{/* only be shown if the user signed in */}
-							<AdminLink />
-							<Link
-								href={"/courses"}
-								className="hover:bg-accent/10  flex justify-center items-center h-full p-2"
-							>
-								My Courses
-							</Link>
-							<Link
-								href={"/purchases"}
-								className="hover:bg-accent/10 flex justify-center items-center h-full p-2 mr-2"
-							>
-								Purchase History
-							</Link>
-							<UserButtonClient />
-						</SignedIn>
-					</div>
-				</Suspense>
-				<Suspense>
-					<SignedOut>
-						<Button className="self-center cursor-pointer" asChild>
-							<SignInButton>Sign In</SignInButton>
-						</Button>
-					</SignedOut>
-				</Suspense>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth={1.5}
+						stroke="currentColor"
+						className="w-6 h-6"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+						/>
+					</svg>
+				</label>
+
+				<div className="hidden peer-checked:flex w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center absolute md:static top-12 left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 z-20 gap-4 md:gap-0">
+					<Suspense
+						fallback={
+							<SkeletonArray amount={3}>
+								<SkeletonButton className="size-16"></SkeletonButton>
+							</SkeletonArray>
+						}
+					>
+						<div className="flex flex-col md:flex-row items-center w-full md:w-auto gap-2 md:gap-0">
+							<SignedIn>
+								{/* only be shown if the user signed in */}
+								<AdminLink />
+								<Link
+									href={"/courses"}
+									className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+								>
+									My Courses
+								</Link>
+								<Link
+									href={"/purchases"}
+									className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
+								>
+									Purchase History
+								</Link>
+								<div className="flex justify-center w-full md:w-auto p-2 md:p-0">
+									<UserButtonClient />
+								</div>
+							</SignedIn>
+						</div>
+					</Suspense>
+					<Suspense>
+						<SignedOut>
+							<Button className="self-center cursor-pointer" asChild>
+								<SignInButton>Sign In</SignInButton>
+							</Button>
+						</SignedOut>
+					</Suspense>
+				</div>
 			</nav>
 		</header>
 	);
@@ -62,7 +88,7 @@ async function AdminLink() {
 	return (
 		<Link
 			href={`/admin/${user.userId}`}
-			className="hover:bg-accent/10  flex justify-center items-center h-full p-2"
+			className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
 		>
 			Admin
 		</Link>

@@ -35,7 +35,7 @@ export async function getNextOrderOfLesson(sectionId: string) {
 
 export async function insertLesson(
 	data: typeof LessonTable.$inferInsert,
-	userId: string
+	userId: string,
 ) {
 	// trx transaction scoped client
 	const [newLesson, courseId] = await db.transaction(async (trx) => {
@@ -69,7 +69,7 @@ export async function insertLesson(
 export async function updateLesson(
 	lessonId: string,
 	data: Partial<typeof LessonTable.$inferInsert>,
-	userId: string
+	userId: string,
 ) {
 	const [updatedLesson, courseId] = await db.transaction(async (trx) => {
 		const currentLesson = await trx.query.LessonTable.findFirst({
@@ -88,7 +88,16 @@ export async function updateLesson(
 		const [updatedLesson] = await trx
 			.update(LessonTable)
 			.set(data)
-			.where(eq(LessonTable.id, lessonId))
+			.from(CourseSectionTable)
+			.innerJoin(CourseTable, eq(CourseTable.id, CourseSectionTable.courseId))
+			.where(
+				and(
+					eq(LessonTable.id, lessonId),
+					eq(LessonTable.sectionId, CourseSectionTable.id),
+					eq(CourseSectionTable.courseId, CourseTable.id),
+					eq(CourseTable.userId, userId),
+				),
+			)
 			.returning();
 
 		if (!updatedLesson) {
@@ -121,7 +130,27 @@ export async function eliminateLesson(id: string, userId: string) {
 	const [deletedLesson, courseId] = await db.transaction(async (trx) => {
 		const [deletedLesson] = await trx
 			.delete(LessonTable)
-			.where(eq(LessonTable.id, id))
+			.where(
+				and(
+					eq(LessonTable.id, id),
+					inArray(
+						LessonTable.sectionId,
+						db
+							.select({ sectionId: CourseSectionTable.id })
+							.from(CourseSectionTable)
+							.innerJoin(
+								CourseTable,
+								eq(CourseTable.id, CourseSectionTable.courseId),
+							)
+							.where(
+								and(
+									eq(CourseSectionTable.courseId, CourseTable.id),
+									eq(CourseTable.userId, userId),
+								),
+							),
+					),
+				),
+			)
 			.returning();
 
 		if (!deletedLesson) {
@@ -157,9 +186,9 @@ export async function updateLessonOrders(lessonIds: string[], userId: string) {
 
 	const caseSql = sql`CASE ${LessonTable.id} ${sql.join(
 		lessonIds.map(
-			(sectionId, index) => sql`WHEN ${sectionId} THEN ${index}::integer`
+			(sectionId, index) => sql`WHEN ${sectionId} THEN ${index}::integer`,
 		),
-		sql.raw(" ")
+		sql.raw(" "),
 	)} END`;
 
 	const orderedLessons = await db
@@ -198,13 +227,13 @@ export async function updateLessonOrders(lessonIds: string[], userId: string) {
 
 export const wherePublicLessons = or(
 	eq(LessonTable.status, "public"),
-	eq(LessonTable.status, "preview")
+	eq(LessonTable.status, "preview"),
 );
 
 export async function canViewLesson(
 	role: userRolesType | undefined,
 	userId: string,
-	lesson: { id: string; status: lessonStatus }
+	lesson: { id: string; status: lessonStatus },
 ) {
 	"use cache";
 	cacheTag(getUserCourseAccessUserTag(userId), getLessonIdTag(lesson.id));
@@ -219,18 +248,18 @@ export async function canViewLesson(
 			CourseSectionTable,
 			and(
 				eq(CourseSectionTable.courseId, CourseTable.id),
-				wherePublicCourseSections
-			)
+				wherePublicCourseSections,
+			),
 		)
 		.leftJoin(
 			LessonTable,
-			and(eq(LessonTable.sectionId, CourseSectionTable.id), wherePublicLessons)
+			and(eq(LessonTable.sectionId, CourseSectionTable.id), wherePublicLessons),
 		)
 		.where(
 			and(
 				eq(LessonTable.id, lesson.id),
-				eq(UserCourseAccessTable.userId, userId)
-			)
+				eq(UserCourseAccessTable.userId, userId),
+			),
 		)
 		.limit(1);
 

@@ -70,7 +70,7 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 
 export async function mutateProduct(
 	id: string,
-	unsafeData: Partial<z.infer<typeof productSchema>>
+	unsafeData: Partial<z.infer<typeof productSchema>>,
 ) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
@@ -114,11 +114,15 @@ export async function mutateProduct(
 			};
 		}
 
-		const updatedProduct = await updateProduct(id, {
-			...data,
-			imageUrl,
-			imageFileId,
-		});
+		const updatedProduct = await updateProduct(
+			id,
+			{
+				...data,
+				imageUrl,
+				imageFileId,
+			},
+			user.userId,
+		);
 
 		revalidatePath(`/admin/${user.userId}/products/${updatedProduct.id}/edit`);
 		revalidateProductCache(updatedProduct.id, user.userId!);
@@ -154,7 +158,7 @@ export async function deleteProduct(productId: string) {
 			};
 		}
 
-		await eliminateProduct(productId);
+		await eliminateProduct(productId, user.userId);
 
 		revalidatePath(`/admin/${user.userId}/products/`);
 		revalidateProductCache(productId, user.userId!);

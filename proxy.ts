@@ -40,7 +40,7 @@ const aj = arcjet({
 
 export default clerkMiddleware(async (auth, req) => {
 	const decision = await aj.protect(
-		env.TEST_IP ? { ...req, ip: env.TEST_IP, headers: req.headers } : req
+		env.TEST_IP ? { ...req, ip: env.TEST_IP, headers: req.headers } : req,
 	);
 	// the headers of req cannot be spread properly so we need to specify them from request
 
@@ -50,9 +50,15 @@ export default clerkMiddleware(async (auth, req) => {
 		return forbidden(); // if user break any rule of ours in arcjet he will be denied
 	}
 
+	// 2 purpose: protect admin routes, protect user admin route from other users
 	if (isAdminRoute(req)) {
 		const user = await auth.protect();
 		if (user.sessionClaims.role !== "admin") return notFound();
+
+		const pathname = req.nextUrl.pathname; // /admin/userId/...
+		const userId = pathname.split("/")[2];
+
+		if (userId !== user.sessionClaims.dbId) return notFound();
 	}
 
 	if (!isPublicRoute(req)) {

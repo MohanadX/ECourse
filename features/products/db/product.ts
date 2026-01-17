@@ -17,7 +17,7 @@ import { cacheTag } from "next/cache";
 export async function insertProduct(
 	data: Omit<typeof ProductTable.$inferInsert, "slug"> & {
 		courseIds: string[];
-	}
+	},
 ) {
 	const newProduct = await db.transaction(async (trx) => {
 		const slug = slugifyName(data.name);
@@ -37,7 +37,7 @@ export async function insertProduct(
 			data.courseIds.map((courseId) => ({
 				productId: newProduct.id,
 				courseId,
-			}))
+			})),
 		);
 
 		return newProduct;
@@ -50,7 +50,8 @@ export async function updateProduct(
 	id: string,
 	data: Partial<typeof ProductTable.$inferInsert> & {
 		courseIds: string[];
-	}
+	},
+	userId: string,
 ) {
 	const updatedProduct = await db.transaction(async (trx) => {
 		const slug = slugifyName(data.name!);
@@ -60,7 +61,7 @@ export async function updateProduct(
 				...data,
 				slug,
 			})
-			.where(eq(ProductTable.id, id))
+			.where(and(eq(ProductTable.id, id), eq(ProductTable.userId, userId)))
 			.returning();
 		if (!updatedProduct) {
 			console.error("Failed to update your product");
@@ -75,7 +76,7 @@ export async function updateProduct(
 			data.courseIds.map((courseId) => ({
 				productId: updatedProduct.id,
 				courseId,
-			}))
+			})),
 		);
 
 		return updatedProduct;
@@ -84,10 +85,10 @@ export async function updateProduct(
 	return updatedProduct;
 }
 
-export async function eliminateProduct(id: string) {
+export async function eliminateProduct(id: string, userId: string) {
 	const [deletedProduct] = await db
 		.delete(ProductTable)
-		.where(eq(ProductTable.id, id))
+		.where(and(eq(ProductTable.id, id), eq(ProductTable.userId, userId)))
 		.returning();
 
 	if (!deletedProduct) throw new Error("Failed to delete your product");
@@ -126,7 +127,7 @@ export async function userOwnsProduct({
 		where: and(
 			eq(PurchaseTable.productId, productId),
 			eq(PurchaseTable.userId, userId),
-			isNull(PurchaseTable.refundedAt) // if user refunded product they can purchase it another time
+			isNull(PurchaseTable.refundedAt), // if user refunded product they can purchase it another time
 		),
 	});
 
@@ -151,4 +152,12 @@ export async function getProduct(id: string, userId: string) {
 		columns: { id: true, name: true, userId: true },
 		where: and(eq(ProductTable.id, id), eq(ProductTable.userId, userId)),
 	});
+}
+
+export function formatNumber(
+	number: number,
+	options?: Intl.NumberFormatOptions,
+) {
+	const formatter = new Intl.NumberFormat(undefined, options);
+	return formatter.format(number);
 }

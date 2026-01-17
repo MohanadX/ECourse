@@ -19,7 +19,7 @@ export function SortableList<T extends { id: string }>({
 }: {
 	items: T[];
 	onOrderChangeAction: (
-		newOrder: string[]
+		newOrder: string[],
 	) => Promise<{ success: boolean; message: string }>;
 	children: (items: T[]) => ReactNode;
 }) {
@@ -42,7 +42,7 @@ export function SortableList<T extends { id: string }>({
 		startTransition(async () => {
 			setOptimisticItems((items) => getNewArray(items, activeId, overId));
 			const actionData = await onOrderChangeAction(
-				getNewArray(optimisticItems, activeId, overId).map((item) => item.id)
+				getNewArray(optimisticItems, activeId, overId).map((item) => item.id),
 			);
 
 			if (actionData.success) {
@@ -93,7 +93,7 @@ export function SortableItem({
 			}}
 			className={cn(
 				"flex gap-1 items-center bg-background rounded-lg p-2",
-				isActive && "z-10 border shadow-md"
+				isActive && "z-10 border shadow-md",
 			)}
 		>
 			<GripVerticalIcon
