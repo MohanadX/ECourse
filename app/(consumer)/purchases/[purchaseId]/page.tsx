@@ -57,7 +57,7 @@ async function SuspendedComponent({ purchaseId }: { purchaseId: string }) {
 	const { receiptUrl, pricingRows } = await getStripeDetails(
 		purchase.stripeSessionId,
 		purchase.pricePaidInCents,
-		purchase.refundedAt != null
+		purchase.refundedAt != null,
 	);
 
 	// console.log(pricingRows);
@@ -130,8 +130,8 @@ async function SuspendedComponent({ purchaseId }: { purchaseId: string }) {
 							{purchase.refundedAt
 								? "You have refunded this purchase previously"
 								: isExpired
-								? "The purchase refund date has expired. you can no longer refund this purchase"
-								: "You could refund any purchase after one day otherwise you can't"}
+									? "The purchase refund date has expired. You can no longer refund this purchase"
+									: "You can refund this purchase within the refund period."}
 						</p>
 					</div>
 				</CardFooter>
@@ -154,7 +154,7 @@ async function getPurchase(purchaseId: string, userId: string) {
 		},
 		where: and(
 			eq(PurchaseTable.id, purchaseId),
-			eq(PurchaseTable.userId, userId)
+			eq(PurchaseTable.userId, userId),
 		),
 	});
 }
@@ -162,7 +162,7 @@ async function getPurchase(purchaseId: string, userId: string) {
 async function getStripeDetails(
 	stripeSessionId: string,
 	pricePaidInCents: number,
-	isRefunded: boolean
+	isRefunded: boolean,
 ) {
 	const { payment_intent, total_details, amount_total, amount_subtotal } =
 		await stripeServerClient.checkout.sessions.retrieve(stripeSessionId, {
@@ -176,8 +176,8 @@ async function getStripeDetails(
 		typeof payment_intent?.latest_charge !== "string"
 			? payment_intent?.latest_charge?.amount_refunded
 			: isRefunded
-			? pricePaidInCents
-			: undefined;
+				? pricePaidInCents
+				: undefined;
 	// check the refunded price in stripe then my db
 
 	return {
@@ -212,7 +212,7 @@ async function getPricingRows(
 		total,
 		subtotal,
 		refund,
-	}: { total: number; subtotal: number; refund?: number }
+	}: { total: number; subtotal: number; refund?: number },
 ) {
 	const pricingRows: {
 		label: string;
@@ -232,7 +232,7 @@ async function getPricingRows(
 				const coupon = await stripeServerClient.coupons.retrieve(source.coupon);
 
 				pricingRows.push({
-					label: `${coupon.name} ${coupon.percent_off}%off`,
+					label: `${coupon.name} ${coupon.percent_off}% off`,
 					amountInDollars: discount.amount / -100,
 				});
 			}

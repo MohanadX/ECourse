@@ -4,8 +4,17 @@ import { db } from "@/drizzle/db";
 import { stripeServerClient } from "@/StripeServer";
 import { updatePurchase } from "../purchases/db/purchase";
 import { revokeUserCourseAccess } from "../course/db/CourseAccess";
+import { getCurrentUser } from "../users/db/clerk";
+import { productPermission } from "./products";
 
 export async function refundPurchase(purchaseId: string) {
+	const { userId, role } = await getCurrentUser();
+	if (!userId || !productPermission(role)) {
+		return {
+			success: false,
+			message: "Unauthorized",
+		};
+	}
 	const dataProcess = await db.transaction(async (trx) => {
 		try {
 			const refundedPurchase = await updatePurchase(
@@ -13,7 +22,7 @@ export async function refundPurchase(purchaseId: string) {
 				{
 					refundedAt: new Date(),
 				},
-				trx
+				trx,
 			);
 
 			if (!refundedPurchase) {
@@ -25,7 +34,7 @@ export async function refundPurchase(purchaseId: string) {
 			}
 
 			const session = await stripeServerClient.checkout.sessions.retrieve(
-				refundedPurchase.stripeSessionId
+				refundedPurchase.stripeSessionId,
 			);
 
 			if (session.payment_intent == null) {
@@ -42,9 +51,9 @@ export async function refundPurchase(purchaseId: string) {
 						productId: refundedPurchase!.productId,
 						userId: refundedPurchase!.userId,
 					},
-					trx
+					trx,
 				);
-				// revoke in db first so if it fails we can rollback (we can't roll back stripe state if db fails)
+				// we revoke in db first so if it fails we can rollback (we can't roll back stripe state if db fails)
 				await stripeServerClient.refunds.create({
 					payment_intent:
 						typeof session.payment_intent === "string" // it means that it is id

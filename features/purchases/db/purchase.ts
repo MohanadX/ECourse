@@ -12,9 +12,13 @@ import { revalidatePurchasesCache } from "./cache";
 
 export async function insertPurchase(
 	data: typeof PurchaseTable.$inferInsert,
-	trx: Omit<typeof db, "$client"> = db
+	trx: Omit<typeof db, "$client"> = db,
 ): Promise<typeof PurchaseTable.$inferSelect | undefined> {
 	const details = data.productDetails;
+
+	if (!details) {
+		throw new Error("Product details is required for purchase");
+	}
 
 	const [newPurchase] = await trx
 		.insert(PurchaseTable)
@@ -43,7 +47,7 @@ export async function insertPurchase(
 export async function updatePurchase(
 	purchaseId: string,
 	data: Partial<typeof PurchaseTable.$inferInsert>,
-	trx: Omit<typeof db, "$client"> = db
+	trx: Omit<typeof db, "$client"> = db,
 ): Promise<typeof PurchaseTable.$inferSelect | undefined> {
 	const details = data.productDetails;
 

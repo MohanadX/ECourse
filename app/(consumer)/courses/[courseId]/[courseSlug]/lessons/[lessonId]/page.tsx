@@ -88,8 +88,8 @@ async function SuspenseBoundary({
 										lesson.id,
 										true,
 										courseId,
-										courseSlug
-								  )
+										courseSlug,
+									)
 								: undefined
 						}
 					/>
@@ -118,7 +118,7 @@ async function SuspenseBoundary({
 								lesson.id,
 								!isLessonCompleted,
 								courseId,
-								courseSlug
+								courseSlug,
 							)}
 							variant={"outline"}
 						>
@@ -149,7 +149,7 @@ async function SuspenseBoundary({
 			{canView ? (
 				lesson.description && <p>{lesson.description}</p>
 			) : (
-				<p>This lesson is locked, Please purchase the course to view it.</p>
+				<p>This lesson is locked. Please purchase the course to view it.</p>
 			)}
 		</article>
 	);
@@ -164,7 +164,7 @@ async function getNextLesson(lesson: {
 		where: and(
 			gt(LessonTable.order, lesson.order),
 			eq(LessonTable.sectionId, lesson.sectionId),
-			wherePublicLessons
+			wherePublicLessons,
 		),
 		orderBy: asc(LessonTable.order),
 		columns: {
@@ -188,7 +188,7 @@ async function getNextLesson(lesson: {
 			where: and(
 				gt(CourseSectionTable.order, section.order),
 				eq(CourseSectionTable.courseId, section.courseId),
-				wherePublicCourseSections
+				wherePublicCourseSections,
 			),
 			orderBy: asc(CourseSectionTable.order),
 			columns: {
@@ -219,7 +219,7 @@ async function getPreviousLesson(lesson: {
 		where: and(
 			lt(LessonTable.order, lesson.order),
 			eq(LessonTable.sectionId, lesson.sectionId),
-			wherePublicLessons
+			wherePublicLessons,
 		),
 		orderBy: desc(LessonTable.order),
 		columns: {
@@ -243,7 +243,7 @@ async function getPreviousLesson(lesson: {
 			where: and(
 				lt(CourseSectionTable.order, section.order),
 				eq(CourseSectionTable.courseId, section.courseId),
-				wherePublicCourseSections
+				wherePublicCourseSections,
 			),
 			orderBy: desc(CourseSectionTable.order),
 			columns: {
@@ -256,7 +256,7 @@ async function getPreviousLesson(lesson: {
 		previousLesson = await db.query.LessonTable.findFirst({
 			where: and(
 				eq(LessonTable.sectionId, previousSection.id),
-				wherePublicLessons
+				wherePublicLessons,
 			),
 			orderBy: desc(LessonTable.order),
 			columns: {
@@ -275,7 +275,7 @@ async function getIsLessonCompleted(lessonId: string, userId: string) {
 	const data = await db.query.UserLessonProgressTable.findFirst({
 		where: and(
 			eq(UserLessonProgressTable.userId, userId),
-			eq(UserLessonProgressTable.lessonId, lessonId)
+			eq(UserLessonProgressTable.lessonId, lessonId),
 		),
 	});
 

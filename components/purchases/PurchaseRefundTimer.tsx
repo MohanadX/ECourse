@@ -13,7 +13,7 @@ export default function PurchaseRefundTimer({
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-			setRemainingTime((prev) => prev - 1000);
+			setRemainingTime((prev) => (prev <= 0 ? 0 : prev - 1000));
 		}, 1000);
 
 		return () => clearInterval(timer);
@@ -21,7 +21,7 @@ export default function PurchaseRefundTimer({
 
 	return (
 		<p suppressHydrationWarning>
-			Time till refund period expire: {formatTimeDuration(remainingTime)}
+			Time till refund period expires: {formatTimeDuration(remainingTime)}
 		</p>
 	);
 }
