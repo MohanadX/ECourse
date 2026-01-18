@@ -1,4 +1,3 @@
-import PageLoader from "@/app/loading";
 import {
 	Card,
 	CardDescription,
