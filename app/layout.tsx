@@ -3,6 +3,8 @@ import "./globals.css";
 import dynamic from "next/dynamic";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Suspense } from "react";
+import { ThemeProvider } from "next-themes";
+import { ModeToggle } from "@/components/ui/toggle-theme";
 const Toaster = dynamic(() => import("sonner").then((mod) => mod.Toaster));
 export const metadata: Metadata = {
 	title: "ECourse Platform",
@@ -15,31 +17,36 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<body className={`antialiased`}>
-				<Suspense>
-					<ClerkProvider>{children}</ClerkProvider>
-				</Suspense>
-				<Toaster
-					visibleToasts={1}
-					richColors
-					closeButton
-					duration={4000}
-					position="bottom-right"
-					toastOptions={{
-						classNames: {
-							default:
-								"bg-white text-black border border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700 shadow-lg",
-							success:
-								"bg-green-100 text-green-800 border border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700 shadow-lg",
-							error:
-								"bg-red-100 text-red-800 border border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700 shadow-lg",
-							info: "bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700 shadow-lg",
-							warning:
-								"bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700 shadow-lg",
-						},
-					}}
-				/>
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+					<Suspense>
+						<ClerkProvider>
+							<ModeToggle />
+							{children}
+						</ClerkProvider>
+					</Suspense>
+					<Toaster
+						visibleToasts={1}
+						richColors
+						closeButton
+						duration={4000}
+						position="bottom-right"
+						toastOptions={{
+							classNames: {
+								default:
+									"bg-white text-black border border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700 shadow-lg",
+								success:
+									"bg-green-100 text-green-800 border border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700 shadow-lg",
+								error:
+									"bg-red-100 text-red-800 border border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700 shadow-lg",
+								info: "bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700 shadow-lg",
+								warning:
+									"bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700 shadow-lg",
+							},
+						}}
+					/>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

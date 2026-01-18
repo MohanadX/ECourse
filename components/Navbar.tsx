@@ -8,7 +8,7 @@ import SkeletonButton, { SkeletonArray } from "./Skeletons";
 
 export default function Navbar() {
 	return (
-		<header className="h-12 shadow bg-background z-10 relative">
+		<header className="h-12 shadow bg-background dark:bg-gray-700 z-10 relative">
 			<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers px-4">
 				<Link href={"/"} className="text-lg hover:underline pr-2">
 					ECourse Educational Platform
@@ -51,13 +51,13 @@ export default function Navbar() {
 								<AdminLink />
 								<Link
 									href={"/courses"}
-									className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+									className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
 								>
 									My Courses
 								</Link>
 								<Link
 									href={"/purchases"}
-									className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
+									className="hover:bg-accent/10 flex justify-center dark:hover:bg-accent/25 items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
 								>
 									Purchase History
 								</Link>
@@ -90,7 +90,7 @@ async function AdminLink() {
 	return (
 		<Link
 			href={`/admin/${user.userId}`}
-			className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+			className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
 		>
 			Admin
 		</Link>

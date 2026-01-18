@@ -58,7 +58,7 @@ export function SortableList<T extends { id: string }>({
 				items={optimisticItems}
 				strategy={verticalListSortingStrategy}
 			>
-				<div className="flex flex-col">{children(optimisticItems)}</div>
+				<div className="flex flex-col gap-2">{children(optimisticItems)}</div>
 			</SortableContext>
 		</DndContext>
 	);

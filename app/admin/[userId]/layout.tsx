@@ -15,10 +15,10 @@ export default async function AdminLayout({
 	}
 	return (
 		<>
-			<header className="h-12 shadow bg-background z-10 relative">
-				<nav className="h-full flex flex-wrap items-center justify-between gap-4 container mx-auto px-4">
+			<header className="h-12 shadow bg-background dark:bg-gray-700 dark:border-b-white z-10 relative">
+				<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers mx-auto px-4">
 					<div className="flex items-center h-full">
-						<Link href={"/"} className="text-lg hover:underline pr-2">
+						<Link href={"/"} className="text-lg hover:underline  pr-2">
 							ECourse Educational Platform
 						</Link>
 						<Badge>Admin</Badge>
@@ -53,26 +53,26 @@ export default async function AdminLayout({
 						<SignedIn>
 							<Link
 								href={`/admin/${userId}`}
-								className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+								className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
 							>
 								Admin Dashboard
 							</Link>
 							{/* only be shown if the user signed in */}
 							<Link
 								href={`/admin/${userId}/courses`}
-								className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+								className="hover:bg-accent/10 flex dark:hover:bg-accent/25 justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
 							>
 								Courses
 							</Link>
 							<Link
 								href={`/admin/${userId}/products`}
-								className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
+								className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
 							>
 								Products
 							</Link>
 							<Link
 								href={`/admin/${userId}/sales`}
-								className="hover:bg-accent/10 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
+								className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
 							>
 								Sales
 							</Link>

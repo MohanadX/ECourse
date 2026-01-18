@@ -78,14 +78,20 @@ export function MultiSelect<Option>({
 							{options.map((option) => (
 								<CommandItem
 									key={getValue(option)}
-									value={getValue(option)}
+									value={String(getLabel(option))}
 									onSelect={(currentValue) => {
-										if (selectedValues.includes(currentValue)) {
+										console.log(currentValue);
+										const optionValue = options.find(
+											(option) => getLabel(option) === currentValue,
+										);
+
+										const id = getValue(optionValue!);
+										if (selectedValues.includes(id)) {
 											onSelectedValuesChange(
-												selectedValues.filter((value) => value !== currentValue)
+												selectedValues.filter((v) => v !== id),
 											);
 										} else {
-											onSelectedValuesChange([...selectedValues, currentValue]);
+											onSelectedValuesChange([...selectedValues, id]);
 										}
 									}}
 								>
@@ -94,7 +100,7 @@ export function MultiSelect<Option>({
 											"mr-2 h-4 w-4",
 											selectedValues.includes(getValue(option))
 												? "opacity-100"
-												: "opacity-0"
+												: "opacity-0",
 										)}
 									/>
 									{getLabel(option)}

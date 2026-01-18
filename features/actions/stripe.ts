@@ -15,7 +15,7 @@ export async function getClientSessionSecret(
 	user: {
 		email: string;
 		id: string;
-	}
+	},
 ) {
 	try {
 		const coupon = await getUserCoupon();

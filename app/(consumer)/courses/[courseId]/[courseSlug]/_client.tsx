@@ -55,7 +55,8 @@ export function CoursePageClient({
 								key={lesson.id}
 								className={cn(
 									"w-full justify-start",
-									lessonId === lesson.id && "bg-accent/75 text-background",
+									lessonId === lesson.id &&
+										"bg-accent text-background dark:bg-foreground ",
 								)}
 							>
 								<Link
