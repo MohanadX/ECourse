@@ -48,7 +48,7 @@ export default function StripeCheckoutForm({
 				<p className="text-gray-600 mb-4">{error}</p>
 				<button
 					onClick={() => window.location.reload()}
-					className="px-4 py-2 bg-blue-600 text-white rounded"
+					className="px-4 py-2 bg-blue-400 text-white rounded"
 				>
 					Try Again
 				</button>

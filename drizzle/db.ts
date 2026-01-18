@@ -1,15 +1,15 @@
 import { env } from "@/data/env/server";
 import { drizzle } from "drizzle-orm/node-postgres";
+import postgres from "postgres";
 import * as schema from "./schema";
+
+const client = postgres(env.DATABASE_URL, {
+	ssl: "require",
+});
 
 export const db = drizzle({
 	schema,
-	connection: {
-		password: env.POSTGRES_PASSWORD,
-		user: env.POSTGRES_USER,
-		database: env.POSTGRES_DB,
-		host: env.POSTGRES_HOST,
-	},
+	client,
 });
 
 /*
