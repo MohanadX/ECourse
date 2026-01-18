@@ -41,7 +41,7 @@ const AdminPage = async ({
 	const { userId } = await params;
 	return (
 		<main className="containers mt-6 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-			<Suspense fallback={<PageLoader className="min-h-[90vh]" />}>
+			<Suspense>
 				<SuspenseBoundary userId={userId} />
 			</Suspense>
 		</main>
