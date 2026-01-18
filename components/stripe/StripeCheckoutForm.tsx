@@ -6,6 +6,7 @@ import {
 	EmbeddedCheckoutProvider,
 	EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
 export default function StripeCheckoutForm({
@@ -25,13 +26,14 @@ export default function StripeCheckoutForm({
 	};
 }) {
 	const [error, setError] = useState<string | null>(null);
+	const { theme } = useTheme();
 
 	const fetchClientSecret = async () => {
 		try {
 			return await getClientSessionSecret(product, user);
 		} catch (err) {
 			setError(
-				err instanceof Error ? err.message : "Payment initialization failed"
+				err instanceof Error ? err.message : "Payment initialization failed",
 			);
 			throw err; // Re-throw so Stripe can handle it
 		}
@@ -53,6 +55,7 @@ export default function StripeCheckoutForm({
 			</div>
 		);
 	}
+
 	return (
 		<EmbeddedCheckoutProvider
 			stripe={stripeClientPromise}
@@ -60,7 +63,7 @@ export default function StripeCheckoutForm({
 				fetchClientSecret,
 			}}
 		>
-			<EmbeddedCheckout></EmbeddedCheckout>
+			<EmbeddedCheckout />
 		</EmbeddedCheckoutProvider>
 	);
 }

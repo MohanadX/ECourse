@@ -109,13 +109,13 @@ export default async function ProductPage({
 								{formatPlural(
 									course.CourseSections.reduce(
 										(acc, section) => acc + section.lessons.length,
-										0
+										0,
 									),
 									{
 										singular: "Lesson",
 										plural: "Lessons",
 										includeCount: true,
-									}
+									},
 								)}
 							</CardDescription>
 						</CardHeader>
@@ -146,7 +146,7 @@ export default async function ProductPage({
 													{lesson.status === "preview" ? (
 														<Link
 															href={`/courses/${course.id}/${course.slug}/lessons/${lesson.id}`}
-															className="underline text-accent"
+															className="underline text-accent-foreground"
 														>
 															{lesson.name}
 														</Link>
@@ -226,7 +226,7 @@ async function getPublicProduct(id: string) {
 			getCourseLessonsTag(cp.course.id),
 			getCourseSectionsTag(cp.course.id),
 			getCourseIdTag(cp.course.id),
-		])
+		]),
 	);
 
 	const { CourseProducts, ...other } = product;

@@ -24,7 +24,7 @@ export default function SortableSectionList({
 	return (
 		<SortableList items={sections} onOrderChangeAction={mutateSectionOrders}>
 			{(
-				items // function as child pattern
+				items, // function as child pattern
 			) =>
 				items.map((section) => (
 					<SortableItem
@@ -35,7 +35,7 @@ export default function SortableSectionList({
 						<p
 							className={cn(
 								"contents",
-								section.status === "private" && "text-muted-foreground"
+								section.status === "private" && "text-muted-foreground",
 							)}
 						>
 							{section.status === "private" && <EyeClosed className="size-4" />}
