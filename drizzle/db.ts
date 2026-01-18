@@ -1,10 +1,14 @@
 import { env } from "@/data/env/server";
 import { drizzle } from "drizzle-orm/node-postgres";
-import postgres from "postgres";
 import * as schema from "./schema";
 
-const client = postgres(env.DATABASE_URL, {
-	ssl: "require",
+import { Pool } from "pg";
+
+const client = new Pool({
+	connectionString: env.DATABASE_URL,
+	ssl: {
+		rejectUnauthorized: true,
+	},
 });
 
 export const db = drizzle({
