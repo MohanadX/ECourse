@@ -146,20 +146,11 @@
 	border-radius: 7px;
 }
 
-.layout {
-	grid-template-columns: 300px 1fr;
+@media (min-width: 767px) {
+	.layout {
+		grid-template-columns: 300px 1fr;
+	}
 }
 
-/* Helpers for Stripe Embedded Checkout theme (applied to the mount container) */
-.ec-embedded--dark {
-	color-scheme: dark;
-	/* make host background match site card color */
-	background: var(--card);
-	color: var(--card-foreground);
-	background-color: black;
-}
-.ec-embedded--light {
-	color-scheme: light;
-	background: var(--card);
-	color: var(--card-foreground);
+.move:checked {
 }

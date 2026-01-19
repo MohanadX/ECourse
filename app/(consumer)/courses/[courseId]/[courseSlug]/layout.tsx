@@ -60,18 +60,41 @@ async function LayoutCourse({
 	if (!course) return notFound();
 
 	return (
-		<div className="grid layout gap-8 containers">
-			<aside className="py-4">
+		<div className="grid relative layout  gap-8 containers">
+			<input id="course-sidebar" type="checkbox" className="peer hidden" />
+			<label
+				htmlFor="course-sidebar"
+				className="md:hidden p-2 cursor-pointer w-6 text-foreground"
+				aria-label="Toggle course menu"
+				role="button"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					strokeWidth={1.5}
+					stroke="currentColor"
+					className="w-6 h-6"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+					/>
+				</svg>
+			</label>
+			<aside className="py-4 absolute md:static overflow-y-auto max-md:max-h-[500px] bg-background shadow md:shadow-none border-r md:border-none p-2 -left-[200px] peer-checked:left-1 top-8 md:top-0 md:left-0 sidebar-move transition-all">
 				<h1 className="text-lg font-semibold hover:underline">
 					<Link href={`/courses/${course.id}/${course.slug}`}>
 						{course.name}
 					</Link>
 				</h1>
+
 				<Suspense fallback={"Sidebar"}>
 					<SuspenseBoundary course={course} />
 				</Suspense>
 			</aside>
-			<main className="my-6 containers">{children}</main>
+			<main className="my-6">{children}</main>
 		</div>
 	);
 }
@@ -99,7 +122,7 @@ async function getCourse(courseId: string) {
 	cacheTag(
 		getCourseIdTag(courseId),
 		getCourseSectionsTag(courseId),
-		getCourseLessonsTag(courseId)
+		getCourseLessonsTag(courseId),
 	);
 
 	return db.query.CourseTable.findFirst({

@@ -31,7 +31,7 @@ export default async function AdminLayout({
 					/>
 					<label
 						htmlFor="admin-nav-toggle"
-						className="md:hidden p-2 cursor-pointer text-foreground"
+						className="md:hidden cursor-pointer text-foreground"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +49,7 @@ export default async function AdminLayout({
 						</svg>
 					</label>
 
-					<div className="hidden peer-checked:flex w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center absolute md:static top-12 left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 z-20 gap-4 md:gap-0">
+					<div className="flex absolute md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static top-[-500px] peer-checked:top-12 transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
 						<SignedIn>
 							<Link
 								href={`/admin/${userId}`}

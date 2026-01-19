@@ -25,7 +25,7 @@ type Props = {
 
 const CoursesTable = ({ courses }: Props) => {
 	return (
-		<Table>
+		<Table className="min-w-[300px]">
 			<TableHeader>
 				<TableRow>
 					<TableHead>
@@ -34,7 +34,7 @@ const CoursesTable = ({ courses }: Props) => {
 							plural: "Courses",
 						})}
 					</TableHead>
-					<TableHead>Students</TableHead>
+					<TableHead className="text-center">Students</TableHead>
 					<TableHead>Actions</TableHead>
 				</TableRow>
 			</TableHeader>
@@ -60,7 +60,9 @@ const CoursesTable = ({ courses }: Props) => {
 								</p>
 							</div>
 						</TableCell>
-						<TableCell>{course.studentsCount}</TableCell>
+						<TableCell className="text-center">
+							{course.studentsCount}
+						</TableCell>
 						<TableCell>
 							<div className="flex gap-2">
 								<Button asChild>

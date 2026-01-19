@@ -8,7 +8,7 @@ import SkeletonButton, { SkeletonArray } from "./Skeletons";
 
 export default function Navbar() {
 	return (
-		<header className="h-12 shadow bg-background dark:bg-gray-700 z-10 relative">
+		<header className="h-12 shadow bg-background dark:bg-gray-700 relative z-50">
 			<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers px-4">
 				<Link href={"/"} className="text-lg hover:underline pr-2">
 					ECourse Educational Platform
@@ -37,7 +37,7 @@ export default function Navbar() {
 					</svg>
 				</label>
 
-				<div className="hidden peer-checked:flex w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center absolute md:static top-12 left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 z-20 gap-4 md:gap-0">
+				<div className="flex absolute md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static top-[-500px] peer-checked:top-12 transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
 					<Suspense
 						fallback={
 							<SkeletonArray amount={3}>

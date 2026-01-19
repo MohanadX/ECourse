@@ -33,7 +33,7 @@ export default function PurchaseTable({
 	}[];
 }) {
 	return (
-		<Table>
+		<Table className="min-w-[500px]">
 			<TableHeader>
 				<TableRow>
 					<TableHead>

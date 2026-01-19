@@ -32,7 +32,7 @@ type Props = {
 
 const ProductsTable = ({ products }: Props) => {
 	return (
-		<Table>
+		<Table className="min-w-[500px]">
 			<TableHeader>
 				<TableRow>
 					<TableHead>
@@ -41,7 +41,7 @@ const ProductsTable = ({ products }: Props) => {
 							plural: "Products",
 						})}
 					</TableHead>
-					<TableHead>Customers</TableHead>
+					<TableHead className="text-center">Customers</TableHead>
 					<TableHead>Status</TableHead>
 					<TableHead>Actions</TableHead>
 				</TableRow>
@@ -70,7 +70,9 @@ const ProductsTable = ({ products }: Props) => {
 								</div>
 							</div>
 						</TableCell>
-						<TableCell>{product.customersCount}</TableCell>
+						<TableCell className="text-center">
+							{product.customersCount}
+						</TableCell>
 						<TableCell>
 							<Badge className="inline-flex items-center gap-2">
 								{getStatusIcon(product.status)} {product.status}

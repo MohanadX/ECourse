@@ -38,41 +38,43 @@ export function CoursePageClient({
 				)
 			: course.CourseSections[0];
 	return (
-		<Accordion
-			type="multiple"
-			defaultValue={defaultValue ? [defaultValue.id] : undefined}
-		>
-			{course.CourseSections.map((section) => (
-				<AccordionItem key={section.id} value={section.id}>
-					<AccordionTrigger className="text-lg">
-						{section.name}
-					</AccordionTrigger>
-					<AccordionContent className="flex flex-col flex-wrap gap-1">
-						{section.lessons.map((lesson) => (
-							<Button
-								variant={"ghost"}
-								asChild
-								key={lesson.id}
-								className={cn(
-									"w-full justify-start",
-									lessonId === lesson.id &&
-										"bg-accent text-background dark:bg-foreground ",
-								)}
-							>
-								<Link
-									href={`/courses/${course.id}/${course.slug}/lessons/${lesson.id}`}
-								>
-									<VideoIcon aria-hidden />
-									{lesson.name}
-									{lesson.isComplete && (
-										<CheckCircle2Icon className="ml-auto" />
+		<div>
+			<Accordion
+				type="multiple"
+				defaultValue={defaultValue ? [defaultValue.id] : undefined}
+			>
+				{course.CourseSections.map((section) => (
+					<AccordionItem key={section.id} value={section.id}>
+						<AccordionTrigger className="text-lg">
+							{section.name}
+						</AccordionTrigger>
+						<AccordionContent className="flex flex-col flex-wrap gap-1">
+							{section.lessons.map((lesson) => (
+								<Button
+									variant={"ghost"}
+									asChild
+									key={lesson.id}
+									className={cn(
+										"w-full justify-start",
+										lessonId === lesson.id &&
+											"bg-accent text-background dark:bg-foreground ",
 									)}
-								</Link>
-							</Button>
-						))}
-					</AccordionContent>
-				</AccordionItem>
-			))}
-		</Accordion>
+								>
+									<Link
+										href={`/courses/${course.id}/${course.slug}/lessons/${lesson.id}`}
+									>
+										<VideoIcon aria-hidden />
+										{lesson.name}
+										{lesson.isComplete && (
+											<CheckCircle2Icon className="ml-auto" />
+										)}
+									</Link>
+								</Button>
+							))}
+						</AccordionContent>
+					</AccordionItem>
+				))}
+			</Accordion>
+		</div>
 	);
 }
