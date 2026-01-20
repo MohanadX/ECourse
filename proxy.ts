@@ -27,7 +27,12 @@ const aj = arcjet({
 		shield({ mode: "LIVE" }),
 		detectBot({
 			mode: "LIVE",
-			allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:MONITOR", "CATEGORY:PREVIEW"], // no one can use postman or curl to access APIs
+			allow: [
+				"CATEGORY:SEARCH_ENGINE",
+				"CATEGORY:MONITOR",
+				"CATEGORY:PREVIEW",
+				"LINKEDIN_CRAWLER",
+			], // no one can use postman or curl to access APIs
 		}),
 		slidingWindow({
 			// Each client (IP / fingerprint) can make 100 requests per minute
