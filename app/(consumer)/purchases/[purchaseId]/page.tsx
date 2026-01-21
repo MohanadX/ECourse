@@ -15,7 +15,7 @@ import {
 import { db } from "@/drizzle/db";
 import { PurchaseTable } from "@/drizzle/schema";
 import { refundPurchase } from "@/features/actions/purchase";
-import { formatPrice } from "@/features/products/db/product";
+import { formatPrice } from "@/lib/utils";
 import { getPurchaseIdTag } from "@/features/purchases/db/cache";
 import { getCurrentUser } from "@/features/users/db/clerk";
 import { cn, expireRefundPurchaseDate, formatDate } from "@/lib/utils";

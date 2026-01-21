@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
 import { ModeToggle } from "@/components/ui/toggle-theme";
 import { env } from "@/data/env/server";
+import QueryProvider from "@/components/QueryProvider";
 const Toaster = dynamic(() => import("sonner").then((mod) => mod.Toaster));
 export const metadata: Metadata = {
 	metadataBase: env.SERVER_URL,
@@ -86,7 +87,7 @@ export default function RootLayout({
 							<div className="fixed z-100">
 								<ModeToggle />
 							</div>
-							{children}
+							<QueryProvider>{children}</QueryProvider>
 						</ClerkProvider>
 					</Suspense>
 					<Toaster

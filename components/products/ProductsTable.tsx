@@ -13,7 +13,7 @@ import { EyeIcon, LockIcon, Trash2Icon } from "lucide-react";
 import ActionButton from "../ActionButton";
 import { ProductStatus } from "@/drizzle/schema";
 import Image from "next/image";
-import { formatPrice } from "@/features/products/db/product";
+import { formatPrice } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { deleteProduct } from "@/features/actions/products";
 
