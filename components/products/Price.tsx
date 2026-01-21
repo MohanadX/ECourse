@@ -7,6 +7,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 async function fetchUserCoupon() {
 	const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}/api/coupon`); // to make fetch happen async after rendering not during it
 
+	if (!res.ok || !res.body) {
+		return null;
+	}
 	return res.json();
 }
 
