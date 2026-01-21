@@ -9,7 +9,7 @@ import {
 } from "../ui/table";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "../ui/badge";
-import { formatPrice } from "@/features/products/db/product";
+import { formatPrice } from "@/lib/utils";
 import { formatPlural } from "@/features/course/db/course";
 import ActionButton from "../ActionButton";
 import { refundPurchase } from "@/features/actions/purchase";

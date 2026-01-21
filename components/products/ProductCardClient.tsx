@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import {
 	Card,
@@ -8,11 +10,11 @@ import {
 	CardTitle,
 } from "../ui/card";
 import { Suspense } from "react";
-import Price from "./Price";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import Price from "./Price";
 
-export function ProductCard({
+export function ProductCardClient({
 	id,
 	name,
 	slug,

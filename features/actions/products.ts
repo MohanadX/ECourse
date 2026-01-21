@@ -2,17 +2,20 @@
 
 import z from "zod";
 import { productSchema } from "@/data/zodSchema/product";
-import { userRolesType } from "@/drizzle/schema";
+import { ProductTable, userRolesType } from "@/drizzle/schema";
 import { getCurrentUser } from "../users/db/clerk";
 import {
 	eliminateProduct,
 	getProduct,
 	insertProduct,
 	updateProduct,
+	wherePublicProducts,
 } from "../products/db/product";
 import { revalidateProductCache } from "../products/db/cache";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "../imageKit";
+import { asc, count } from "drizzle-orm";
+import { db } from "@/drizzle/db";
 
 export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	const { success, data } = productSchema.safeParse(unsafeData);
@@ -171,6 +174,44 @@ export async function deleteProduct(productId: string) {
 	}
 
 	return { success: true, message: "Successfully deleted your product" };
+}
+
+// Define a function that fetches a "page" of events
+export async function fetchEProductsPage(params: { pageParam?: number }) {
+	const skip = params.pageParam ?? 0;
+	const limit = 8;
+
+	const [products, [counts]] = await Promise.all([
+		db.query.ProductTable.findMany({
+			columns: {
+				id: true,
+				name: true,
+				slug: true,
+				description: true,
+				priceInDollars: true,
+				imageUrl: true,
+			},
+			where: wherePublicProducts,
+			orderBy: asc(ProductTable.name),
+			limit,
+			offset: skip,
+		}),
+		db
+			.select({
+				totalProducts: count(ProductTable.id),
+			})
+			.from(ProductTable)
+			.where(wherePublicProducts),
+	]);
+
+	const totalProducts = counts.totalProducts;
+	// Figure out the next skip (i.e. next pageParam)
+	const fullyLoaded = skip + products.length >= totalProducts;
+
+	return {
+		products,
+		nextSkip: fullyLoaded ? null : skip + products.length,
+	};
 }
 
 export async function productPermission(role: userRolesType | undefined) {

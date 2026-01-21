@@ -1,36 +1,28 @@
-"use server";
-
 import { countryToCouponMap } from "@/data/pppCoupons";
 import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 const COUNTRY_HEADER_KEY = "x-user-country";
-export async function setUserCountryHeaders(
-	headers: Headers,
-	country: string | undefined,
-) {
-	if (!country) {
-		headers.delete(COUNTRY_HEADER_KEY);
-	} else {
-		headers.set(COUNTRY_HEADER_KEY, country);
-	}
-}
 
 const getUserCountry = async () => {
 	const head = await headers();
 	return head.get(COUNTRY_HEADER_KEY);
 };
 
-export async function getUserCoupon() {
+export async function GET(req: NextRequest) {
 	const country = await getUserCountry();
 	if (!country) return; // PPP system won't work with users using vpn or proxy
 
 	// O(1) lookup using Map instead of O(n*m) with find + includes
 	const coupon = countryToCouponMap.get(country);
 
-	if (!coupon) return;
+	if (!coupon) return NextResponse.json(null, { status: 204 }); // 204: success but no content
 
-	return {
-		stripeCouponId: coupon.stripeCouponId,
-		discountPercentage: coupon.discountPercentage,
-	};
+	return NextResponse.json(
+		{
+			stripeCouponId: coupon.stripeCouponId,
+			discountPercentage: coupon.discountPercentage,
+		},
+		{ status: 200 },
+	);
 }

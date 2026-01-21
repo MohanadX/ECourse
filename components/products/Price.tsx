@@ -1,10 +1,28 @@
-import { formatPrice } from "@/features/products/db/product";
-import { getUserCoupon } from "@/lib/pppFunctions";
+"use client";
 
-const Price = async ({ price }: { price: number }) => {
-	const coupon = price !== 0 ? await getUserCoupon() : null;
+import { env } from "@/data/env/client";
+import { formatPrice } from "@/lib/utils";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-	if (price === 0 || coupon == null) {
+async function fetchUserCoupon() {
+	const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}/api/coupon`); // to make fetch happen async after rendering not during it
+
+	if (!res.ok || !res.body) {
+		return null;
+	}
+	return res.json();
+}
+
+const Price = ({ price }: { price: number }) => {
+	const { data: coupon } = useSuspenseQuery({
+		// query synchronously
+		queryKey: ["coupon"],
+		queryFn: fetchUserCoupon,
+		staleTime: Infinity,
+		refetchOnWindowFocus: true,
+	});
+
+	if (coupon == null || price === 0) {
 		return formatPrice(price);
 	}
 	return (

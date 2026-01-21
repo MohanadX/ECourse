@@ -47,3 +47,16 @@ export function formatTimeDuration(ms: number) {
 		seconds.toString().padStart(2, "0"),
 	].join(":");
 }
+
+export function formatPrice(amount: number, { showZeroAsNumber = false } = {}) {
+	const formatter = new Intl.NumberFormat(undefined, {
+		style: "currency",
+		currency: "USD",
+		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+	});
+	// undefined locale → uses the user’s system/browser locale
+	// 2 if it’s a decimal (e.g. 10.5 → $10.50)
+
+	if (amount === 0 && !showZeroAsNumber) return "Free";
+	return formatter.format(amount);
+}

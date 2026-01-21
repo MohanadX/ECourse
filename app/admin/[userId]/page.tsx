@@ -17,7 +17,8 @@ import { getUserCoursesTag } from "@/features/course/db/cache";
 import { getAdminCourseAccessTag } from "@/features/course/db/CourseAccessCache";
 import { getAdminLessonsTag } from "@/features/lessons/db/cache";
 import { getUserProductsTag } from "@/features/products/db/cache";
-import { formatNumber, formatPrice } from "@/features/products/db/product";
+import { formatNumber } from "@/features/products/db/product";
+import { formatPrice } from "@/lib/utils";
 import { getPurchaseUserTag } from "@/features/purchases/db/cache";
 import { getAdminCourseSectionsTag } from "@/features/sections/db/cache";
 import {

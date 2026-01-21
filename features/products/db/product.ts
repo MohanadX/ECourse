@@ -11,7 +11,7 @@ import {
 	getUserProductsTag,
 } from "@/features/products/db/cache";
 import { getPurchaseUserTag } from "@/features/purchases/db/cache";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, eq, isNull } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 export async function insertProduct(
@@ -96,19 +96,6 @@ export async function eliminateProduct(id: string, userId: string) {
 	// delete product image from imageKit cloud
 	await imageKit.deleteFile(deletedProduct.imageFileId);
 	return deletedProduct;
-}
-
-export function formatPrice(amount: number, { showZeroAsNumber = false } = {}) {
-	const formatter = new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency: "USD",
-		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-	});
-	// undefined locale → uses the user’s system/browser locale
-	// 2 if it’s a decimal (e.g. 10.5 → $10.50)
-
-	if (amount === 0 && !showZeroAsNumber) return "Free";
-	return formatter.format(amount);
 }
 
 export const wherePublicProducts = eq(ProductTable.status, "public");
