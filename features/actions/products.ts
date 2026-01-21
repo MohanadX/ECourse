@@ -200,7 +200,8 @@ export async function fetchEProductsPage(params: { pageParam?: number }) {
 			.select({
 				totalProducts: count(ProductTable.id),
 			})
-			.from(ProductTable),
+			.from(ProductTable)
+			.where(wherePublicProducts),
 	]);
 
 	const totalProducts = counts.totalProducts;

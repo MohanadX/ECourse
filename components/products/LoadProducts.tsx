@@ -28,7 +28,7 @@ const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
 		enabled: false, //  disables automatic first fetch
 	});
 	if (status === "error") {
-		return <p>Error loading events: {(error as Error).message}</p>;
+		return <p>Error loading products: {(error as Error).message}</p>;
 	}
 
 	console.log({ ...data }, status);
