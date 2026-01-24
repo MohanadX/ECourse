@@ -111,7 +111,8 @@ export async function mutateCourse(
 
 	const course = await updateCourse(id, data, user.userId!);
 
-	revalidatePath(`/admin/${user.userId}/courses/${course.id}/edit`);
+	revalidatePath(`/admin/${user.userId}/courses/${course.id}/edit`); // admin
+	revalidatePath("/courses");
 	revalidateCourseCache(course.id, user.userId!);
 
 	return {

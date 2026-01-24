@@ -31,6 +31,7 @@ import { MultiSelect } from "../multi-select";
 import { useTransition } from "react";
 import { LoadingTextSwap } from "../ActionButton";
 import Image from "next/image";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductForm = ({
 	product,
@@ -64,7 +65,7 @@ const ProductForm = ({
 					image: product.imageUrl,
 					priceInDollars: product.priceInDollars,
 					status: product.status,
-			  }
+				}
 			: {
 					name: "",
 					description: "",
@@ -72,9 +73,10 @@ const ProductForm = ({
 					image: undefined,
 					priceInDollars: 0,
 					status: "private",
-			  },
+				},
 	});
 
+	const queryClient = useQueryClient();
 	async function onSubmit(values: z.infer<typeof productSchema>) {
 		const action =
 			product == null ? createProduct : mutateProduct.bind(null, product.id);
@@ -85,6 +87,9 @@ const ProductForm = ({
 				toast.error(message);
 			} else {
 				toast.success(message);
+				queryClient.refetchQueries({
+					queryKey: ["productsP"],
+				});
 				if (action == createProduct)
 					router.replace(`/admin/${userId}/products`);
 			}

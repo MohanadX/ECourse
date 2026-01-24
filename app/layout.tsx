@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import dynamic from "next/dynamic";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
 import { ModeToggle } from "@/components/ui/toggle-theme";
 import { env } from "@/data/env/server";
 import QueryProvider from "@/components/QueryProvider";
+import ClerkProviderTheme from "@/components/ClerkProviderTheme";
 const Toaster = dynamic(() => import("sonner").then((mod) => mod.Toaster));
 export const metadata: Metadata = {
 	metadataBase: env.SERVER_URL,
@@ -83,12 +83,12 @@ export default function RootLayout({
 			<body className={`antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<Suspense>
-						<ClerkProvider>
+						<ClerkProviderTheme>
 							<div className="fixed z-100">
 								<ModeToggle />
 							</div>
 							<QueryProvider>{children}</QueryProvider>
-						</ClerkProvider>
+						</ClerkProviderTheme>
 					</Suspense>
 					<Toaster
 						visibleToasts={1}

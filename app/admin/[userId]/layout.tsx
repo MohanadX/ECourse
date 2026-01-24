@@ -24,11 +24,6 @@ export default async function AdminLayout({
 						<Badge>Admin</Badge>
 					</div>
 
-					<input
-						type="checkbox"
-						id="admin-nav-toggle"
-						className="peer hidden"
-					/>
 					<label
 						htmlFor="admin-nav-toggle"
 						className="md:hidden cursor-pointer text-foreground"
@@ -49,7 +44,12 @@ export default async function AdminLayout({
 						</svg>
 					</label>
 
-					<div className="flex absolute md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static top-[-500px] peer-checked:top-12 transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
+					<input
+						type="checkbox"
+						id="admin-nav-toggle"
+						className="peer hidden"
+					/>
+					<div className="flex menu-click md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
 						<SignedIn>
 							<Link
 								href={`/admin/${userId}`}

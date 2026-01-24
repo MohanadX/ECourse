@@ -27,6 +27,7 @@ import {
 import { createSection, mutateSection } from "@/features/actions/section";
 import { LoadingTextSwap } from "../ActionButton";
 import { useTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SectionForm = ({
 	section,
@@ -50,6 +51,7 @@ const SectionForm = ({
 		},
 	});
 
+	const queryClient = useQueryClient();
 	async function onSubmit(values: z.infer<typeof sectionSchema>) {
 		const action =
 			section == null
@@ -63,6 +65,11 @@ const SectionForm = ({
 				toast.error(message);
 			} else {
 				toast.success(message);
+				if (action.name === `bound ${createSection.name}`) {
+					queryClient.refetchQueries({
+						queryKey: ["coursesP"],
+					});
+				}
 				onSuccess();
 			}
 		});

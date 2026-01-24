@@ -27,6 +27,7 @@ import { lessonSchema } from "@/data/zodSchema/lesson";
 import { Textarea } from "../ui/textarea";
 import { createLesson, mutateLesson } from "@/features/actions/lesson";
 import YoutubeVideoPlayer from "../YoutubeVideoPlayer";
+import { useQueryClient } from "@tanstack/react-query";
 
 const LessonForm = ({
 	sections,
@@ -60,6 +61,7 @@ const LessonForm = ({
 		},
 	});
 
+	const queryClient = useQueryClient();
 	async function onSubmit(values: z.infer<typeof lessonSchema>) {
 		const action =
 			lesson == null ? createLesson : mutateLesson.bind(null, lesson.id);
@@ -70,6 +72,11 @@ const LessonForm = ({
 			toast.error(message);
 		} else {
 			toast.success(message);
+			if (action.name === `bound ${createLesson.name}`) {
+				queryClient.refetchQueries({
+					queryKey: ["coursesP"],
+				});
+			}
 			onSuccess();
 		}
 	}

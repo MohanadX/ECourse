@@ -57,6 +57,7 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 			imageUrl: imageUrl!,
 			imageFileId: imageFileId!,
 		});
+		revalidatePath(`/admin/${user.userId}/products`);
 		revalidateProductCache(product.id, user.userId!);
 		return {
 			success: true,

@@ -63,6 +63,7 @@ export default function SortableLessonList({
 							<ActionButton
 								action={deleteLesson.bind(null, lesson.id)}
 								requireAreYouSure
+								pagination={["coursesP"]}
 								variant={"destructiveOutline"}
 								size={"sm"}
 								aria-label="Delete"

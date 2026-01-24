@@ -66,7 +66,9 @@ export default async function ProductPage({
 					>
 						<Price price={product.priceInDollars} />
 					</Suspense>
-					<h1 className="text-4xl font-semibold">{product.name}</h1>
+					<h1 className="text-4xl max-w-[300px] font-semibold">
+						{product.name}
+					</h1>
 					<p className="text-muted-foreground">
 						{formatPlural(courseCount, {
 							singular: "Course",
@@ -80,7 +82,9 @@ export default async function ProductPage({
 							includeCount: true,
 						})}
 					</p>
-					<p className="text-xl my-6">{product.description}</p>
+					<p className="text-xl my-6 max-w-[500px] hyphens-auto wrap-break-word ">
+						{product.description}
+					</p>
 					<Suspense fallback={<SkeletonButton className="w-35 h-10" />}>
 						<PurchaseButton productId={product.id} productSlug={product.slug} />
 					</Suspense>

@@ -118,6 +118,7 @@ async function SuspendedComponent({ purchaseId }: { purchaseId: string }) {
 								<ActionButton
 									variant={"destructiveOutline"}
 									action={refundPurchase.bind(null, purchaseId)}
+									paginationArr={["salesP", "purchasesP"]}
 									requireAreYouSure
 									className="w-fit"
 								>
