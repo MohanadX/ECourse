@@ -26,11 +26,13 @@ export default function StripeCheckoutForm({
 	};
 }) {
 	const [error, setError] = useState<string | null>(null);
-	const { setTheme } = useTheme();
+	const { setTheme, theme } = useTheme();
 
 	useEffect(() => {
+		const originalTheme = theme;
 		setTheme("light");
-	}, [setTheme]);
+		return () => setTheme(originalTheme ?? "dark");
+	}, [setTheme, theme]);
 
 	const fetchClientSecret = async () => {
 		try {

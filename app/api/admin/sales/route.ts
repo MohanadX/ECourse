@@ -7,8 +7,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	try {
-		const page = Number(req.nextUrl.searchParams.get("page"));
-		const { userId } = await getCurrentUser();
+		const page = Number(req.nextUrl.searchParams.get("page")) || 1;
+		const { userId, role } = await getCurrentUser();
+
+		if (!userId || role !== "admin") {
+			return NextResponse.json(null, { status: 401 });
+		}
 
 		const skip = (page - 1) * PURCHASES_LIMIT;
 		const sales = await db.query.PurchaseTable.findMany({
@@ -33,7 +37,7 @@ export async function GET(req: NextRequest) {
 		});
 
 		if (!sales) {
-			return NextResponse.json(null, { status: 204 });
+			return NextResponse.json([], { status: 204 });
 		}
 
 		return NextResponse.json(sales, { status: 200 });

@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
 			.offset(skip);
 
 		if (!courses) {
-			return NextResponse.json(null, { status: 204 });
+			return NextResponse.json([], { status: 204 });
 		}
 
 		return NextResponse.json(courses, { status: 200 });

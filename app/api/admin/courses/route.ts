@@ -12,8 +12,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	try {
-		const page = Number(req.nextUrl.searchParams.get("page"));
-		const { userId } = await getCurrentUser();
+		const page = Number(req.nextUrl.searchParams.get("page")) || 1;
+		const { userId, role } = await getCurrentUser();
+
+		if (!userId || role !== "admin") {
+			return NextResponse.json(null, { status: 401 });
+		}
 
 		const skip = (page - 1) * COURSES_LIMIT;
 		const courses = await db
@@ -41,7 +45,7 @@ export async function GET(req: NextRequest) {
 			.offset(skip);
 
 		if (!courses) {
-			return NextResponse.json(null, { status: 204 });
+			return NextResponse.json([], { status: 204 });
 		}
 
 		return NextResponse.json(courses, { status: 200 });

@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 			.offset(skip);
 
 		if (!products) {
-			return NextResponse.json(null, { status: 204 });
+			return NextResponse.json([], { status: 204 });
 		}
 
 		return NextResponse.json(products, { status: 200 });

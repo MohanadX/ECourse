@@ -26,7 +26,7 @@ const Products = async ({
 	const { userId } = await params;
 
 	const { page: pageParam } = await searchParams;
-	const page = Number(pageParam ?? 1);
+	const page = Math.max(1, Math.floor(Number(pageParam) || 1));
 	const skip = (page - 1) * PRODUCTS_LIMIT;
 
 	const [products, [productsNumber]] = await getProducts(

@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	try {
-		const page = Number(req.nextUrl.searchParams.get("page"));
+		const page = Number(req.nextUrl.searchParams.get("page")) || 1;
 		const { userId } = await getCurrentUser();
 
 		if (!userId) {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 		});
 
 		if (!purchases) {
-			return NextResponse.json(null, { status: 204 });
+			return NextResponse.json([], { status: 204 });
 		}
 
 		return NextResponse.json(purchases, { status: 200 });

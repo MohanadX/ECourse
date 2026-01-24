@@ -63,6 +63,7 @@ const LessonForm = ({
 
 	const queryClient = useQueryClient();
 	async function onSubmit(values: z.infer<typeof lessonSchema>) {
+		const isCreate = lesson == null;
 		const action =
 			lesson == null ? createLesson : mutateLesson.bind(null, lesson.id);
 
@@ -72,7 +73,7 @@ const LessonForm = ({
 			toast.error(message);
 		} else {
 			toast.success(message);
-			if (action.name === `bound ${createLesson.name}`) {
+			if (isCreate) {
 				queryClient.refetchQueries({
 					queryKey: ["coursesP"],
 				});
