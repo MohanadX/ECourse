@@ -20,13 +20,9 @@ export async function GET(req: NextRequest) {
 			.select({
 				id: DBCourse.id,
 				name: DBCourse.name,
-.select({
-	id: DBCourse.id,
-	name: DBCourse.name,
-	sectionsCount: countDistinct(CourseSectionTable.id),
-	lessonsCount: countDistinct(LessonTable.id),
-	studentsCount: countDistinct(UserCourseAccessTable.userId),
-})
+				sectionsCount: countDistinct(CourseSectionTable.id),
+				lessonsCount: countDistinct(LessonTable.id),
+				studentsCount: countDistinct(UserCourseAccessTable.userId),
 			})
 			.from(DBCourse)
 			.where(eq(DBCourse.userId, userId))
