@@ -3,7 +3,7 @@ import { forbidden, notFound } from "next/navigation";
 import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/next";
 import { env } from "./data/env/server";
 import { setUserCountryHeaders } from "./lib/pppFunctions";
-import { NextResponse } from "next/server";
+import { NextResponse, userAgent } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
 	"/",
@@ -32,6 +32,8 @@ const aj = arcjet({
 				"CATEGORY:MONITOR",
 				"CATEGORY:PREVIEW",
 				"LINKEDIN_CRAWLER",
+				"CATEGORY:GOOGLE",
+				"GOOGLE_LIGHTHOUSE",
 			], // no one can use postman or curl to access APIs
 		}),
 		slidingWindow({
