@@ -65,11 +65,11 @@ const SectionForm = ({
 				toast.error(message);
 			} else {
 				toast.success(message);
-				if (action.name === `bound ${createSection.name}`) {
-					queryClient.refetchQueries({
-						queryKey: ["coursesP"],
-					});
-				}
+			if (section == null) {
+				queryClient.refetchQueries({
+					queryKey: ["coursesP"],
+				});
+			}
 				onSuccess();
 			}
 		});
