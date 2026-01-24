@@ -11,7 +11,7 @@ import {
 	getUserProductsTag,
 } from "@/features/products/db/cache";
 import { getPurchaseUserTag } from "@/features/purchases/db/cache";
-import { and, asc, count, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 export async function insertProduct(

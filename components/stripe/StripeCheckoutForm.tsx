@@ -7,7 +7,7 @@ import {
 	EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function StripeCheckoutForm({
 	product,
@@ -26,7 +26,13 @@ export default function StripeCheckoutForm({
 	};
 }) {
 	const [error, setError] = useState<string | null>(null);
-	const { theme } = useTheme();
+	const { setTheme, theme } = useTheme();
+
+	useEffect(() => {
+		const originalTheme = theme;
+		setTheme("light");
+		return () => setTheme(originalTheme ?? "dark");
+	}, [setTheme, theme]);
 
 	const fetchClientSecret = async () => {
 		try {

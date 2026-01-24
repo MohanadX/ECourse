@@ -15,22 +15,39 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 } from "./ui/alert-dialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ActionButton = ({
 	action,
 	requireAreYouSure = false,
+	pagination,
+	paginationArr,
 	...props
 }: Omit<ComponentPropsWithRef<typeof Button>, "onClick"> & {
 	action: () => Promise<{ success: boolean; message: string }>;
 	requireAreYouSure?: boolean;
+	pagination?: [string, number] | [string];
+	paginationArr?: string[];
 }) => {
 	const [isLoading, startTransition] = useTransition();
 
+	const queryClient = useQueryClient();
 	async function performAction() {
 		startTransition(async () => {
 			const data = await action();
 			if (data.success) {
 				toast.success(data.message);
+
+				if (pagination) {
+					queryClient.refetchQueries({
+						queryKey: [...pagination],
+					});
+				} else if (paginationArr) {
+					queryClient.refetchQueries({
+						predicate: (query) =>
+							paginationArr.includes(query.queryKey[0] as string),
+					});
+				}
 			} else {
 				toast.error(data.message);
 			}

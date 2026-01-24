@@ -19,7 +19,7 @@ const imageUrlSchema = z
 			url.startsWith(`https://ik.imagekit.io/${env.NEXT_PUBLIC_IMAGEKIT_ID}`),
 		{
 			error: "Invalid image URL source",
-		}
+		},
 	);
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -34,8 +34,11 @@ export const productSchema = z.object({
 	name: z
 		.string()
 		.min(1, { error: "Name is required" })
-		.max(100, { error: "Name is maximum 100 characters" }),
-	description: z.string().min(1, { error: "Description is required" }),
+		.max(50, { error: "Name is maximum 50 characters" }),
+	description: z
+		.string()
+		.min(1, { error: "Description is required" })
+		.max(200, { error: "Description is maximum 200 characters" }),
 	priceInDollars: z
 		.number({ error: "If you want the course to be free leave 0 " })
 		.int({ error: "Price cannot be decimal number" })
@@ -46,3 +49,5 @@ export const productSchema = z.object({
 		.array(z.string())
 		.min(1, { error: "At least one course is required" }),
 });
+
+export const PRODUCTS_LIMIT = 6;

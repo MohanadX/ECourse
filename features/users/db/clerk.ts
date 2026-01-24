@@ -8,10 +8,11 @@ import { eq } from "drizzle-orm";
 export async function getCurrentUser({ allData = false } = {}) {
 	const { userId, sessionClaims, redirectToSignIn } = await auth();
 
-	if (!sessionClaims) {
+	if (!sessionClaims && userId != null) {
+		// if user have userId but not sessionClaims that is webhook error (not when user is not just signed in)
 		console.error(`This is user doesn't have clerk session claims: ${userId}`);
 		throw new Error(
-			`This is user doesn't have clerk session claims: ${userId}`
+			`This is user doesn't have clerk session claims: ${userId}`,
 		);
 	}
 

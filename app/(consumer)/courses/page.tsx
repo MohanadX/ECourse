@@ -20,8 +20,7 @@ import {
 	UserCourseAccessTable,
 	UserLessonProgressTable,
 } from "@/drizzle/schema";
-import { getCourseIdTag } from "@/features/course/db/cache";
-import { formatPlural } from "@/features/course/db/course";
+import { getCourseIdTag, getUserCoursesTag } from "@/features/course/db/cache";
 import { getUserCourseAccessUserTag } from "@/features/course/db/CourseAccessCache";
 import { getCourseLessonsTag } from "@/features/lessons/db/cache";
 import { wherePublicLessons } from "@/features/lessons/db/lessons";
@@ -33,32 +32,53 @@ import { and, countDistinct, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
+import { COURSES_LIMIT } from "@/data/zodSchema/course";
+import CourseGridClient from "@/components/courses/CourseGridClient";
 
-export default function CoursesPage() {
+export default function CoursesPage({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}) {
 	return (
 		<main className="containers my-6">
 			<PageHeader title="My Courses" />
-			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-				<Suspense
-					fallback={
+			<Suspense
+				fallback={
+					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
 						<SkeletonArray amount={3}>
 							<SkeletonCourseCard />
 						</SkeletonArray>
-					}
-				>
-					<CourseGrid />
-				</Suspense>
-			</div>
+					</div>
+				}
+			>
+				<CourseGrid searchParams={searchParams} />
+			</Suspense>
 		</main>
 	);
 }
 
-async function CourseGrid() {
+async function CourseGrid({
+	searchParams,
+}: {
+	searchParams: Promise<{ page?: string }>;
+}) {
 	const { userId, redirectToSignIn } = await getCurrentUser();
 
 	if (!userId) return redirectToSignIn();
 
-	const courses = await getUserCourses(userId);
+	const { page: pageParam } = await searchParams;
+	const page = Number(pageParam ?? 1);
+	const skip = (page - 1) * COURSES_LIMIT;
+
+	const [courses, [coursesNumber]] = await getUserCourses(
+		userId,
+		COURSES_LIMIT,
+		skip,
+	);
+	const coursesCount = coursesNumber.coursesCount ?? 0;
+
+	const totalPages = Math.ceil(coursesCount / COURSES_LIMIT);
 
 	if (courses.length === 0) {
 		return (
@@ -71,96 +91,89 @@ async function CourseGrid() {
 		);
 	}
 
-	return courses.map((course) => (
-		<Card key={course.id} className="flex flex-col relative overflow-hidden">
-			<CardHeader>
-				<CardTitle>{course.name}</CardTitle>
-				<CardDescription>
-					{formatPlural(course.sectionsCount, {
-						singular: "section",
-						plural: "sections",
-						includeCount: true,
-					})}{" "}
-					•{" "}
-					{formatPlural(course.lessonsCount, {
-						singular: "lesson",
-						plural: "lessons",
-						includeCount: true,
-					})}
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="line-clamp-3 grow" title={course.description}>
-				{/* title show use the rest of the text on hover */}
-				{course.description}
-			</CardContent>
-			<CardFooter>
-				<Button asChild>
-					<Link href={`/courses/${course.id}/${course.slug}`}>View Course</Link>
-				</Button>
-			</CardFooter>
-			<div
-				className="bg-accent h-2 absolute bottom-0"
-				style={{
-					width: `${course.lessonsCount > 0 ? (course.lessonCompleted / course.lessonsCount) * 100 : 0}%`,
-				}}
-			/>
-		</Card>
-	));
+	return (
+		<CourseGridClient
+			initialCourses={courses}
+			coursesCount={coursesCount}
+			initialPage={page}
+			totalPages={totalPages}
+		/>
+	);
 }
 
-async function getUserCourses(userId: string) {
+async function getUserCourses(userId: string, limit: number, skip: number) {
 	"use cache";
 	cacheTag(
+		getUserCoursesTag(userId),
 		getUserCourseAccessUserTag(userId),
-		getLessonProgressUserTag(userId)
+		getLessonProgressUserTag(userId),
 	);
 
-	const courses = await db
-		.select({
-			id: CourseTable.id,
-			name: CourseTable.name,
-			slug: CourseTable.slug,
-			description: CourseTable.description,
-			sectionsCount: countDistinct(CourseSectionTable.id),
-			lessonsCount: countDistinct(LessonTable.id),
-			lessonCompleted: countDistinct(UserLessonProgressTable.lessonId),
-		})
-		.from(CourseTable)
-		.innerJoin(
-			UserCourseAccessTable,
-			and(
-				eq(UserCourseAccessTable.courseId, CourseTable.id),
-				eq(UserCourseAccessTable.userId, userId)
+	return Promise.all([
+		db
+			.select({
+				id: CourseTable.id,
+				name: CourseTable.name,
+				slug: CourseTable.slug,
+				description: CourseTable.description,
+				sectionsCount: countDistinct(CourseSectionTable.id),
+				lessonsCount: countDistinct(LessonTable.id),
+				lessonCompleted: countDistinct(UserLessonProgressTable.lessonId),
+			})
+			.from(CourseTable)
+			.innerJoin(
+				UserCourseAccessTable,
+				and(
+					eq(UserCourseAccessTable.courseId, CourseTable.id),
+					eq(UserCourseAccessTable.userId, userId),
+				),
 			)
-		)
-		.leftJoin(
-			CourseSectionTable,
-			and(
-				eq(CourseSectionTable.courseId, CourseTable.id),
-				wherePublicCourseSections
+			.leftJoin(
+				CourseSectionTable,
+				and(
+					eq(CourseSectionTable.courseId, CourseTable.id),
+					wherePublicCourseSections,
+				),
 			)
-		)
-		.leftJoin(
-			LessonTable,
-			and(eq(LessonTable.sectionId, CourseSectionTable.id), wherePublicLessons)
-		)
-		.leftJoin(
-			UserLessonProgressTable,
-			and(
-				eq(UserLessonProgressTable.lessonId, LessonTable.id),
-				eq(UserLessonProgressTable.userId, userId)
+			.leftJoin(
+				LessonTable,
+				and(
+					eq(LessonTable.sectionId, CourseSectionTable.id),
+					wherePublicLessons,
+				),
 			)
-		)
-		.orderBy(CourseTable.name)
-		.groupBy(CourseTable.id);
-
-	courses.forEach((course) => {
-		cacheTag(getCourseIdTag(course.id));
-		cacheTag(getCourseSectionsTag(course.id));
-		cacheTag(getCourseLessonsTag(course.id));
-	});
-
-	return courses;
+			.leftJoin(
+				UserLessonProgressTable,
+				and(
+					eq(UserLessonProgressTable.lessonId, LessonTable.id),
+					eq(UserLessonProgressTable.userId, userId),
+				),
+			)
+			.orderBy(CourseTable.name)
+			.groupBy(CourseTable.id)
+			.limit(limit)
+			.offset(skip)
+			.then((courses) => {
+				courses.forEach((course) => {
+					cacheTag(getCourseIdTag(course.id));
+					cacheTag(getCourseSectionsTag(course.id));
+					cacheTag(getCourseLessonsTag(course.id));
+				});
+				return courses;
+			}),
+		db
+			.select({
+				coursesCount: countDistinct(CourseTable.id),
+			})
+			.from(CourseTable)
+			.innerJoin(
+				UserCourseAccessTable,
+				and(
+					eq(UserCourseAccessTable.courseId, CourseTable.id),
+					eq(UserCourseAccessTable.userId, userId),
+				),
+			),
+	]);
 }
 
 function SkeletonCourseCard() {

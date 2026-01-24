@@ -14,7 +14,6 @@ export default function Navbar() {
 					ECourse Educational Platform
 				</Link>
 
-				<input type="checkbox" id="main-nav-toggle" className="peer hidden" />
 				<label
 					htmlFor="main-nav-toggle"
 					className="md:hidden p-2 cursor-pointer text-foreground"
@@ -37,7 +36,8 @@ export default function Navbar() {
 					</svg>
 				</label>
 
-				<div className="flex absolute md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static top-[-500px] peer-checked:top-12 transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
+				<input type="checkbox" id="main-nav-toggle" className="peer hidden" />
+				<div className="flex md:z-1 w-full md:flex md:w-auto md:h-full top-12 flex-col md:flex-row items-center md:static menu-click transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
 					<Suspense
 						fallback={
 							<SkeletonArray amount={3}>

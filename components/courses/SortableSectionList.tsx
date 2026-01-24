@@ -56,6 +56,7 @@ export default function SortableSectionList({
 							<ActionButton
 								action={deleteSection.bind(null, section.id)}
 								requireAreYouSure
+								pagination={["coursesP"]}
 								variant={"destructiveOutline"}
 								size={"sm"}
 								aria-label="Delete"

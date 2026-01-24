@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { LoadingTextSwap } from "../ActionButton";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CourseForm = ({
 	course,
@@ -41,6 +42,7 @@ const CourseForm = ({
 		},
 	});
 
+	const queryClient = useQueryClient();
 	async function onSubmit(values: z.infer<typeof courseSchema>) {
 		const action =
 			course == null ? createCourse : mutateCourse.bind(null, course.id);
@@ -52,6 +54,12 @@ const CourseForm = ({
 				toast.error(message);
 			} else {
 				toast.success(message);
+				queryClient.refetchQueries({
+					// invalidate all courses page client cache
+					predicate: (query) =>
+						query.queryKey[0] === "coursesP" ||
+						query.queryKey[0] === "userCoursesP",
+				});
 				if (action == createCourse) router.push(`${courseId}/edit`);
 			}
 		});

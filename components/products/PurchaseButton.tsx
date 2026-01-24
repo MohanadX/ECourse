@@ -12,14 +12,21 @@ const PurchaseButton = async ({
 }) => {
 	const { userId } = await getCurrentUser();
 
+	console.log("This is userId:", userId);
+
 	const alreadyOwnProduct =
 		userId != null && (await userOwnsProduct({ userId, productId }));
 
 	if (alreadyOwnProduct) {
 		return (
-			<p className="text-muted-foreground text-xl underline">
-				You already own this product
-			</p>
+			<>
+				<p className="text-muted-foreground text-xl underline">
+					You already own this product
+				</p>
+				<Button asChild className="my-4">
+					<Link href={`/courses`}>View Courses</Link>
+				</Button>
+			</>
 		);
 	} else {
 		return (
