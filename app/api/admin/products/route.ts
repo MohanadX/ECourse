@@ -11,10 +11,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	try {
-		const page = Number(req.nextUrl.searchParams.get("page"));
+		const page = Number(req.nextUrl.searchParams.get("page")) || 1;
 		const { userId } = await getCurrentUser();
 
-		const skip = (page - 1) * PRODUCTS_LIMIT;
+		if (!userId) {
+			return NextResponse.json(null, { status: 401 });
+		}
+
+		const skip = Math.max(0, (page - 1) * PRODUCTS_LIMIT);
 		const products = await db
 			.select({
 				id: ProductTable.id,

@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
 			.select({
 				id: DBCourse.id,
 				name: DBCourse.name,
-				sectionsCount: countDistinct(CourseSectionTable),
-				lessonsCount: countDistinct(LessonTable),
-				studentsCount: countDistinct(UserCourseAccessTable),
+				sectionsCount: countDistinct(CourseSectionTable.id),
+				lessonsCount: countDistinct(LessonTable.id),
+				studentsCount: countDistinct(UserCourseAccessTable.userId),
 			})
 			.from(DBCourse)
 			.where(eq(DBCourse.userId, userId))

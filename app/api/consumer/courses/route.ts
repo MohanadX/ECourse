@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	try {
-		const page = Number(req.nextUrl.searchParams.get("page"));
+		const page = Number(req.nextUrl.searchParams.get("page")) || 1;
 		const { userId } = await getCurrentUser();
 
 		if (!userId) {
