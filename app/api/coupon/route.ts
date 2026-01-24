@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 	// O(1) lookup using Map instead of O(n*m) with find + includes
 	const coupon = countryToCouponMap.get(country);
 
-	if (!coupon) return NextResponse.json(null, { status: 204 }); // 204: success but no content
+	if (!coupon) return new NextResponse(null, { status: 204 }); // 204: success but no content
 
 	return NextResponse.json(
 		{
