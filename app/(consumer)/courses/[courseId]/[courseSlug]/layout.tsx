@@ -83,7 +83,7 @@ async function LayoutCourse({
 					/>
 				</svg>
 			</label>
-			<aside className="py-4 absolute md:static overflow-y-auto max-md:max-h-[500px] bg-background shadow md:shadow-none border-r md:border-none p-2 -left-[200px] peer-checked:left-1 top-8 md:top-0 md:left-0 sidebar-move transition-all">
+			<aside className="py-4 absolute md:static overflow-y-auto max-md:max-h-[500px] bg-background shadow md:shadow-none border-r md:border-none p-2 -left-[250px] peer-checked:left-1 top-8 md:top-0 md:left-0 sidebar-move transition-all">
 				<h1 className="text-lg font-semibold hover:underline">
 					<Link href={`/courses/${course.id}/${course.slug}`}>
 						{course.name}

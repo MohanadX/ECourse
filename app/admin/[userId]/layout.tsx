@@ -16,7 +16,7 @@ export default async function AdminLayout({
 	return (
 		<>
 			<header className="h-12 shadow bg-background dark:bg-gray-700 dark:border-b-white z-10 relative">
-				<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers mx-auto px-4">
+				<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers mx-auto px-4 py-2">
 					<div className="flex items-center h-full">
 						<Link href={"/"} className="text-lg hover:underline  pr-2">
 							ECourse Educational Platform

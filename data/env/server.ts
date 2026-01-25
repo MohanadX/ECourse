@@ -43,6 +43,12 @@ export const env = createEnv({
 		DATABASE_URL: z
 			.string()
 			.min(1, { error: "Database Url is not set correctly" }),
+		RATE_LIMIT_INTERVAL: z
+			.string()
+			.min(1, { error: "RATE limit interval is not set correctly" }),
+		RATE_LIMIT_MAX: z
+			.string()
+			.min(1, { error: "RATE limit max is not set correctly" }),
 	},
 	experimental__runtimeEnv: process.env,
 });

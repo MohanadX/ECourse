@@ -9,7 +9,7 @@ import SkeletonButton, { SkeletonArray } from "./Skeletons";
 export default function Navbar() {
 	return (
 		<header className="h-12 shadow bg-background dark:bg-gray-700 relative z-50">
-			<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers px-4">
+			<nav className="h-full flex flex-wrap items-center justify-between gap-4 containers px-4 py-2">
 				<Link href={"/"} className="text-lg hover:underline pr-2">
 					ECourse Educational Platform
 				</Link>

@@ -77,7 +77,7 @@ async function SuspenseBoundary({
 
 	return (
 		<article className="my-4 flex flex-col gap-4">
-			<div className="aspect-video">
+			<div className="aspect-video max-w-full">
 				{canView ? (
 					<YoutubeVideoPlayer
 						videoId={lesson.youtubeVideoId}
@@ -99,7 +99,7 @@ async function SuspenseBoundary({
 					</div>
 				)}
 			</div>
-			<div className="flex justify-between gap-2">
+			<div className="flex justify-between flex-wrap gap-2">
 				<h2 className="text-2xl font-semibold">{lesson.name}</h2>
 				{canView && (
 					<div className="flex gap-2">

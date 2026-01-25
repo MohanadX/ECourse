@@ -1,9 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/next";
 import { env } from "./data/env/server";
 import { setUserCountryHeaders } from "./lib/pppFunctions";
-import { NextResponse, userAgent } from "next/server";
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
 	"/",
@@ -37,10 +37,10 @@ const aj = arcjet({
 			], // no one can use postman or curl to access APIs
 		}),
 		slidingWindow({
-			// Each client (IP / fingerprint) can make 100 requests per minute
+			// Each client (IP / fingerprint) can make n requests per n minute
 			mode: "LIVE",
-			interval: "1m",
-			max: 100, // max of 100 request for one window each 1 minute (rate limit)
+			interval: env.RATE_LIMIT_INTERVAL ?? "1m",
+			max: Number(env.RATE_LIMIT_MAX) ?? 500, // max of n request for one window each n minute (rate limit)
 		}),
 	],
 });
@@ -54,7 +54,7 @@ export default clerkMiddleware(async (auth, req) => {
 	// console.log(decision.ip.country);
 
 	if (decision.isDenied()) {
-		return forbidden(); // if user break any rule of ours in arcjet he will be denied
+		return NextResponse.json({ error: "Forbidden" }, { status: 403 }); // if user break any rule of ours in arcjet he will be denied
 	}
 
 	// 2 purpose: protect admin routes, protect user admin route from other users
