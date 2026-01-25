@@ -81,7 +81,7 @@ async function SuspenseBoundary({
 				{canView ? (
 					<YoutubeVideoPlayer
 						videoId={lesson.youtubeVideoId}
-						onFinishedVideo={
+						onFinishedVideoAction={
 							!isLessonCompleted
 								? mutateLessonCompleteStatus.bind(
 										null,

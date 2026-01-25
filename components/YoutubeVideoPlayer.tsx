@@ -4,17 +4,17 @@ import Youtube from "react-youtube";
 
 export default function YoutubeVideoPlayer({
 	videoId,
-	onFinishedVideo,
+	onFinishedVideoAction,
 }: {
 	videoId: string;
-	onFinishedVideo?: () => void;
+	onFinishedVideoAction?: () => void;
 }) {
 	return (
 		<Youtube
 			videoId={videoId}
 			className="h-full aspect-video"
 			opts={{ width: "100%", height: "100%" }}
-			onEnd={onFinishedVideo}
+			onEnd={onFinishedVideoAction}
 		/>
 	);
 }
