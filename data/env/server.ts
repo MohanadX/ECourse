@@ -1,14 +1,22 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import z from "zod";
 
+const isDev = process.env.NODE_ENV === "development";
+
 export const env = createEnv({
 	server: {
-		POSTGRES_PASSWORD: z
-			.string({ error: "DB Password is not set correctly" })
-			.min(1),
-		POSTGRES_USER: z.string({ error: "DB User is not set correctly" }).min(1),
-		POSTGRES_HOST: z.string({ error: "DB Host is not set correctly" }).min(1),
-		POSTGRES_DB: z.string({ error: "DB name is not set correctly" }).min(1),
+		POSTGRES_PASSWORD: isDev
+			? z.string({ error: "DB Password is not set correctly" }).min(1)
+			: z.string().optional(),
+		POSTGRES_USER: isDev
+			? z.string({ error: "DB User is not set correctly" }).min(1)
+			: z.string().optional(),
+		POSTGRES_HOST: isDev
+			? z.string({ error: "DB Host is not set correctly" }).min(1)
+			: z.string().optional(),
+		POSTGRES_DB: isDev
+			? z.string({ error: "DB name is not set correctly" }).min(1)
+			: z.string().optional(),
 		CLERK_WEBHOOK_SECRET: z.string().min(1),
 		IMAGEKIT_PUBLIC_KEY: z
 			.string()
