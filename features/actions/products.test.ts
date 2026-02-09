@@ -108,7 +108,7 @@ describe("Product Server Actions", () => {
 			courseIds: [course.id],
 		});
 
-		it("should fail if user is not authorized (role uses)", async () => {
+		it("should fail if user is not authorized (role user)", async () => {
 			mockGetCurrentUser.mockResolvedValue({
 				role: "user",
 				userId: testUser.id,
