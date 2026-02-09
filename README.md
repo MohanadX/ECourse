@@ -14,12 +14,12 @@ It provides secure authentication, course management, payments, subscriptions, c
 - 💳 **Payments & Subscriptions** powered by Stripe
 - 🎟 **Coupon & Protection System** integrated a PPP system using Arcjet
 - 🗄 **Type-safe Database Access** with Drizzle ORM
-- 🐘 **PostgreSQL** relational database
+- **PostgreSQL** relational database
 - 🖼 **Cloud Image Processing** via ImageKit
 - 🎨 **Modern UI** using shadcn/ui & Tailwind CSS
 - 🧩 **Drag & Drop (DnD)** interactions for course management
 - ⚡ **Server Components & App Router** (Next.js 16)
-- 🚀 **Deployed on Vercel**
+- **Docker**: Used for local dev db for testing
 
 ---
 
@@ -55,6 +55,7 @@ It provides secure authentication, course management, payments, subscriptions, c
   https://docs.imagekit.io/
 - **Vercel Deployment**  
   https://vercel.com/docs
+- **Docker & Docker Compose** (Local DB and development environment)
 
 ---
 
@@ -79,11 +80,19 @@ Next.js (App Router)
 
 ## Coming Features
 
-- **Pagination**: some pages need some pagination like home (e.g home page) I plan to use React Query to deal with that.
 - **User Profiles**: for now user profiles ain't needed but they are coming to the site.
 - **Any Other Ideas you support**: ??
 
 ---
+
+## 🛠 Local Development
+
+This project now uses **Docker and Docker Compose** for local development, including a PostgreSQL database pre-seeded with test data so make sure to compose it when cloning the project.
+
+### Requirements
+
+- **Docker** installed: https://docs.docker.com/get-docker/
+- **Docker Compose** (usually included with Docker Desktop)
 
 ## Developer
 
