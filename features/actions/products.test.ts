@@ -15,7 +15,6 @@ import { client, db } from "@/drizzle/db";
 import { eq, sql } from "drizzle-orm";
 import { CourseTable, ProductTable, UserTable } from "@/drizzle/schema";
 
-console.log("DB URL:", process.env.DATABASE_URL ? "Defined" : "Undefined");
 
 // Mock dependencies
 jest.mock("../users/db/clerk", () => ({
@@ -43,8 +42,15 @@ jest.mock("next/cache", () => ({
 	cacheTag: jest.fn(),
 }));
 
-// Mock console.error to avoid noise in tests
-global.console.error = jest.fn();
+let consoleErrorSpy: jest.SpyInstance;
+
+beforeAll(() => {
+  consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterAll(() => {
+  consoleErrorSpy.mockRestore();
+});
 
 const mockGetCurrentUser = getCurrentUser as jest.Mock;
 const mockUploadImage = uploadImage as jest.Mock;
@@ -371,7 +377,7 @@ type SeedProductsOptions = {
 	status?: "public" | "private";
 };
 
-export async function seedProducts({
+async function seedProducts({
 	count,
 	userId,
 	status = "public",
