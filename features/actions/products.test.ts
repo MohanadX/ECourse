@@ -346,7 +346,6 @@ describe("Product Server Actions", () => {
 
 			const result = await deleteProduct(product.id);
 
-			console.log(result);
 			expect(result.success).toBe(true);
 			expect(result.message).toBe("Successfully deleted your product");
 
