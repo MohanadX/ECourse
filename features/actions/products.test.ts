@@ -377,7 +377,7 @@ type SeedProductsOptions = {
 	status?: "public" | "private";
 };
 
-export async function seedProducts({
+async function seedProducts({
 	count,
 	userId,
 	status = "public",
