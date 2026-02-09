@@ -15,7 +15,6 @@ import { client, db } from "@/drizzle/db";
 import { eq, sql } from "drizzle-orm";
 import { CourseTable, ProductTable, UserTable } from "@/drizzle/schema";
 
-
 // Mock dependencies
 jest.mock("../users/db/clerk", () => ({
 	getCurrentUser: jest.fn(),
@@ -45,11 +44,11 @@ jest.mock("next/cache", () => ({
 let consoleErrorSpy: jest.SpyInstance;
 
 beforeAll(() => {
-  consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+	consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 });
 
 afterAll(() => {
-  consoleErrorSpy.mockRestore();
+	consoleErrorSpy.mockRestore();
 });
 
 const mockGetCurrentUser = getCurrentUser as jest.Mock;
@@ -359,7 +358,7 @@ describe("Product Server Actions", () => {
 	describe("fetchEProductsPage", () => {
 		it("should return only public products paginated", async () => {
 			// Insert sample products
-			await seedProducts({ count: 4, userId: testAdmin.id });
+			await seedProducts({ count: 8, userId: testAdmin.id });
 
 			const result = await fetchEProductsPage({ pageParam: 0 });
 
