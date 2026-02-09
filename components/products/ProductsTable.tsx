@@ -18,11 +18,12 @@ import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { deleteProduct } from "@/features/actions/products";
-import Pagination from "../Pagination";
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { PRODUCTS_LIMIT } from "@/data/zodSchema/product";
 import { env } from "@/data/env/client";
+import dynamic from "next/dynamic";
+const Pagination = dynamic(() => import("../Pagination"));
 
 import axios from "axios";
 
@@ -44,7 +45,7 @@ type Props = {
 	totalPages: number;
 };
 
-async function getProductsPaginated(page: number): Promise<Product[]> {
+export async function getProductsPaginated(page: number): Promise<Product[]> {
 	const res = await axios.get<Product[]>(
 		`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/products`,
 		{

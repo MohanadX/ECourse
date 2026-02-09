@@ -9,7 +9,7 @@ import { productPermission } from "./products";
 
 export async function refundPurchase(purchaseId: string) {
 	const { userId, role } = await getCurrentUser();
-	if (!userId || !productPermission(role)) {
+	if (!userId || !(await productPermission(role))) {
 		return {
 			success: false,
 			message: "Unauthorized",

@@ -90,7 +90,7 @@ export async function mutateSection(
 
 export async function deleteSection(sectionId: string) {
 	const user = await getCurrentUser();
-	if (!SectionPermission(user.role)) {
+	if (!(await SectionPermission(user.role))) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this section",
@@ -119,7 +119,7 @@ export async function deleteSection(sectionId: string) {
 
 export async function mutateSectionOrders(sectionIds: string[]) {
 	const user = await getCurrentUser();
-	if (sectionIds.length === 0 || !SectionPermission(user.role)) {
+	if (sectionIds.length === 0 || !(await SectionPermission(user.role))) {
 		return { success: false, message: "Error reordering your sections" };
 	}
 

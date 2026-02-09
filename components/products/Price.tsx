@@ -27,10 +27,12 @@ const Price = ({ price }: { price: number }) => {
 	}
 	return (
 		<div className="flex gap-2 items-baseline">
-			<div className="line-through text-xs opacity-50">
+			<div className="line-through text-xs opacity-50" suppressHydrationWarning>
 				{formatPrice(price)}
 			</div>
-			<div>{formatPrice(price * (1 - coupon.discountPercentage))}</div>
+			<div suppressHydrationWarning>
+				{formatPrice(price * (1 - coupon.discountPercentage))}
+			</div>
 		</div>
 	);
 };

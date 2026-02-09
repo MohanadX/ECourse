@@ -112,7 +112,7 @@ export async function deleteLesson(lessonId: string) {
 
 export async function mutateLessonOrders(lessonIds: string[]) {
 	const user = await getCurrentUser();
-	if (lessonIds.length === 0 || !lessonsPermission(user.role)) {
+	if (lessonIds.length === 0 || !(await lessonsPermission(user.role))) {
 		return { success: false, message: "Error reordering your lessons" };
 	}
 

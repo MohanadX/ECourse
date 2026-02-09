@@ -14,14 +14,16 @@ import { Badge } from "../ui/badge";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import Pagination from "../Pagination";
+
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { PURCHASES_LIMIT } from "@/data/zodSchema/purchase";
 import { env } from "@/data/env/client";
 import axios from "axios";
+import dynamic from "next/dynamic";
+const Pagination = dynamic(() => import("../Pagination"));
 
-type Purchase = {
+export type Purchase = {
 	id: string;
 	pricePaidInCents: number;
 	createdAt: Date;

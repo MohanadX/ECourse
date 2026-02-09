@@ -41,7 +41,7 @@ export default function Navbar() {
 					<Suspense
 						fallback={
 							<SkeletonArray amount={3}>
-								<SkeletonButton className="size-16"></SkeletonButton>
+								<SkeletonButton className="size-16 mx-1"></SkeletonButton>
 							</SkeletonArray>
 						}
 					>

@@ -50,4 +50,4 @@ export const productSchema = z.object({
 		.min(1, { error: "At least one course is required" }),
 });
 
-export const PRODUCTS_LIMIT = 6;
+export const PRODUCTS_LIMIT = 4;

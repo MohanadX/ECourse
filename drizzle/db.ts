@@ -4,10 +4,21 @@ import * as schema from "./schema";
 
 import { Pool } from "pg";
 
-const client = new Pool({
-	connectionString: env.DATABASE_URL,
-	ssl: true,
-});
+const isProd = process.env.NODE_ENV === "production";
+
+export const client = new Pool(
+	isProd
+		? {
+				connectionString: env.DATABASE_URL,
+				ssl: true,
+			}
+		: {
+				host: env.POSTGRES_HOST,
+				user: env.POSTGRES_USER,
+				password: env.POSTGRES_PASSWORD,
+				database: env.POSTGRES_DB,
+			},
+);
 
 export const db = drizzle({
 	schema,

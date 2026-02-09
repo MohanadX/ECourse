@@ -21,7 +21,7 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 	const { success, data } = productSchema.safeParse(unsafeData);
 
 	const user = await getCurrentUser();
-	if (!productPermission(user.role)) {
+	if (!(await productPermission(user.role))) {
 		console.error("You are not authorized to create a product");
 		return {
 			success: false,
@@ -145,7 +145,7 @@ export async function mutateProduct(
 
 export async function deleteProduct(productId: string) {
 	const user = await getCurrentUser();
-	if (!productPermission(user.role)) {
+	if (!(await productPermission(user.role))) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this product",

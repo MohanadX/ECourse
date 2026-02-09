@@ -16,9 +16,10 @@ import {
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { formatPlural } from "@/lib/utils";
-import Pagination from "../Pagination";
+import dynamic from "next/dynamic";
+const Pagination = dynamic(() => import("../Pagination"));
 
-type Course = {
+export type Course = {
 	id: string;
 	name: string;
 	slug: string;

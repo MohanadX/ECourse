@@ -7,7 +7,7 @@ const SkeletonButton = ({ className }: { className?: string }) => {
 		<div
 			className={buttonVariants({
 				variant: "secondary",
-				className: `pointer-events-none animate-pulse ${className ?? ""}`,
+				className: cn("pointer-events-none animate-pulse", className),
 			})}
 		></div>
 	);
