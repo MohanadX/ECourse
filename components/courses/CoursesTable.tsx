@@ -14,14 +14,15 @@ import Link from "next/link";
 import { Trash2Icon } from "lucide-react";
 import ActionButton from "../ActionButton";
 import { deleteCourse } from "@/features/actions/course";
-import Pagination from "../Pagination";
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { COURSES_LIMIT } from "@/data/zodSchema/course";
 import { env } from "@/data/env/client";
 import axios from "axios";
+import dynamic from "next/dynamic";
+const Pagination = dynamic(() => import("../Pagination"));
 
-type Course = {
+export type Course = {
 	id: string;
 	name: string;
 	sectionsCount: number;

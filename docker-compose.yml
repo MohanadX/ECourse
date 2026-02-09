@@ -10,5 +10,6 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./ecourse_dump_utf8.sql:/docker-entrypoint-initdb.d/ecourse_dump_utf8.sql
 volumes:
   pgdata:

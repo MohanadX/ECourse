@@ -53,10 +53,10 @@ export async function uploadImage(image: File | string) {
 	}
 }
 
-type ImageKitError = {
-	message: string;
-	help: string;
-};
+// type ImageKitError = {
+// 	message: string;
+// 	help: string;
+// };
 /*
 { message: string; help: string }
 */

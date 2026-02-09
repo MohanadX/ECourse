@@ -66,7 +66,7 @@ export const wait = async (ms: number) =>
 export async function deleteCourse(courseId: string) {
 	const user = await getCurrentUser();
 
-	if (!canDeleteCourse(user)) {
+	if (!(await canDeleteCourse(user))) {
 		return {
 			success: false,
 			message: "You are not authorized to delete this course",

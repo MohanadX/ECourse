@@ -1,9 +1,10 @@
+import SkeletonButton, { SkeletonArray } from "@/components/Skeletons";
 import { Badge } from "@/components/ui/badge";
 import UserButtonClient from "@/components/UserButtonClient";
 import { getCurrentUser } from "@/features/users/db/clerk";
 import { SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 
 export default async function AdminLayout({
 	children,
@@ -49,38 +50,46 @@ export default async function AdminLayout({
 						id="admin-nav-toggle"
 						className="peer hidden"
 					/>
-					<div className="flex menu-click md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
-						<SignedIn>
-							<Link
-								href={`/admin/${userId}`}
-								className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
-							>
-								Admin Dashboard
-							</Link>
-							{/* only be shown if the user signed in */}
-							<Link
-								href={`/admin/${userId}/courses`}
-								className="hover:bg-accent/10 flex dark:hover:bg-accent/25 justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
-							>
-								Courses
-							</Link>
-							<Link
-								href={`/admin/${userId}/products`}
-								className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
-							>
-								Products
-							</Link>
-							<Link
-								href={`/admin/${userId}/sales`}
-								className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
-							>
-								Sales
-							</Link>
-							<div className="flex justify-center w-full md:w-auto p-2 md:p-0">
-								<UserButtonClient />
-							</div>
-						</SignedIn>
-					</div>
+					<Suspense
+						fallback={
+							<SkeletonArray amount={3}>
+								<SkeletonButton className="size-16 mx-1"></SkeletonButton>
+							</SkeletonArray>
+						}
+					>
+						<div className="flex menu-click md:z-1 w-full md:flex md:w-auto md:h-full flex-col md:flex-row items-center md:static transition-all left-0 bg-background md:bg-transparent shadow-md md:shadow-none p-4 md:p-0 gap-4 md:gap-0">
+							<SignedIn>
+								<Link
+									href={`/admin/${userId}`}
+									className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+								>
+									Admin Dashboard
+								</Link>
+								{/* only be shown if the user signed in */}
+								<Link
+									href={`/admin/${userId}/courses`}
+									className="hover:bg-accent/10 flex dark:hover:bg-accent/25 justify-center items-center w-full md:w-auto md:h-full p-2 rounded md:rounded-none"
+								>
+									Courses
+								</Link>
+								<Link
+									href={`/admin/${userId}/products`}
+									className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
+								>
+									Products
+								</Link>
+								<Link
+									href={`/admin/${userId}/sales`}
+									className="hover:bg-accent/10 dark:hover:bg-accent/25 flex justify-center items-center w-full md:w-auto md:h-full p-2 mr-2 rounded md:rounded-none"
+								>
+									Sales
+								</Link>
+								<div className="flex justify-center w-full md:w-auto p-2 md:p-0">
+									<UserButtonClient />
+								</div>
+							</SignedIn>
+						</div>
+					</Suspense>
 				</nav>
 			</header>
 			{children}

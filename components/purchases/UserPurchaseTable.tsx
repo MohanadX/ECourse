@@ -21,7 +21,7 @@ import { PURCHASES_LIMIT } from "@/data/zodSchema/purchase";
 import { env } from "@/data/env/client";
 import axios from "axios";
 
-type Purchase = {
+export type Purchase = {
 	id: string;
 	pricePaidInCents: number;
 	createdAt: Date;

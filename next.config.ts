@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
 		serverActions: {
 			bodySizeLimit: "3mb",
 		},
+		serverComponentsHmrCache: true,
+		turbopackFileSystemCacheForDev: true,
 	},
 	images: {
 		remotePatterns: [

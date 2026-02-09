@@ -1,5 +1,6 @@
 import LoadProducts from "@/components/products/LoadProducts";
 import { ProductCard } from "@/components/products/ProductCard";
+import { PRODUCTS_LIMIT } from "@/data/zodSchema/product";
 import { db } from "@/drizzle/db";
 import { ProductTable } from "@/drizzle/schema";
 import { getProductsGlobalTag } from "@/features/products/db/cache";
@@ -8,7 +9,7 @@ import { asc } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 export default async function Home() {
-	const products = await getPublicProducts();
+	const products = await getPublicProducts(PRODUCTS_LIMIT);
 	return (
 		<>
 			<main className="containers my-6 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
@@ -16,12 +17,12 @@ export default async function Home() {
 					<ProductCard key={product.id} {...product} />
 				))}
 			</main>
-			<LoadProducts initialSkip={4} />
+			<LoadProducts initialSkip={PRODUCTS_LIMIT} />
 		</>
 	);
 }
 
-async function getPublicProducts() {
+async function getPublicProducts(ProductsLimit: number) {
 	"use cache";
 	cacheTag(getProductsGlobalTag());
 
@@ -36,6 +37,6 @@ async function getPublicProducts() {
 		},
 		where: wherePublicProducts,
 		orderBy: asc(ProductTable.name),
-		limit: 4,
+		limit: ProductsLimit,
 	});
 }

@@ -15,14 +15,16 @@ import { formatPrice } from "@/lib/utils";
 import { formatPlural } from "@/lib/utils";
 import ActionButton from "../ActionButton";
 import { refundPurchase } from "@/features/actions/purchase";
-import Pagination from "../Pagination";
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { PURCHASES_LIMIT } from "@/data/zodSchema/purchase";
 import { env } from "@/data/env/client";
 import axios from "axios";
 
-type Purchase = {
+import dynamic from "next/dynamic";
+const Pagination = dynamic(() => import("../Pagination"));
+
+export type Purchase = {
 	id: string;
 	pricePaidInCents: number;
 	createdAt: Date;
