@@ -15,7 +15,6 @@ import { client, db } from "@/drizzle/db";
 import { eq, sql } from "drizzle-orm";
 import { CourseTable, ProductTable, UserTable } from "@/drizzle/schema";
 
-console.log("DB URL:", process.env.DATABASE_URL ? "Defined" : "Undefined");
 
 // Mock dependencies
 jest.mock("../users/db/clerk", () => ({
