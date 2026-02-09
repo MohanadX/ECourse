@@ -68,7 +68,6 @@ export async function createProduct(unsafeData: z.infer<typeof productSchema>) {
 		return {
 			success: false,
 			message: "Error Occurred while creating your product",
-			error,
 		};
 	}
 }

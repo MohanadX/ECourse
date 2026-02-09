@@ -354,10 +354,11 @@ describe("Product Server Actions", () => {
 	describe("fetchEProductsPage", () => {
 		it("should return only public products paginated", async () => {
 			// Insert sample products
-			await seedProducts({ count: 10, userId: testAdmin.id });
+			await seedProducts({ count: 4, userId: testAdmin.id });
 
 			const result = await fetchEProductsPage({ pageParam: 0 });
 
+			console.log(result);
 			expect(result.products).toHaveLength(8);
 			expect(result.nextSkip).toBeNull();
 		});
@@ -386,5 +387,5 @@ export async function seedProducts({
 		status,
 	}));
 
-	return db.insert(ProductTable).values(products).returning();
+	await db.insert(ProductTable).values(products).returning();
 }

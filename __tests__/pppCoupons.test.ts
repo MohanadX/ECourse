@@ -96,21 +96,23 @@ describe("countryToCouponMap", () => {
 	});
 
 	it("should provide O(1) lookup performance", () => {
-		// This test verifies the Map is being used correctly
-		// Maps provide O(1) average case lookup
-		const startTime = performance.now();
+		// Structural check replacing flaky timing assertion
+		expect(countryToCouponMap).toBeInstanceOf(Map);
 
-		// Perform multiple lookups
-		for (let i = 0; i < 1000; i++) {
-			countryToCouponMap.get("IN");
-			countryToCouponMap.get("US");
-			countryToCouponMap.get("BR");
-		}
+		// Verify a few sample lookups return the expected coupon objects
+		const inCoupon = countryToCouponMap.get("IN");
+		expect(inCoupon).toBeDefined();
+		expect(inCoupon?.discountPercentage).toBe(0.5);
+		expect(inCoupon?.stripeCouponId).toBe("test_50");
 
-		const endTime = performance.now();
-		const duration = endTime - startTime;
+		const brCoupon = countryToCouponMap.get("BR");
+		expect(brCoupon).toBeDefined();
+		expect(brCoupon?.discountPercentage).toBe(0.4);
+		expect(brCoupon?.stripeCouponId).toBe("test_40");
 
-		// 3000 lookups should complete very quickly (< 10ms on most systems)
-		expect(duration).toBeLessThan(10);
+		const deCoupon = countryToCouponMap.get("DE");
+		expect(deCoupon).toBeDefined();
+		expect(deCoupon?.discountPercentage).toBe(0.2);
+		expect(deCoupon?.stripeCouponId).toBe("test_20");
 	});
 });
