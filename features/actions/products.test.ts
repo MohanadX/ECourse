@@ -43,8 +43,15 @@ jest.mock("next/cache", () => ({
 	cacheTag: jest.fn(),
 }));
 
-// Mock console.error to avoid noise in tests
-global.console.error = jest.fn();
+let consoleErrorSpy: jest.SpyInstance;
+
+beforeAll(() => {
+  consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterAll(() => {
+  consoleErrorSpy.mockRestore();
+});
 
 const mockGetCurrentUser = getCurrentUser as jest.Mock;
 const mockUploadImage = uploadImage as jest.Mock;
