@@ -31,7 +31,6 @@ const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
 		return <p>Error loading products: {(error as Error).message}</p>;
 	}
 
-	console.log({ ...data }, status);
 	return (
 		<>
 			<ul className="containers my-6 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
@@ -66,3 +65,4 @@ const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
 };
 
 export default LoadProducts;
+// first load because before first fetch hasNextPage is undefined and the fetch button will be disables
