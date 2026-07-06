@@ -80,7 +80,7 @@ export function MultiSelect<Option>({
 									key={getValue(option)}
 									value={String(getLabel(option))}
 									onSelect={(currentValue) => {
-										console.log(currentValue);
+										// console.log(currentValue);
 										const optionValue = options.find(
 											(option) => getLabel(option) === currentValue,
 										);
