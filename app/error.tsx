@@ -18,7 +18,7 @@ export default function ErrorBoundary({
 			<h2 className="mb-3">Something went wrong!</h2>
 			<button
 				onClick={() => reset()}
-				className="bg-primary hover:bg-primary/90 w-3xs cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black"
+				className="bg-primary hover:bg-primary/90 w-3xs cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black dark:text-white"
 			>
 				Try Again
 			</button>
