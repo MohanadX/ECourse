@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
 					eq(UserLessonProgressTable.userId, userId),
 				),
 			)
-			.orderBy(CourseTable.name)
+			.orderBy(CourseTable.name, CourseTable.id)
 			.groupBy(CourseTable.id)
 			.limit(COURSES_LIMIT)
 			.offset(skip);

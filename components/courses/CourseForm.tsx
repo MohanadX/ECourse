@@ -17,7 +17,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { createCourse, mutateCourse } from "@/features/actions/course";
-import { toast } from "sonner";
+
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { LoadingTextSwap } from "../ActionButton";
@@ -48,6 +48,7 @@ const CourseForm = ({
 			course == null ? createCourse : mutateCourse.bind(null, course.id);
 
 		startTransition(async () => {
+			const { toast } = await import("sonner");
 			const { success, message, courseId } = await action(values);
 
 			if (success === false) {

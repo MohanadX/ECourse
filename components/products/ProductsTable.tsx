@@ -46,16 +46,27 @@ type Props = {
 };
 
 export async function getProductsPaginated(page: number): Promise<Product[]> {
-	const res = await axios.get<Product[]>(
-		`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/products`,
-		{
-			params: {
-				page,
+	try {
+		const res = await axios.get<Product[]>(
+			`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/products`,
+			{
+				params: { page },
 			},
-		},
-	);
+		);
 
-	return res.data;
+		if (res.status < 200 || res.status >= 300) {
+			throw new Error(`Failed to fetch products (status ${res.status})`);
+		}
+
+		return res.data;
+	} catch (err) {
+		if (axios.isAxiosError(err)) {
+			throw new Error(
+				err.response?.data?.message ?? err.message ?? "Failed to fetch products",
+			);
+		}
+		throw err;
+	}
 }
 
 const ProductsTable = ({
@@ -66,7 +77,7 @@ const ProductsTable = ({
 }: Props) => {
 	const [page, setPage] = useState(initialPage);
 
-	const { data: products, isFetching } = useQuery<Product[]>({
+	const { data: products, isFetching } = useQuery<Product[], Error>({
 		queryKey: ["productsP", page],
 		queryFn: () => getProductsPaginated(page),
 		initialData: page === initialPage ? initialProducts : undefined,

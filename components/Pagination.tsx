@@ -4,7 +4,7 @@ import { generatePagination } from "@/lib/utils";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Button } from "./ui/button";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useTransition } from "react";
 
 export default function Pagination({
 	totalPages,
@@ -15,6 +15,13 @@ export default function Pagination({
 	currentPage: number;
 	setPage: Dispatch<SetStateAction<number>>;
 }) {
+	const [, startTransition] = useTransition();
+
+	const setPageHandler = (value: ((prev: number) => number) | number) => {
+		startTransition(() => {
+			setPage(value);
+		});
+	};
 	const allPages = generatePagination(currentPage, totalPages);
 
 	return (
@@ -22,7 +29,7 @@ export default function Pagination({
 			<div className="inline-flex mt-7 mb-7">
 				<PaginationArrow
 					direction="left"
-					setPage={() => setPage((prev) => prev - 1)}
+					setPage={() => setPageHandler((prev) => prev - 1)}
 					isDisabled={currentPage <= 1}
 				/>
 

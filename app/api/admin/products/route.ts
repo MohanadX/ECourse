@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 				CourseProductTable,
 				eq(CourseProductTable.productId, ProductTable.id),
 			)
-			.orderBy(asc(ProductTable.name))
+			.orderBy(asc(ProductTable.name), asc(ProductTable.id)) // for stable sort (similar data names)
 			.groupBy(ProductTable.id)
 			.limit(PRODUCTS_LIMIT)
 			.offset(skip);

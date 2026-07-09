@@ -14,7 +14,6 @@ import {
 import RequiredLabelIcon from "../RequiredLabelIcon";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
 import { lessonStatues, lessonStatus } from "@/drizzle/schema";
 import {
 	Select,
@@ -26,8 +25,10 @@ import {
 import { lessonSchema } from "@/data/zodSchema/lesson";
 import { Textarea } from "../ui/textarea";
 import { createLesson, mutateLesson } from "@/features/actions/lesson";
-import YoutubeVideoPlayer from "../YoutubeVideoPlayer";
+import dynamic from "next/dynamic";
+const YoutubeVideoPlayer = dynamic(() => import("../YoutubeVideoPlayer"));
 import { useQueryClient } from "@tanstack/react-query";
+import { useTransition } from "react";
 
 const LessonForm = ({
 	sections,
@@ -50,6 +51,7 @@ const LessonForm = ({
 	};
 	onSuccess: () => void;
 }) => {
+	const [, startTransition] = useTransition();
 	const form = useForm<z.infer<typeof lessonSchema>>({
 		resolver: zodResolver(lessonSchema),
 		defaultValues: {
@@ -67,19 +69,22 @@ const LessonForm = ({
 		const action =
 			lesson == null ? createLesson : mutateLesson.bind(null, lesson.id);
 
-		const { success, message } = await action(values);
+		startTransition(async () => {
+			const { toast } = await import("sonner");
+			const { success, message } = await action(values);
 
-		if (success === false) {
-			toast.error(message);
-		} else {
-			toast.success(message);
-			if (isCreate) {
-				queryClient.refetchQueries({
-					queryKey: ["coursesP"],
-				});
+			if (success === false) {
+				toast.error(message);
+			} else {
+				toast.success(message);
+				if (isCreate) {
+					queryClient.refetchQueries({
+						queryKey: ["coursesP"],
+					});
+				}
+				onSuccess();
 			}
-			onSuccess();
-		}
+		});
 	}
 
 	const videoId = useWatch({

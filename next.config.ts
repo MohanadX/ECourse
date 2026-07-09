@@ -4,6 +4,8 @@ import { env } from "./data/env/client";
 const nextConfig: NextConfig = {
 	/* config options here */
 	cacheComponents: true,
+	reactCompiler: true,
+	reactStrictMode: true,
 	typescript: {
 		ignoreBuildErrors: true,
 	},

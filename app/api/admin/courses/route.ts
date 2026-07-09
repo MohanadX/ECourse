@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 				UserCourseAccessTable,
 				eq(UserCourseAccessTable.courseId, DBCourse.id),
 			)
-			.orderBy(asc(DBCourse.name))
+			.orderBy(asc(DBCourse.name), asc(DBCourse.id)) // for stable sort (similar data names)
 			.groupBy(DBCourse.id)
 			.limit(COURSES_LIMIT)
 			.offset(skip);

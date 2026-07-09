@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 				createdAt: true,
 			},
 			where: eq(DbPurchaseTable.adminId, userId),
-			orderBy: desc(DbPurchaseTable.createdAt),
+			orderBy: [desc(DbPurchaseTable.createdAt)],
 			with: {
 				user: {
 					columns: {

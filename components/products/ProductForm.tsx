@@ -15,7 +15,7 @@ import RequiredLabelIcon from "../RequiredLabelIcon";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
+
 import { useRouter } from "next/navigation";
 import { productSchema } from "@/data/zodSchema/product";
 import { createProduct, mutateProduct } from "@/features/actions/products";
@@ -82,6 +82,7 @@ const ProductForm = ({
 			product == null ? createProduct : mutateProduct.bind(null, product.id);
 
 		startTransition(async () => {
+			const { toast } = await import("sonner");
 			const { success, message } = await action(values);
 			if (success === false) {
 				toast.error(message);

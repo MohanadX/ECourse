@@ -10,7 +10,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 import { GripVerticalIcon } from "lucide-react";
-import { toast } from "sonner";
+
 
 export function SortableList<T extends { id: string }>({
 	items,
@@ -40,6 +40,7 @@ export function SortableList<T extends { id: string }>({
 		}
 
 		startTransition(async () => {
+			const { toast } = await import("sonner");
 			setOptimisticItems((items) => getNewArray(items, activeId, overId));
 			const actionData = await onOrderChangeAction(
 				getNewArray(optimisticItems, activeId, overId).map((item) => item.id),

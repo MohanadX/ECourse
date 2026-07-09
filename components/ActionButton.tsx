@@ -3,19 +3,11 @@ import { ComponentPropsWithRef, ReactNode, useTransition } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { Loader2Icon } from "lucide-react";
-import { toast } from "sonner";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-	AlertDialogFooter,
-	AlertDialogHeader,
-} from "./ui/alert-dialog";
+import dynamic from "next/dynamic";
 import { useQueryClient } from "@tanstack/react-query";
+
+const ActionConfirmDialog = dynamic(() => import("./ActionConfirmDialog"));
+
 
 const ActionButton = ({
 	action,
@@ -34,6 +26,7 @@ const ActionButton = ({
 	const queryClient = useQueryClient();
 	async function performAction() {
 		startTransition(async () => {
+			const { toast } = await import("sonner");
 			const data = await action();
 			if (data.success) {
 				toast.success(data.message);
@@ -56,34 +49,11 @@ const ActionButton = ({
 
 	if (requireAreYouSure) {
 		return (
-			<AlertDialog open={isLoading ? true : undefined}>
-				<AlertDialogTrigger asChild>
-					<Button
-						{...props}
-						className={cn("cursor-pointer", props.className)}
-					></Button>
-				</AlertDialogTrigger>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action is permanent and cannot be undone
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel className="cursor-pointer">
-							Cancel
-						</AlertDialogCancel>
-						<AlertDialogAction
-							className="cursor-pointer"
-							disabled={isLoading}
-							onClick={performAction}
-						>
-							<LoadingTextSwap isLoading={isLoading}>Yes</LoadingTextSwap>
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<ActionConfirmDialog
+				isLoading={isLoading}
+				performAction={performAction}
+				buttonProps={props}
+			/>
 		);
 	}
 	return (

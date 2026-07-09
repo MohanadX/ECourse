@@ -43,16 +43,27 @@ type Props = {
 };
 
 async function getPurchasesPaginated(page: number): Promise<Purchase[]> {
-	const res = await axios.get<Purchase[]>(
-		`${env.NEXT_PUBLIC_SERVER_URL}/api/consumer/purchases`,
-		{
-			params: {
-				page,
+	try {
+		const res = await axios.get<Purchase[]>(
+			`${env.NEXT_PUBLIC_SERVER_URL}/api/consumer/purchases`,
+			{
+				params: { page },
 			},
-		},
-	);
+		);
 
-	return res.data;
+		if (res.status < 200 || res.status >= 300) {
+			throw new Error(`Failed to fetch purchases (status ${res.status})`);
+		}
+
+		return res.data;
+	} catch (err) {
+		if (axios.isAxiosError(err)) {
+			throw new Error(
+				err.response?.data?.message ?? err.message ?? "Failed to fetch purchases",
+			);
+		}
+		throw err;
+	}
 }
 
 export default function UserPurchaseTable({
@@ -63,7 +74,7 @@ export default function UserPurchaseTable({
 }: Props) {
 	const [page, setPage] = useState(initialPage);
 
-	const { data: purchases, isFetching } = useQuery<Purchase[]>({
+	const { data: purchases, isFetching } = useQuery<Purchase[], Error>({
 		queryKey: ["purchasesP", page],
 		queryFn: () => getPurchasesPaginated(page),
 		initialData: page === initialPage ? initialPurchases : undefined,

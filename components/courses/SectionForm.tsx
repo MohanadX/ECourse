@@ -14,7 +14,7 @@ import {
 import RequiredLabelIcon from "../RequiredLabelIcon";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
+
 import { courseSectionStatues, CourseSectionStatus } from "@/drizzle/schema";
 import { sectionSchema } from "@/data/zodSchema/section";
 import {
@@ -59,6 +59,7 @@ const SectionForm = ({
 				: mutateSection.bind(null, section.id);
 
 		startTransition(async () => {
+			const { toast } = await import("sonner");
 			const { success, message } = await action(values);
 
 			if (success === false) {

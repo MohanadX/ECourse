@@ -1,8 +1,16 @@
 import CourseForm from "@/components/courses/CourseForm";
 import LessonFormDialog from "@/components/courses/LessonFormDialog";
 import SectionFormDialog from "@/components/courses/SectionFormDialog";
-import SortableLessonList from "@/components/courses/SortableLessonList";
-import SortableSectionList from "@/components/courses/SortableSectionList";
+import dynamic from "next/dynamic";
+// both are to lazy loaded for that if user creates new course it will empty (initial state)
+const SortableLessonList = dynamic(
+	() => import("@/components/courses/SortableLessonList"),
+	{ ssr: true },
+);
+const SortableSectionList = dynamic(
+	() => import("@/components/courses/SortableSectionList"),
+	{ ssr: true },
+);
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

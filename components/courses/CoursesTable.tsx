@@ -38,16 +38,27 @@ type Props = {
 };
 
 async function getCoursesPaginated(page: number): Promise<Course[]> {
-	const res = await axios.get<Course[]>(
-		`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/courses`,
-		{
-			params: {
-				page,
+	try {
+		const res = await axios.get<Course[]>(
+			`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/courses`,
+			{
+				params: { page },
 			},
-		},
-	);
+		);
 
-	return res.data;
+		if (res.status < 200 || res.status >= 300) {
+			throw new Error(`Failed to fetch courses (status ${res.status})`);
+		}
+
+		return res.data;
+	} catch (err) {
+		if (axios.isAxiosError(err)) {
+			throw new Error(
+				err.response?.data?.message ?? err.message ?? "Failed to fetch courses",
+			);
+		}
+		throw err;
+	}
 }
 
 const CoursesTable = ({
@@ -58,7 +69,7 @@ const CoursesTable = ({
 }: Props) => {
 	const [page, setPage] = useState(initialPage);
 
-	const { data: courses, isFetching } = useQuery<Course[]>({
+	const { data: courses, isFetching } = useQuery<Course[], Error>({
 		queryKey: ["coursesP", page],
 		queryFn: () => getCoursesPaginated(page),
 		initialData: page === initialPage ? initialCourses : undefined,
