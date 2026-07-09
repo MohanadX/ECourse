@@ -8,16 +8,16 @@ async function fetchUserCoupon() {
 	try {
 		const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}/api/coupon`); // to make fetch happen async after rendering not during it
 
-	if (!res.body) {
-		return null;
-	}
+		if (!res.ok) {
+			throw new Error(`Coupon request failed (${res.status})`);
+		}
 
-	if (!res.ok) {
-		throw new Error("Coupon request failed")
-	}
-	return res.json();
+		if (!res.body) {
+			return null;
+		}
+		return res.json();
 	} catch (error: unknown) {
-		console.error(error as Error)
+		console.error(error as Error)	
 		return null;
 	}
 }

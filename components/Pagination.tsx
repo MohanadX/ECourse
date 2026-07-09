@@ -45,7 +45,7 @@ export default function Pagination({
 						return (
 							<PaginationNumber
 								key={`${page}-${index}`}
-								setPage={setPage}
+								setPage={setPageHandler}
 								page={page}
 								position={position}
 								isActive={currentPage === page}
@@ -56,7 +56,7 @@ export default function Pagination({
 
 				<PaginationArrow
 					direction="right"
-					setPage={() => setPage((prev) => prev + 1)}
+					setPage={() => setPageHandler((prev) => prev + 1)}
 					isDisabled={currentPage >= totalPages}
 				/>
 			</div>

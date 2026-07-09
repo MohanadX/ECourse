@@ -51,7 +51,7 @@ const LessonForm = ({
 	};
 	onSuccess: () => void;
 }) => {
-	const [, startTransition] = useTransition();
+	const [isLoading, startTransition] = useTransition();
 	const form = useForm<z.infer<typeof lessonSchema>>({
 		resolver: zodResolver(lessonSchema),
 		defaultValues: {
@@ -70,8 +70,9 @@ const LessonForm = ({
 			lesson == null ? createLesson : mutateLesson.bind(null, lesson.id);
 
 		startTransition(async () => {
-			const { toast } = await import("sonner");
+			const toastPromise = import("sonner");
 			const { success, message } = await action(values);
+			const { toast } = await toastPromise;
 
 			if (success === false) {
 				toast.error(message);
@@ -86,7 +87,6 @@ const LessonForm = ({
 			}
 		});
 	}
-
 	const videoId = useWatch({
 		// useWatch lets you subscribe to the value of one or more form fields without re-rendering the entire form. (reconciliation)
 		control: form.control,
@@ -205,8 +205,8 @@ const LessonForm = ({
 				<Button
 					className="self-end cursor-pointer"
 					type="submit"
-					disabled={form.formState.isSubmitting}
-					aria-disabled={form.formState.isSubmitting}
+					disabled={isLoading}
+					aria-disabled={isLoading}
 				>
 					Save
 				</Button>
