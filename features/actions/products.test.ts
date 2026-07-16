@@ -12,7 +12,7 @@ import { uploadImage } from "../imageKit";
 import { revalidateProductCache } from "../products/db/cache";
 import { revalidatePath } from "next/cache";
 import { client, db } from "@/drizzle/db";
-import { eq, sql } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { CourseTable, ProductTable, UserTable } from "@/drizzle/schema";
 
 // Mock dependencies
@@ -81,16 +81,18 @@ describe("Product Server Actions", () => {
 	});
 
 	beforeEach(async () => {
-		await db.execute(sql`BEGIN`); // start a transaction
 		jest.clearAllMocks();
 	});
 
 	afterEach(async () => {
-		await db.execute(sql`ROLLBACK`); // rollback all test changes
-		await db.delete(ProductTable).where(eq(ProductTable.name, "New Product"));
-		await db
-			.delete(ProductTable)
-			.where(eq(ProductTable.name, "Updated Product"));
+		await db.delete(ProductTable).where(
+        inArray(ProductTable.name, [
+            "New Product",
+            "Updated Product",
+            "My Product",
+            "Other Product"
+        ])
+    );
 	});
 
 	afterAll(async () => {

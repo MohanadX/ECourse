@@ -198,8 +198,7 @@ async function getNextLesson(lesson: {
 			},
 		});
 
-		if (!nextSection) return; // this is the next section with the first lesson inside it
-
+		if (!nextSection) return; // no later public section exists
 		nextLesson = await db.query.LessonTable.findFirst({
 			where: and(eq(LessonTable.sectionId, nextSection.id), wherePublicLessons),
 			orderBy: asc(LessonTable.order),

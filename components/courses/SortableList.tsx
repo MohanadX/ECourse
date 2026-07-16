@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useEffect, useEffectEvent, useId, useOptimistic, useState, useTransition } from "react";
+import { ReactNode, useEffect, useEffectEvent, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
 	arrayMove,
@@ -31,16 +31,26 @@ export function SortableList<T extends { id: string, name: string, status?: stri
 	const syncStates = useEffectEvent((items: T[])=>{
 			// if name or status changed - sync states
 			if (items.length !== sortableItems.length || 
-				items.some((item, index) => item.name !== sortableItems[index]?.name || item.status !== sortableItems[index]?.status)){
+				items.some((item, index) => item.id !== sortableItems[index]?.id
+				|| item.name !== sortableItems[index]?.name 
+				|| item.status !== sortableItems[index]?.status)){
 				setSortableItems(items)
 				startTransition(() => setOptimisticItems(items));
 			}
 		}) // useEffectEvent to make useEffect not reactive to sortableItems (without invoking eslint warning of lost item in dependency array)
 
-
+	// to track concurrent reorder requests (if next reorder-request resolves before previous one we discard the old one)	
+	const latestRequestId = useRef(0);
 	useEffect(() => {
 		syncStates(items);
 	}, [items]);
+
+	function getNewArray(array: T[], activeId: string, overId: string) {
+		const oldIndex = array.findIndex((section) => section.id === activeId);
+		const newIndex = array.findIndex((section) => section.id === overId);
+		return arrayMove(array, oldIndex, newIndex);
+	}
+
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
 		const activeId = active.id.toString();
@@ -48,27 +58,45 @@ export function SortableList<T extends { id: string, name: string, status?: stri
 
 		if (!activeId || !overId) return;
 
-		function getNewArray(array: T[], activeId: string, overId: string) {
-			const oldIndex = array.findIndex((section) => section.id === activeId);
-			const newIndex = array.findIndex((section) => section.id === overId);
-			return arrayMove(array, oldIndex, newIndex);
-		}
+		// one for id for this request closure and other for the general lifecycle of requests
+		const currentRequestId = latestRequestId.current + 1;
+		latestRequestId.current = currentRequestId;
 
+		const newOrderItems = getNewArray(optimisticItems, activeId, overId);
 		startTransition(async () => {
-			const newOrderItems = getNewArray(optimisticItems, activeId, overId);
-			const  toastPr  =  import("sonner");
-			setOptimisticItems(newOrderItems);
-			const actionData = await onOrderChangeAction(
-				newOrderItems.map((item) => item.id),
-			);
-			const {toast} = await toastPr
 
-			if (actionData.success) {
-				toast.success(actionData.message);
-				setSortableItems(newOrderItems)
-			} else {
-				toast.error(actionData.message);
+			const  toastPr  =  import("sonner");
+
+			try {
+				setOptimisticItems(newOrderItems);
+				const actionData = await onOrderChangeAction(
+					newOrderItems.map((item) => item.id),
+				);
+
+				const {toast} = await toastPr
+				// we discard this response. The newer request will settle the UI.
+				if (currentRequestId !== latestRequestId.current) {
+					return; 
+				}
+
+				if (actionData.success) {
+					toast.success(actionData.message);
+					setSortableItems(newOrderItems)
+				} else {
+					toast.error(actionData.message);
+				}
+			} catch (error) {
+				console.error(error)
+				// Prevent stale failure blocks from overriding newer active drags
+                if (currentRequestId !== latestRequestId.current) return;
+
+                const { toast } = await toastPr;
+                toast.error("Network connection issue. Reverting order.");
+                // Safe rollback on true network failures (e.g., offline)
+                setSortableItems(items);
 			}
+
+			
 		});
 	}
 	return (

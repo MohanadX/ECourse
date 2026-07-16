@@ -53,7 +53,6 @@ async function getSales(userId: string, limit: number, skip: number) {
 			columns: {
 				id: true,
 				pricePaidInCents: true,
-				stripeSessionId: true,
 				refundedAt: true,
 				productDetails: true,
 				createdAt: true,

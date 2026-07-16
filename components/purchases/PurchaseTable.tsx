@@ -28,7 +28,6 @@ export type Purchase = {
 	id: string;
 	pricePaidInCents: number;
 	createdAt: Date;
-	stripeSessionId: string;
 	refundedAt: Date | null;
 	productDetails: {
 		name: string;
@@ -137,7 +136,7 @@ export default function PurchaseTable({
 									purchase.pricePaidInCents > 0 && (
 										<ActionButton
 											pagination={["salesP", page]}
-											action={refundPurchase.bind(null, purchase.id, purchase.stripeSessionId)}
+											action={refundPurchase.bind(null, purchase.id)}
 											variant={"destructiveOutline"}
 											requireAreYouSure
 										>
