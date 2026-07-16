@@ -59,8 +59,9 @@ const SectionForm = ({
 				: mutateSection.bind(null, section.id);
 
 		startTransition(async () => {
-			const { toast } = await import("sonner");
+			const toastPr  = import("sonner");
 			const { success, message } = await action(values);
+			const {toast} = await toastPr
 
 			if (success === false) {
 				toast.error(message);

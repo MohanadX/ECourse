@@ -12,6 +12,7 @@ import { getLessonIdTag, revalidateLessonCache } from "./cache";
 import { cacheTag, revalidatePath } from "next/cache";
 import { wherePublicCourseSections } from "@/features/sections/db/sections";
 import { getUserCourseAccessUserTag } from "@/features/course/db/CourseAccessCache";
+import { after } from "next/server";
 
 /*
 {courseId}, {eq}
@@ -77,6 +78,11 @@ export async function updateLesson(
 			columns: { sectionId: true },
 		});
 
+
+		if (!currentLesson?.sectionId) {
+			console.error(`Section of ${data.name} is not found`);
+			trx.rollback();
+		}
 		if (
 			!currentLesson?.sectionId &&
 			currentLesson?.sectionId !== data.sectionId &&
@@ -85,7 +91,12 @@ export async function updateLesson(
 			data.order = await getNextOrderOfLesson(data.sectionId!);
 		}
 
-		const [updatedLesson] = await trx
+		const [section, [updatedLesson]] = await Promise.all([
+			trx.query.CourseSectionTable.findFirst({
+				columns: { courseId: true },
+				where: eq(CourseSectionTable.id, currentLesson!.sectionId),
+			}),
+			trx
 			.update(LessonTable)
 			.set(data)
 			.from(CourseSectionTable)
@@ -98,22 +109,14 @@ export async function updateLesson(
 					eq(CourseTable.userId, userId),
 				),
 			)
-			.returning();
+			.returning()])
 
 		if (!updatedLesson) {
 			console.error(`Failed to update ${data.name} lesson`);
 			trx.rollback();
 		}
 
-		const section = await trx.query.CourseSectionTable.findFirst({
-			columns: { courseId: true },
-			where: eq(CourseSectionTable.id, updatedLesson.sectionId),
-		});
-
-		if (!section) {
-			console.error(`Section of ${data.name} is not found`);
-			trx.rollback();
-		}
+		
 
 		return [updatedLesson, section!.courseId];
 	});
@@ -214,15 +217,17 @@ export async function updateLessonOrders(lessonIds: string[], userId: string) {
 		throw new Error("Section of this lesson is not found");
 	}
 
-	for (const { id } of orderedLessons) {
-		revalidateLessonCache({
-			lessonId: id,
-			courseId: section.courseId,
-			userId,
-		});
-	}
+	
+	after(async () => {
+		for (const { id } of orderedLessons) {
+			revalidateLessonCache({
+				lessonId: id,
+				courseId: section.courseId,
+				userId,
+			});
+		}
+	})
 
-	revalidatePath(`/admin/${userId}/courses/${section.courseId}/edit`);
 }
 
 export const wherePublicLessons = or(

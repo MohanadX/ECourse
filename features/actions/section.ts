@@ -73,13 +73,13 @@ export async function mutateSection(
 
 	const updatedSection = await updateSection(sectionId, data, user.userId!);
 
-	revalidatePath(
-		`/admin/${user.userId}/courses/${updatedSection.courseId}/edit`,
-	);
 	revalidateCourseSectionsCache(
 		user.userId!,
 		updatedSection.courseId,
 		updatedSection.id,
+	);
+	revalidatePath(
+		`/admin/${user.userId}/courses/${updatedSection.courseId}/edit`,
 	);
 
 	return {
@@ -103,13 +103,13 @@ export async function deleteSection(sectionId: string) {
 		return { success: false, message: `Failed to delete your section` };
 	}
 
-	revalidatePath(
-		`/admin/${user.userId}/courses/${deletedSection.courseId}/edit`,
-	);
 	revalidateCourseSectionsCache(
 		user.userId!,
 		deletedSection.courseId,
 		deletedSection.id,
+	);
+	revalidatePath(
+		`/admin/${user.userId}/courses/${deletedSection.courseId}/edit`,
 	);
 	return {
 		success: true,

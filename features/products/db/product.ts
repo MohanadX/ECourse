@@ -13,6 +13,7 @@ import {
 import { getPurchaseUserTag } from "@/features/purchases/db/cache";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { cacheTag } from "next/cache";
+import { after } from "next/server";
 
 export async function insertProduct(
 	data: Omit<typeof ProductTable.$inferInsert, "slug"> & {
@@ -93,8 +94,14 @@ export async function eliminateProduct(id: string, userId: string) {
 
 	if (!deletedProduct) throw new Error("Failed to delete your product");
 
-	// delete product image from imageKit cloud
-	await imageKit.deleteFile(deletedProduct.imageFileId);
+	after(async () => {
+		try {
+			// delete product image from imageKit cloud
+			await imageKit.deleteFile(deletedProduct.imageFileId);	
+		} catch (error) {
+			console.error(error)
+		}
+	})
 	return deletedProduct;
 }
 

@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { Webhook } from "svix";
 
 export async function POST(req: Request) {
+	const payloadPr = req.json()
 	const headerPayload = await headers();
 	const svixId = headerPayload.get("svix-id");
 	const svixTimestamp = headerPayload.get("svix-timestamp");
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
 		});
 	}
 
-	const payload = await req.json();
+	const payload = await payloadPr
 	const body = JSON.stringify(payload);
 
 	const wh = new Webhook(env.CLERK_WEBHOOK_SECRET);

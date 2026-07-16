@@ -72,8 +72,10 @@ async function SuspenseBoundary({
 	const { userId, role, redirectToSignIn } = await getCurrentUser();
 	if (!userId) return redirectToSignIn();
 
-	const isLessonCompleted = await getIsLessonCompleted(lesson.id, userId);
-	const canView = await canViewLesson(role, userId, lesson);
+	const [isLessonCompleted, canView] = await Promise.all([
+		getIsLessonCompleted(lesson.id, userId),
+		canViewLesson(role, userId, lesson),
+	]);
 
 	return (
 		<article className="my-4 flex flex-col gap-4">
@@ -173,7 +175,7 @@ async function getNextLesson(lesson: {
 	});
 
 	if (!nextLesson) {
-		// if this was the first lesson in this section
+		// if this was the last lesson in this section
 		const section = await db.query.CourseSectionTable.findFirst({
 			where: eq(CourseSectionTable.id, lesson.sectionId),
 			columns: {
@@ -196,7 +198,7 @@ async function getNextLesson(lesson: {
 			},
 		});
 
-		if (!nextSection) return; // this is the first section with the first lesson inside it
+		if (!nextSection) return; // this is the next section with the first lesson inside it
 
 		nextLesson = await db.query.LessonTable.findFirst({
 			where: and(eq(LessonTable.sectionId, nextSection.id), wherePublicLessons),

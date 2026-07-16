@@ -39,11 +39,14 @@ async function SuspendedComponent({
 }) {
 	const { productId } = await params;
 
-	const product = await getPublicProduct(productId);
+	const [product, { clerkUserId, userId, user }] = await Promise.all([
+		getPublicProduct(productId),
+		getCurrentUser({ allData: true }),
+	]);
 
 	if (!product) return notFound();
 
-	const { clerkUserId, userId, user } = await getCurrentUser({ allData: true });
+
 
 	// Handle race condition: If user is signed in to Clerk but not in DB yet,
 	// ensure they exist before allowing checkout

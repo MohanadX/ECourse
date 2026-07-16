@@ -73,9 +73,12 @@ export async function deleteUsers({ clerkUserId }: { clerkUserId: string }) {
  */
 export async function ensureUserExists(clerkUserId: string) {
 	// First check if user already exists in DB
-	const existingUser = await db.query.UserTable.findFirst({
-		where: eq(UserTable.clerkUserId, clerkUserId),
-	});
+	const [existingUser, client] = await Promise.all([
+		db.query.UserTable.findFirst({
+			where: eq(UserTable.clerkUserId, clerkUserId),
+		}),
+		clerkClient(),
+	]);
 
 	if (existingUser) {
 		return existingUser;
@@ -86,7 +89,6 @@ export async function ensureUserExists(clerkUserId: string) {
 	// 	`[Fallback User Creation] User ${clerkUserId} not found in DB, creating via fallback`
 	// );
 
-	const client = await clerkClient();
 	const clerkUser = await client.users.getUser(clerkUserId);
 
 	const email = clerkUser.emailAddresses.find(

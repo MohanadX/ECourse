@@ -127,6 +127,29 @@
 	}
 }
 
+.load {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
+}
+
+@layer components {	
+	.load-more {
+		@apply absolute left-1/2 -bottom-5 -translate-x-1/2 bg-background flex w-fit cursor-pointer mx-auto  rounded-full border px-8 py-3.5 max-sm:w-full text-center;
+
+		a {
+			@apply justify-center items-center gap-2 text-center w-full;
+		}
+	}
+	.products {
+		@apply relative pb-8;
+		ul {
+			display: contents;
+		}
+	}
+}
+
 @layer utilities {
 	.animate-spin-slow {
 		@apply animate-spin;
@@ -161,13 +184,6 @@
 	.peer:checked + .menu-click {
 		transform: scaleY(1);
 	}
-}
-
-.load {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 5px;
 }
 
 .circle {

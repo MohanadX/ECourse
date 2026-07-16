@@ -26,10 +26,11 @@ const ActionButton = ({
 	const queryClient = useQueryClient();
 	async function performAction() {
 		startTransition(async () => {
-			const { toast } = await import("sonner");
-			const data = await action();
-			if (data.success) {
-				toast.success(data.message);
+			const toastPr  = import("sonner");
+			const {success, message} = await action();
+			const {toast} = await toastPr
+			if (success) {
+				toast.success(message);
 
 				if (pagination) {
 					queryClient.refetchQueries({
@@ -42,7 +43,7 @@ const ActionButton = ({
 					});
 				}
 			} else {
-				toast.error(data.message);
+				toast.error(message);
 			}
 		});
 	}

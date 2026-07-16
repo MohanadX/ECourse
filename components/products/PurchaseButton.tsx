@@ -12,8 +12,6 @@ const PurchaseButton = async ({
 }) => {
 	const { userId } = await getCurrentUser();
 
-	console.log("This is userId:", userId);
-
 	const alreadyOwnProduct =
 		userId != null && (await userOwnsProduct({ userId, productId }));
 

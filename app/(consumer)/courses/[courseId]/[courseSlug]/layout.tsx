@@ -14,7 +14,7 @@ import { getCurrentUser } from "@/features/users/db/clerk";
 import { asc, eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
-import { ReactNode, Suspense } from "react";
+import { ReactNode, Suspense, cache } from "react";
 import { CoursePageClient } from "./_client";
 import { getLessonProgressUserTag } from "@/features/lessons/db/userLessonProgressCache";
 import Link from "next/link";
@@ -117,7 +117,8 @@ async function getCompletedLessonIds(userId: string) {
 	return data.map(({ lessonId }) => lessonId);
 }
 
-async function getCourse(courseId: string) {
+// this function is being called multiple times in same route (in same request life cycle)
+export const getCourse = cache(async function getCourse(courseId: string) {
 	"use cache";
 	cacheTag(
 		getCourseIdTag(courseId),
@@ -131,6 +132,7 @@ async function getCourse(courseId: string) {
 			id: true,
 			name: true,
 			slug: true,
+			description: true,
 		},
 		with: {
 			CourseSections: {
@@ -153,7 +155,7 @@ async function getCourse(courseId: string) {
 			},
 		},
 	});
-}
+})
 
 function mapCourse(course: Course, completedLessonIds: string[]) {
 	return {

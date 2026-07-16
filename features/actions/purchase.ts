@@ -6,8 +6,9 @@ import { updatePurchase } from "../purchases/db/purchase";
 import { revokeUserCourseAccess } from "../course/db/CourseAccess";
 import { getCurrentUser } from "../users/db/clerk";
 import { productPermission } from "./products";
+import { after } from "next/server";
 
-export async function refundPurchase(purchaseId: string) {
+export async function refundPurchase(purchaseId: string, stripeSessionId: string) {
 	const { userId, role } = await getCurrentUser();
 	if (!userId || !(await productPermission(role))) {
 		return {
@@ -17,13 +18,18 @@ export async function refundPurchase(purchaseId: string) {
 	}
 	const dataProcess = await db.transaction(async (trx) => {
 		try {
-			const refundedPurchase = await updatePurchase(
-				purchaseId,
-				{
-					refundedAt: new Date(),
-				},
-				trx,
-			);
+			const [refundedPurchase, session] = await Promise.all([
+				updatePurchase(
+					purchaseId,
+					{
+						refundedAt: new Date(),
+					},
+					trx,
+				),
+				stripeServerClient.checkout.sessions.retrieve(
+					stripeSessionId,
+				),
+			]);
 
 			if (!refundedPurchase) {
 				trx.rollback();
@@ -32,10 +38,6 @@ export async function refundPurchase(purchaseId: string) {
 					message: "Failed to update purchase",
 				};
 			}
-
-			const session = await stripeServerClient.checkout.sessions.retrieve(
-				refundedPurchase.stripeSessionId,
-			);
 
 			if (session.payment_intent == null) {
 				trx.rollback();
@@ -54,11 +56,13 @@ export async function refundPurchase(purchaseId: string) {
 					trx,
 				);
 				// we revoke in db first so if it fails we can rollback (we can't roll back stripe state if db fails)
-				await stripeServerClient.refunds.create({
-					payment_intent:
-						typeof session.payment_intent === "string" // it means that it is id
-							? session.payment_intent
-							: session.payment_intent.id,
+				after(async () => { // we don't have to wait for stripe cleanup on their system for refund
+					await stripeServerClient.refunds.create({
+						payment_intent:
+							typeof session.payment_intent === "string" // it means that it is id
+								? session.payment_intent
+								: session.payment_intent?.id,
+					});
 				});
 			} catch (error) {
 				console.error(error);

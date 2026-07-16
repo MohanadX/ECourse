@@ -1,12 +1,42 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import EventCard from "./EventCard";
+import { EventData } from "@/database/event.model";
+import axios from "axios";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchEProductsPage } from "@/features/actions/products";
-import { Button } from "../ui/button";
-import { ProductCardClient } from "./ProductCardClient";
 
-const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+if (!BASE_URL) {
+	throw new Error(
+		`NEXT_PUBLIC_BASE_URL is not found and its value is: ${BASE_URL}`
+	);
+}
+
+// Define a function that fetches a "page" of events
+async function fetchEventsPage(params: { pageParam?: number }) {
+	const skip = params.pageParam ?? 0;
+	const limit = 6;
+
+	const response = await axios.get<{ events: EventData[]; totalCount: number }>(
+		`${BASE_URL}/api/events`,
+		{
+			params: { skip, limit },
+		}
+	);
+	const { events, totalCount } = response.data;
+
+	// Figure out the next skip (i.e. next pageParam)
+	const fullyLoaded = skip + events.length >= totalCount;
+
+	return {
+		events,
+		nextSkip: fullyLoaded ? null : skip + events.length,
+	};
+}
+
+const LoadEvents = ({ initialSkip }: { initialSkip: number }) => {
 	const [firstLoad, setFirstLoad] = useState(false);
 	const {
 		data,
@@ -16,9 +46,9 @@ const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
 		status,
 		error,
 	} = useInfiniteQuery({
-		queryKey: ["products"],
+		queryKey: ["events", initialSkip],
 		// queryFn takes a pageParam which we use to request correct "skip"
-		queryFn: fetchEProductsPage,
+		queryFn: fetchEventsPage,
 		// / start from initialSkip (e.g. from server-rendered initial events)
 		initialPageParam: initialSkip,
 		getNextPageParam: (lastPage) => {
@@ -28,22 +58,25 @@ const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
 		enabled: false, //  disables automatic first fetch
 	});
 	if (status === "error") {
-		return <p>Error loading products: {(error as Error).message}</p>;
+		return <p>Error loading events: {(error as Error).message}</p>;
 	}
 
+	// console.log({ ...data }, status);
 	return (
 		<>
 			<ul className="list-none">
 				{data?.pages.map((page, index) => (
 					<Fragment key={index}>
-						{page.products.map((product) => (
-							<ProductCardClient key={product.id} {...product} />
+						{page.events.map((event) => (
+							<li key={event._id}>
+								<EventCard {...event} />
+							</li>
 						))}
 					</Fragment>
 				))}
 			</ul>
 
-			<Button
+			<button
 				onClick={() => {
 					if (!firstLoad) setFirstLoad(true); // trigger first fetch
 					fetchNextPage();
@@ -57,12 +90,11 @@ const LoadProducts = ({ initialSkip }: { initialSkip: number }) => {
 				{isFetchingNextPage
 					? "Loading..."
 					: firstLoad && !hasNextPage
-						? "No More Products"
-						: "Show Products"}
-			</Button>
+					? "No More Events"
+					: "Show Events"}
+			</button>
 		</>
 	);
 };
 
-export default LoadProducts;
-// first load because before first fetch hasNextPage is undefined and the fetch button will be disables
+export default LoadEvents;

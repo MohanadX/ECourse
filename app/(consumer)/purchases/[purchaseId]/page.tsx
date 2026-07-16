@@ -117,7 +117,7 @@ async function SuspendedComponent({ purchaseId }: { purchaseId: string }) {
 							<div className="flex gap-2 items-center">
 								<ActionButton
 									variant={"destructiveOutline"}
-									action={refundPurchase.bind(null, purchaseId)}
+									action={refundPurchase.bind(null, purchaseId, purchase.stripeSessionId)}
 									paginationArr={["salesP", "purchasesP"]}
 									requireAreYouSure
 									className="w-fit"

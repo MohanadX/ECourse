@@ -48,9 +48,10 @@ const CourseForm = ({
 			course == null ? createCourse : mutateCourse.bind(null, course.id);
 
 		startTransition(async () => {
-			const { toast } = await import("sonner");
+			const toastPr  = import("sonner");
 			const { success, message, courseId } = await action(values);
-
+			const {toast} = await toastPr
+			
 			if (success === false) {
 				toast.error(message);
 			} else {

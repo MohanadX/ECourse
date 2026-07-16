@@ -36,12 +36,13 @@ type Props = {
 	totalPages: number;
 };
 
-async function getCoursesPaginated(page: number): Promise<Course[]> {
+async function getCoursesPaginated(page: number, signal: AbortSignal): Promise<Course[]> {
 	try {
 		const res = await axios.get<Course[]>(
 			`${env.NEXT_PUBLIC_SERVER_URL}/api/consumer/courses`,
 			{
 				params: { page },
+				signal,
 			},
 		);
 
@@ -70,7 +71,7 @@ export default function CourseGridClient({
 
 	const { data: courses, isFetching } = useQuery<Course[], Error>({
 		queryKey: ["userCoursesP", page],
-		queryFn: () => getCoursesPaginated(page),
+		queryFn: ({signal}) => getCoursesPaginated(page, signal),
 		initialData: page === initialPage ? initialCourses : undefined,
 		staleTime: 60 * 1000 * 5, // 5 min
 		placeholderData: keepPreviousData,

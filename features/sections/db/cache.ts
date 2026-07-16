@@ -19,7 +19,7 @@ export function getCourseSectionIdTag(courseId: string, sectionId: string) {
 export function revalidateCourseSectionsCache(
 	userId: string,
 	courseId: string,
-	sectionId: string
+	sectionId: string,
 ) {
 	revalidateTag(getAdminCourseSectionsTag(userId), "max");
 	revalidateTag(getCourseSectionGlobalTag(), "max");

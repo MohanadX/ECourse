@@ -11,14 +11,12 @@ import { cacheTag } from "next/cache";
 export default async function Home() {
 	const products = await getPublicProducts(PRODUCTS_LIMIT);
 	return (
-		<>
-			<main className="containers my-6 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
-				{products.map((product) => (
-					<ProductCard key={product.id} {...product} />
-				))}
-			</main>
+		<main className="containers products my-6 grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+			{products.map((product) => (
+				<ProductCard key={product.id} {...product} />
+			))}
 			<LoadProducts initialSkip={PRODUCTS_LIMIT} />
-		</>
+		</main>
 	);
 }
 

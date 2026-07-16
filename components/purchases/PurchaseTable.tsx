@@ -28,6 +28,7 @@ export type Purchase = {
 	id: string;
 	pricePaidInCents: number;
 	createdAt: Date;
+	stripeSessionId: string;
 	refundedAt: Date | null;
 	productDetails: {
 		name: string;
@@ -46,12 +47,13 @@ type Props = {
 	totalPages: number;
 };
 
-async function getSalesPaginated(page: number): Promise<Purchase[]> {
+async function getSalesPaginated(page: number, signal: AbortSignal): Promise<Purchase[]> {
 	try {
 		const res = await axios.get<Purchase[]>(
 			`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/sales`,
 			{
 				params: { page },
+				signal,
 			},
 		);
 
@@ -80,7 +82,7 @@ export default function PurchaseTable({
 
 	const { data: purchases, isFetching } = useQuery<Purchase[], Error>({
 		queryKey: ["salesP", page],
-		queryFn: () => getSalesPaginated(page),
+		queryFn: ({signal}) => getSalesPaginated(page, signal),
 		initialData: page === initialPage ? initialPurchases : undefined,
 		staleTime: 60 * 1000 * 5, // 5 min
 		placeholderData: keepPreviousData,
@@ -135,7 +137,7 @@ export default function PurchaseTable({
 									purchase.pricePaidInCents > 0 && (
 										<ActionButton
 											pagination={["salesP", page]}
-											action={refundPurchase.bind(null, purchase.id)}
+											action={refundPurchase.bind(null, purchase.id, purchase.stripeSessionId)}
 											variant={"destructiveOutline"}
 											requireAreYouSure
 										>

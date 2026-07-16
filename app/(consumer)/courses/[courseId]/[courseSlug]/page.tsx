@@ -1,10 +1,6 @@
 import PageHeader from "@/components/PageHeader";
-import { db } from "@/drizzle/db";
-import { CourseTable } from "@/drizzle/schema";
-import { getCourseIdTag } from "@/features/course/db/cache";
-import { eq } from "drizzle-orm";
-import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
+import { getCourse } from "./layout";
 
 export default async function CoursePage({
 	params,
@@ -25,12 +21,3 @@ export default async function CoursePage({
 	);
 }
 
-async function getCourse(courseId: string) {
-	"use cache";
-	cacheTag(getCourseIdTag(courseId));
-
-	return db.query.CourseTable.findFirst({
-		columns: { id: true, name: true, description: true },
-		where: eq(CourseTable.id, courseId),
-	});
-}

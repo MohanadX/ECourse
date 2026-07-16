@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useId, useOptimistic, useTransition } from "react";
+import { ReactNode, useEffect, useEffectEvent, useId, useOptimistic, useState, useTransition } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
 	arrayMove,
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { GripVerticalIcon } from "lucide-react";
 
 
-export function SortableList<T extends { id: string }>({
+export function SortableList<T extends { id: string, name: string, status?: string}>({
 	items,
 	onOrderChangeAction,
 	children,
@@ -24,8 +24,23 @@ export function SortableList<T extends { id: string }>({
 	children: (items: T[]) => ReactNode;
 }) {
 	const DndContextId = useId(); // to distinguish it from other DndContexts (other draggable tables)
-	const [optimisticItems, setOptimisticItems] = useOptimistic(items);
+	const [sortableItems, setSortableItems] = useState(items);
+	const [optimisticItems, setOptimisticItems] = useOptimistic(sortableItems);
 	const [, startTransition] = useTransition();
+	// props and states are not always in sync. When props changes, state is not updated automatically
+	const syncStates = useEffectEvent((items: T[])=>{
+			// if name or status changed - sync states
+			if (items.length !== sortableItems.length || 
+				items.some((item, index) => item.name !== sortableItems[index]?.name || item.status !== sortableItems[index]?.status)){
+				setSortableItems(items)
+				startTransition(() => setOptimisticItems(items));
+			}
+		}) // useEffectEvent to make useEffect not reactive to sortableItems (without invoking eslint warning of lost item in dependency array)
+
+
+	useEffect(() => {
+		syncStates(items);
+	}, [items]);
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
 		const activeId = active.id.toString();
@@ -40,14 +55,17 @@ export function SortableList<T extends { id: string }>({
 		}
 
 		startTransition(async () => {
-			const { toast } = await import("sonner");
-			setOptimisticItems((items) => getNewArray(items, activeId, overId));
+			const newOrderItems = getNewArray(optimisticItems, activeId, overId);
+			const  toastPr  =  import("sonner");
+			setOptimisticItems(newOrderItems);
 			const actionData = await onOrderChangeAction(
-				getNewArray(optimisticItems, activeId, overId).map((item) => item.id),
+				newOrderItems.map((item) => item.id),
 			);
+			const {toast} = await toastPr
 
 			if (actionData.success) {
 				toast.success(actionData.message);
+				setSortableItems(newOrderItems)
 			} else {
 				toast.error(actionData.message);
 			}

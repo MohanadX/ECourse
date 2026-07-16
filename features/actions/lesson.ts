@@ -15,6 +15,7 @@ import {
 export async function createLesson(unsafeData: z.infer<typeof lessonSchema>) {
 	const { success, data } = lessonSchema.safeParse(unsafeData);
 
+	const orderPr = success && getNextOrderOfLesson(data.sectionId);
 	const user = await getCurrentUser();
 
 	if (!(await lessonsPermission(user.role))) {
@@ -31,7 +32,7 @@ export async function createLesson(unsafeData: z.infer<typeof lessonSchema>) {
 		};
 	}
 
-	const order = await getNextOrderOfLesson(data.sectionId);
+	const order = await orderPr as number;
 
 	try {
 		await insertLesson({ ...data, order }, user.userId!);

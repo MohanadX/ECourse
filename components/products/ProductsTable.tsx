@@ -45,12 +45,13 @@ type Props = {
 	totalPages: number;
 };
 
-export async function getProductsPaginated(page: number): Promise<Product[]> {
+export async function getProductsPaginated(page: number, signal: AbortSignal): Promise<Product[]> {
 	try {
 		const res = await axios.get<Product[]>(
 			`${env.NEXT_PUBLIC_SERVER_URL}/api/admin/products`,
 			{
 				params: { page },
+				signal,
 			},
 		);
 
@@ -79,7 +80,7 @@ const ProductsTable = ({
 
 	const { data: products, isFetching } = useQuery<Product[], Error>({
 		queryKey: ["productsP", page],
-		queryFn: () => getProductsPaginated(page),
+		queryFn: ({signal}) => getProductsPaginated(page, signal),
 		initialData: page === initialPage ? initialProducts : undefined,
 		staleTime: 60 * 1000 * 5, // 5 min
 		placeholderData: keepPreviousData,

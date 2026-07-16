@@ -81,12 +81,12 @@ describe("Product Server Actions", () => {
 	});
 
 	beforeEach(async () => {
-		await db.execute(sql`BEGIN`);
+		await db.execute(sql`BEGIN`); // start a transaction
 		jest.clearAllMocks();
 	});
 
 	afterEach(async () => {
-		await db.execute(sql`ROLLBACK`);
+		await db.execute(sql`ROLLBACK`); // rollback all test changes
 		await db.delete(ProductTable).where(eq(ProductTable.name, "New Product"));
 		await db
 			.delete(ProductTable)

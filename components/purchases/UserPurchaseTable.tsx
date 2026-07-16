@@ -42,12 +42,13 @@ type Props = {
 	totalPages: number;
 };
 
-async function getPurchasesPaginated(page: number): Promise<Purchase[]> {
+async function getPurchasesPaginated(page: number, signal: AbortSignal): Promise<Purchase[]> {
 	try {
 		const res = await axios.get<Purchase[]>(
 			`${env.NEXT_PUBLIC_SERVER_URL}/api/consumer/purchases`,
 			{
 				params: { page },
+				signal,
 			},
 		);
 
@@ -76,7 +77,7 @@ export default function UserPurchaseTable({
 
 	const { data: purchases, isFetching } = useQuery<Purchase[], Error>({
 		queryKey: ["purchasesP", page],
-		queryFn: () => getPurchasesPaginated(page),
+		queryFn: ({signal}) => getPurchasesPaginated(page, signal),
 		initialData: page === initialPage ? initialPurchases : undefined,
 		staleTime: 60 * 1000 * 5, // 5 min
 		placeholderData: keepPreviousData,

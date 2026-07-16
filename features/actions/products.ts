@@ -94,27 +94,30 @@ export async function mutateProduct(
 		};
 	}
 
-	// Image Kit image validation
-	const {
-		success: uploadSuccess,
-		message,
-		imageUrl,
-		imageFileId,
-	} = await uploadImage(data.image);
-
-	if (!uploadSuccess) {
-		return {
-			success: false,
-			message,
-		};
-	}
 
 	try {
-		const product = await getProduct(id, user.userId!);
+	
+		// authorize before implementing
+		const product = await getProduct(id, user.userId!)
 		if (!product || product.userId !== user.userId) {
 			return {
 				success: false,
 				message: "You are not authorized to update this product",
+			};
+		}
+
+		// Image Kit image validation
+		const {
+			success: uploadSuccess,
+			message,
+			imageUrl,
+			imageFileId,
+		} = await uploadImage(data.image)
+
+		if (!uploadSuccess) {
+			return {
+				success: false,
+				message,
 			};
 		}
 

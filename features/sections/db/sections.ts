@@ -2,7 +2,7 @@ import { db } from "@/drizzle/db";
 import { CourseSectionTable, CourseTable } from "@/drizzle/schema";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidateCourseSectionsCache } from "./cache";
-import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 /*
 {courseId}, {eq}
@@ -125,11 +125,13 @@ export async function updateSectionOrders(
 		throw new Error("Failed to update section orders");
 	}
 
-	const courseId = orderedSections[0].courseId;
-	for (const { id } of orderedSections) {
-		revalidateCourseSectionsCache(userId, courseId, id);
-	}
-	revalidatePath(`/admin/${userId}/courses/${courseId}/edit`);
+	
+		const courseId = orderedSections[0].courseId;
+		after(async () => { // in case of huge number of sections we delegate cache invalidation
+			for (const { id } of orderedSections) {
+				revalidateCourseSectionsCache(userId, courseId, id);
+			}
+		})
 }
 
 export const wherePublicCourseSections = eq(
