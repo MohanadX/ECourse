@@ -1,8 +1,8 @@
 import { env } from "@/data/env/server";
 import { db } from "@/drizzle/db";
-import { ProductTable, UserTable } from "@/drizzle/schema";
-import { addUserCourseAccess } from "@/features/course/db/CourseAccess";
-import { insertPurchase } from "@/features/purchases/db/purchase";
+import { ProductTable, PurchaseTable, UserTable } from "@/drizzle/schema";
+import { addUserCourseAccess, revokeUserCourseAccess } from "@/features/course/db/CourseAccess";
+import { insertPurchase, updatePurchase } from "@/features/purchases/db/purchase";
 import { stripeServerClient } from "@/StripeServer";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -54,23 +54,41 @@ export async function POST(req: NextRequest) {
 	}
 
 	switch (event.type) {
-		case "checkout.session.completed":
-		case "checkout.session.async_payment_succeeded": {
-			try {
-				await processStripeCheckout(event.data.object);
-			} catch (error) {
-				console.error("Failed to process checkout webhook:", {
-					eventId: event.id,
-					sessionId: event.data.object.id,
-					error,
-				});
-				// Return 500 to trigger Stripe retry
-				return new Response("Processing failed", { status: 500 });
-			}
-		}
-	}
+        
+        // PROCESS NEW PURCHASES
+        
+        case "checkout.session.completed":
+        case "checkout.session.async_payment_succeeded": {
+            try {
+                await processStripeCheckout(event.data.object as Stripe.Checkout.Session);
+            } catch (error) {
+                console.error("Failed to process checkout webhook:", {
+                    eventId: event.id,
+                    sessionId: event.data.object.id,
+                    error,
+                });
+                return new Response("Processing failed", { status: 500 }); // Retries
+            }
+            break;
+        }
+        
+        //  RECONCILE REFUNDS
+        case "charge.refunded": {
+            try {
+                await processStripeRefund(event.data.object as Stripe.Charge);
+            } catch (error) {
+                console.error("Failed to process refund webhook reconciliation:", {
+                    eventId: event.id,
+                    chargeId: event.data.object.id,
+                    error,
+                });
+                return new Response("Processing failed", { status: 500 }); // Retries
+            }
+            break;
+        }
+    }
 
-	return new Response(null, { status: 200 });
+    return new Response(null, { status: 200 });
 }
 
 async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
@@ -115,6 +133,47 @@ async function processStripeCheckout(checkoutSession: Stripe.Checkout.Session) {
 	});
 
 	return [product.id, product.slug];
+}
+
+async function processStripeRefund(charge: Stripe.Charge) {
+    // refund list associated with this charge to extract metadata
+    const refundsList = await stripeServerClient.refunds.list({
+        charge: charge.id,
+        limit: 1,
+    });
+
+    const latestRefund = refundsList.data[0];
+    const purchaseId = latestRefund?.metadata?.purchaseId;
+
+    if (!purchaseId) {
+        console.warn(`No purchaseId metadata found in refund for charge: ${charge.id}`);
+        return; 
+    }
+
+    // current record
+    const purchaseRecord = await db.query.PurchaseTable.findFirst({
+        where: eq(PurchaseTable.id, purchaseId),
+    });
+
+    if (!purchaseRecord) {
+        throw new Error(`Refund reconciliation failed: Purchase record ${purchaseId} not found`);
+    }
+
+    // Only run database updates if the local record doesn't show "refundedAt" yet.
+    // we bypass this, preventing redundant db writes.
+    if (purchaseRecord.refundedAt == null) {
+        await db.transaction(async (trx) => {
+            await updatePurchase(purchaseId, { refundedAt: new Date() }, trx);
+            await revokeUserCourseAccess(
+                {
+                    productId: purchaseRecord.productId,
+                    userId: purchaseRecord.userId,
+                },
+                trx
+            );
+        });
+        console.log(`Reconciled and revoked access successfully for purchase: ${purchaseId}`);
+    }
 }
 
 async function getProduct(productId: string) {
