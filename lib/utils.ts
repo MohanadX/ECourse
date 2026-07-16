@@ -22,7 +22,7 @@ export function formatDate(date: Date | string) {
 	);
 }
 
-const PURCHASE_REFUND_WINDOW_MS = 24 * 60 * 60 * 1000; // one day
+export const PURCHASE_REFUND_WINDOW_MS = 24 * 60 * 60 * 1000; // one day
 
 export function expireRefundPurchaseDate(purchaseDate: Date) {
 	// console.log(purchaseDate);

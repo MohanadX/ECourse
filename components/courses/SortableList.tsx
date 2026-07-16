@@ -34,6 +34,9 @@ export function SortableList<T extends { id: string, name: string, status?: stri
 				items.some((item, index) => item.id !== sortableItems[index]?.id
 				|| item.name !== sortableItems[index]?.name 
 				|| item.status !== sortableItems[index]?.status)){
+				latestRequestId.current += 1; 
+				/** If the items prop changes from the outside while an asynchronous drag-and-drop network request is still pending,
+				 * your component's internal state syncs up, but the pending request is not aborted or marked stale. */
 				setSortableItems(items)
 				startTransition(() => setOptimisticItems(items));
 			}
@@ -44,7 +47,6 @@ export function SortableList<T extends { id: string, name: string, status?: stri
 	useEffect(() => {
 		syncStates(items);
 	}, [items]);
-
 	function getNewArray(array: T[], activeId: string, overId: string) {
 		const oldIndex = array.findIndex((section) => section.id === activeId);
 		const newIndex = array.findIndex((section) => section.id === overId);
@@ -62,6 +64,8 @@ export function SortableList<T extends { id: string, name: string, status?: stri
 		const currentRequestId = latestRequestId.current + 1;
 		latestRequestId.current = currentRequestId;
 
+		// Snapshot the currently committed state at the beginning of the drag
+		const rollbackSnapshot = sortableItems;
 		const newOrderItems = getNewArray(optimisticItems, activeId, overId);
 		startTransition(async () => {
 
@@ -84,6 +88,7 @@ export function SortableList<T extends { id: string, name: string, status?: stri
 					setSortableItems(newOrderItems)
 				} else {
 					toast.error(actionData.message);
+					setSortableItems(rollbackSnapshot)
 				}
 			} catch (error) {
 				console.error(error)
@@ -93,7 +98,7 @@ export function SortableList<T extends { id: string, name: string, status?: stri
                 const { toast } = await toastPr;
                 toast.error("Network connection issue. Reverting order.");
                 // Safe rollback on true network failures (e.g., offline)
-                setSortableItems(items);
+                setSortableItems(rollbackSnapshot);
 			}
 
 			

@@ -6,14 +6,12 @@ import { updatePurchase } from "../purchases/db/purchase";
 import { revokeUserCourseAccess } from "../course/db/CourseAccess";
 import { getCurrentUser } from "../users/db/clerk";
 import { productPermission } from "./products";
+import { PURCHASE_REFUND_WINDOW_MS } from "@/lib/utils";
 
 export async function refundPurchase(purchaseId: string) {
     const { userId, role } = await getCurrentUser();
-    if (!userId || !(await productPermission(role))) {
-        return {
-            success: false,
-            message: "Unauthorized",
-        };
+    if (!userId) {
+        return { success: false, message: "Unauthorized" };
     }
 
     const purchaseRecord = await db.query.PurchaseTable.findFirst({
@@ -21,10 +19,25 @@ export async function refundPurchase(purchaseId: string) {
     });
 
     if (!purchaseRecord) {
-        return {
-            success: false,
-            message: "Purchase record not found",
-        };
+        return { success: false, message: "Purchase record not found" };
+    }
+
+    //authorization 
+    const isOwner = purchaseRecord.userId === userId;
+    const isAdmin = await productPermission(role);
+    if (!isOwner && !isAdmin) {
+        return { success: false, message: "Unauthorized" };
+    }
+
+    //  Prevent duplicate refunds
+    if (purchaseRecord.refundedAt != null) {
+        return { success: false, message: "This purchase has already been refunded." };
+    }
+
+    // Validate the refund policy deadline (e.g., 30 days from purchase)
+    const purchaseTime = new Date(purchaseRecord.createdAt).getTime();
+    if (Date.now() - purchaseTime > PURCHASE_REFUND_WINDOW_MS) {
+        return { success: false, message: "This purchase is outside of the allowable refund window." };
     }
 
     const secureStripeSessionId = purchaseRecord.stripeSessionId;
@@ -35,36 +48,38 @@ export async function refundPurchase(purchaseId: string) {
         };
     }
 
+    let paymentIntentId: string;
     try {
         const session = await stripeServerClient.checkout.sessions.retrieve(
             secureStripeSessionId,
         );
 
-        const paymentIntentId = typeof session.payment_intent === "string"
+        const id = typeof session.payment_intent === "string"
             ? session.payment_intent
             : session.payment_intent?.id;
 
-        if (!paymentIntentId) {
+        if (!id) {
             return {
                 success: false,
                 message: "No valid payment intent found for this session.",
             };
         }
+        paymentIntentId = id;
+    } catch (stripeError) {
+        console.error("Stripe session retrieval failed:", stripeError);
+        return {
+            success: false,
+            message: "Failed to communicate with Stripe to verify payment details.",
+        };
+    }
 
-        // This ensures if Stripe is offline or rejects the refund, nothing gets mutated locally.
-        const refund = await stripeServerClient.refunds.create({
-            payment_intent: paymentIntentId,
-        });
-
-        // Fail-safe check: Stripe refund must be in a successful or pending state.
-        // If it fails, we abort here and do not update the database.
-        if (refund.status === "failed") {
-            return {
-                success: false,
-                message: "Stripe rejected the refund request. Please try again.",
-            };
-        }
-
+    // Execute Refund safely with a stable idempotency key (to prevent API duplicate refund)
+    let refund;
+    try {
+        refund = await stripeServerClient.refunds.create(
+            { payment_intent: paymentIntentId },
+            { idempotencyKey: `refund-${purchaseId}` } // Prevents double-refund on retries
+        );
     } catch (stripeError) {
         console.error("Stripe refund execution failed:", stripeError);
         return {
@@ -73,45 +88,42 @@ export async function refundPurchase(purchaseId: string) {
         };
     }
 
-    const dataProcess = await db.transaction(async (trx) => {
-        try {
+    //  only proceed on guaranteed 'succeeded'
+    if (refund.status !== "succeeded") {
+        return {
+            success: false,
+            message: `Refund status is currently: ${refund.status}. Access remains unchanged until settlement.`,
+        };
+    }
+
+    //  Transaction
+    try {
+        await db.transaction(async (trx) => {
             const [refundedPurchase] = await Promise.all([
-				await updatePurchase(
-                purchaseId,
-                {
-                    refundedAt: new Date(),
-                },
-                trx,
-				),
-				revokeUserCourseAccess(
-                {
-                    productId: purchaseRecord.productId,
-                    userId: purchaseRecord.userId,
-                },
-                trx,
-            )
-			])
+                updatePurchase(purchaseId, { refundedAt: new Date() }, trx),
+                revokeUserCourseAccess(
+                    {
+                        productId: purchaseRecord.productId,
+                        userId: purchaseRecord.userId,
+                    },
+                    trx
+                ),
+            ]);
 
+            // Throwing automatically triggers trx.rollback()
             if (!refundedPurchase) {
-                trx.rollback();
-                return {
-                    success: false,
-                    message: "Refund succeeded on Stripe but failed to update local purchase database record.",
-                };
+                throw new Error("Local DB record update failed.");
             }
+        });
 
-        } catch (dbError) {
-            console.error("Database transaction failed during refund commit:", dbError);
-            trx.rollback();
-            return {
-                success: false,
-                // Critical alert condition: money was refunded but local records failed to capture it.
-                message: "Refund was successful via Stripe, but access revocation failed to register locally. Please contact system admin.",
-            };
-        }
-    });
+        return { success: true, message: "Successfully refunded purchase" };
 
-    return (
-        dataProcess ?? { success: true, message: "Successfully refunded purchase" }
-    );
+    } catch (dbError) {
+        console.error("Database transaction failed during refund commit:", dbError);
+        return {
+            success: false,
+            // Critical alert condition: Stripe processed the refund, but local record-sync failed.
+            message: "Refund was successful via Stripe, but access revocation failed to register locally. Please contact system admin.",
+        };
+    }
 }
